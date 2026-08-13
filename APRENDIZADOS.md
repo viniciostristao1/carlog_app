@@ -2,6 +2,24 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-13 — Ícone, FIPE→cadastro, Programar + previsão (v0.4.0)
+
+- **Ícone:** logo do usuário (`1786658805549.png`, carro + 6 ícones, fundo âmbar) processado por
+  `tools/gerar_icone.py` (Pillow no `tools_venv`): +saturação/−brilho → âmbar `#E18700` (o original
+  ficava "claro"), quadrado por padding, gera `assets/icon/carlog_icon.png` (legacy) + `carlog_fg.png`
+  (adaptive foreground a 66%, anel dentro da safe zone). `flutter_launcher_icons` com
+  `adaptive_icon_background: #E18700`. **Accent do app trocado de teal p/ âmbar** `#F5A524`
+  (`AppColors.accent`), como os irmãos. `catCalibragem` segue teal (cor de categoria).
+- **FIPE → cadastro:** `_salvarNoVeiculo` agora cria/atualiza o `Veiculo` com marca/modelo/ano/
+  combustível (map de `Combustivel` a partir do texto FIPE) + valor; cria veículo se não existir.
+  Botão "Usar como meu carro". Placa segue manual. Tudo opcional.
+- **Revisões:** abas invertidas (**Programar = índice 0**). `ItemProgramado` ganhou `kmAlvo` +
+  `intervaloKm`. Sheet com autocomplete (`itens_sugeridos.dart`, normaliza acento; sugestão preenche
+  intervalo típico, editável). Marcar feito em item com `intervaloKm` **reagenda** (kmAlvo += intervalo).
+- **Previsão (consumo.dart):** `ritmoKmPorDia` (janela últimos 90d, fallback p/ todo histórico) +
+  `previsaoData(faltamKm, kmPorDia)`. Usado na "próxima revisão" e por item (faltam km + ≈ data).
+  Testado (`test/consumo_test.dart`, 7 casos verdes).
+
 ## 2026-08-13 — Firebase provisionado / nuvem ligada (v0.3.0)
 
 Projeto **`carlog-b4ef3`** criado pelo usuário. Login Google + Firestore ativados, SHA-1 da keystore de

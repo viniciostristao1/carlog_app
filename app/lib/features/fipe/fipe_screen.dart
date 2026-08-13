@@ -6,6 +6,7 @@ import '../../models/veiculo.dart';
 import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
 import '../../util/format.dart';
+import '../../util/ids.dart';
 import 'fipe_service.dart';
 
 class FipeScreen extends ConsumerStatefulWidget {
@@ -115,40 +116,53 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
     }
   }
 
-  Future<void> _salvarNoVeiculo() async {
-    final v = ref.read(veiculoProvider).value;
-    final r = _resultado;
-    if (r == null) return;
-    if (v == null) {
-      _pedirCadastro();
-      return;
+  Combustivel _combustivelDaFipe(String s) {
+    final t = s.toLowerCase();
+    if (t.contains('flex')) return Combustivel.flex;
+    if (t.contains('diesel')) return Combustivel.diesel;
+    if (t.contains('álcool') || t.contains('alcool') || t.contains('etanol')) {
+      return Combustivel.etanol;
     }
-    await ref.read(veiculoProvider.notifier).salvar(v.copyWith(
-          fipeCodigo: r.codigoFipe,
-          fipeCodigoTabela: '${_marca!.codigo}/${_modelo!.codigo}/${_ano!.codigo}',
-          fipeValor: r.valor,
-          fipeMesRef: r.mesReferencia,
-          fipeConsultadoEm: DateTime.now(),
-        ));
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Valor FIPE salvo no veículo.')));
+    if (t.contains('gnv') || t.contains('gás') || t.contains('gas natural')) {
+      return Combustivel.gnv;
     }
+    if (t.contains('gasolina')) return Combustivel.gasolina;
+    return Combustivel.flex;
   }
 
-  void _pedirCadastro() {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Cadastre o carro primeiro (cartão da tela inicial).')));
+  /// Cadastra (ou atualiza) o carro com os dados da FIPE: marca, modelo, ano,
+  /// combustível e valor. Cria o veículo se ainda não existir.
+  Future<void> _salvarNoVeiculo() async {
+    final r = _resultado;
+    if (r == null || _marca == null || _modelo == null || _ano == null) return;
+    final atual = ref.read(veiculoProvider).value;
+    final anoInt = int.tryParse(r.anoModelo);
+    final ano = (anoInt != null && anoInt <= 2100) ? anoInt : atual?.ano;
+    final base = atual ?? Veiculo(id: novoId(), apelido: '');
+    final v = base.copyWith(
+      marca: r.marca,
+      modelo: r.modelo,
+      ano: ano,
+      combustivel: _combustivelDaFipe(r.combustivel),
+      fipeCodigo: r.codigoFipe,
+      fipeCodigoTabela: '${_marca!.codigo}/${_modelo!.codigo}/${_ano!.codigo}',
+      fipeValor: r.valor,
+      fipeMesRef: r.mesReferencia,
+      fipeConsultadoEm: DateTime.now(),
+    );
+    await ref.read(veiculoProvider.notifier).salvar(v);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(atual == null
+              ? 'Carro cadastrado pela FIPE. Adicione a placa no cartão do veículo.'
+              : 'Veículo atualizado pela FIPE.')));
+    }
   }
 
   Future<void> _informarManual() async {
-    final v = ref.read(veiculoProvider).value;
-    if (v == null) {
-      _pedirCadastro();
-      return;
-    }
+    final atual = ref.read(veiculoProvider).value;
     final ctrl = TextEditingController(
-        text: v.fipeValor != null ? n2(v.fipeValor!) : '');
+        text: atual?.fipeValor != null ? n2(atual!.fipeValor!) : '');
     final valor = await showDialog<double>(
       context: context,
       builder: (_) => AlertDialog(
@@ -176,7 +190,8 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
       ),
     );
     if (valor != null) {
-      await ref.read(veiculoProvider.notifier).salvar(v.copyWith(
+      final base = atual ?? Veiculo(id: novoId(), apelido: '');
+      await ref.read(veiculoProvider.notifier).salvar(base.copyWith(
             fipeValor: valor,
             fipeMesRef: 'informado manualmente',
             fipeConsultadoEm: DateTime.now(),
@@ -201,7 +216,8 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
                   fontSize: 15,
                   fontWeight: FontWeight.w700)),
           const SizedBox(height: 4),
-          const Text('Selecione marca, modelo e ano.',
+          const Text(
+              'Selecione marca, modelo e ano — dá para cadastrar o carro por aqui.',
               style: TextStyle(color: AppColors.dim, fontSize: 13)),
           const SizedBox(height: 14),
           _dropdown(
@@ -377,8 +393,8 @@ class _CartaoResultado extends StatelessWidget {
               style: FilledButton.styleFrom(
                   backgroundColor: AppColors.catFipe,
                   foregroundColor: const Color(0xFF160A2B)),
-              icon: const Icon(Icons.save_outlined),
-              label: const Text('Salvar no meu veículo'),
+              icon: const Icon(Icons.directions_car_filled_outlined),
+              label: const Text('Usar como meu carro'),
             ),
           ),
         ],

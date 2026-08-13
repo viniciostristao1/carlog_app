@@ -57,4 +57,27 @@ void main() {
       expect(kmRodadosNoMes(lista, 2026, 6), closeTo(900, 1e-9));
     });
   });
+
+  group('ritmoKmPorDia e previsaoData (previsão da próxima revisão)', () {
+    test('ritmo usa todo o histórico quando a janela recente é vazia', () {
+      final lista = [
+        _ab('1', DateTime(2026, 1, 1), 1000, 40),
+        _ab('2', DateTime(2026, 1, 11), 1400, 40), // 400 km em 10 dias
+      ];
+      expect(ritmoKmPorDia(lista), closeTo(40.0, 1e-9)); // 40 km/dia
+    });
+
+    test('previsaoData soma os dias corretos', () {
+      final d = previsaoData(400, 40); // 400 km a 40 km/dia = 10 dias
+      expect(d, isNotNull);
+      final dias = d!.difference(DateTime.now()).inDays;
+      expect(dias, inInclusiveRange(9, 10));
+    });
+
+    test('previsaoData nula sem ritmo ou já vencido', () {
+      expect(previsaoData(100, null), isNull);
+      expect(previsaoData(0, 40), isNull);
+      expect(previsaoData(-50, 40), isNull);
+    });
+  });
 }

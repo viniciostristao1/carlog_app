@@ -16,9 +16,9 @@ abstract final class AppColors {
   static const dim = Color(0xFF9AA6B6); // texto secundário
   static const dim2 = Color(0xFF5D6675); // texto terciário / placeholder
 
-  // ---- accent da marca ----
-  static const accent = Color(0xFF19C7B1); // teal (ações principais)
-  static const onAccent = Color(0xFF04201C);
+  // ---- accent da marca (âmbar, como o logo e os apps irmãos) ----
+  static const accent = Color(0xFFF5A524); // âmbar (ações principais)
+  static const onAccent = Color(0xFF231402);
   static const danger = Color(0xFFFF6B6B);
   static const ok = Color(0xFF3DDC97);
   static const warn = Color(0xFFFFB020);

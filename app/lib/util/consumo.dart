@@ -151,6 +151,29 @@ double? kmPorMesEstimado(List<Abastecimento> abastecimentos) {
   return distancia / dias * 30.0;
 }
 
+/// Ritmo recente de rodagem em **km/dia**, pela janela dos últimos [dias] dias
+/// (se houver poucas leituras na janela, usa todo o histórico). É a base para
+/// prever datas — reflete o uso atual melhor que a média de vida toda.
+double? ritmoKmPorDia(List<Abastecimento> abastecimentos, {int dias = 90}) {
+  if (abastecimentos.length < 2) return null;
+  final ord = [...abastecimentos]..sort((a, b) => a.data.compareTo(b.data));
+  final corte = DateTime.now().subtract(Duration(days: dias));
+  var janela = ord.where((a) => !a.data.isBefore(corte)).toList();
+  if (janela.length < 2) janela = ord;
+  final dist = janela.last.odometro - janela.first.odometro;
+  final ndias = janela.last.data.difference(janela.first.data).inDays;
+  if (dist <= 0 || ndias <= 0) return null;
+  return dist / ndias;
+}
+
+/// Data provável para percorrer [faltamKm], dado um ritmo em km/dia. null se não
+/// dá para estimar (sem ritmo ou já vencido).
+DateTime? previsaoData(double faltamKm, double? kmPorDia) {
+  if (kmPorDia == null || kmPorDia <= 0 || faltamKm <= 0) return null;
+  final dias = (faltamKm / kmPorDia).ceil();
+  return DateTime.now().add(Duration(days: dias));
+}
+
 /// Odômetro mais recente conhecido (maior leitura registrada).
 double? ultimoOdometro(List<Abastecimento> abastecimentos) {
   if (abastecimentos.isEmpty) return null;

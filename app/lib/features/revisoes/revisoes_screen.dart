@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/programacao.dart';
@@ -10,6 +11,7 @@ import '../../util/consumo.dart';
 import '../../util/format.dart';
 import '../../util/ids.dart';
 import '../../widgets/estado_vazio.dart';
+import 'itens_sugeridos.dart';
 import 'revisao_form_screen.dart';
 
 class RevisoesScreen extends ConsumerStatefulWidget {
@@ -23,7 +25,6 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tab;
   final _busca = TextEditingController();
-  final _novoItem = TextEditingController();
 
   @override
   void initState() {
@@ -37,7 +38,6 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
   void dispose() {
     _tab.dispose();
     _busca.dispose();
-    _novoItem.dispose();
     super.dispose();
   }
 
@@ -51,24 +51,104 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
           indicatorColor: AppColors.catRevisoes,
           labelColor: AppColors.catRevisoes,
           unselectedLabelColor: AppColors.dim,
-          tabs: const [Tab(text: 'Histórico'), Tab(text: 'Programar')],
+          tabs: const [Tab(text: 'Programar'), Tab(text: 'Histórico')],
         ),
       ),
       floatingActionButton: _tab.index == 0
           ? FloatingActionButton.extended(
+              onPressed: () => _abrirItemSheet(),
+              backgroundColor: AppColors.catRevisoes,
+              foregroundColor: Colors.white,
+              icon: const Icon(Icons.add),
+              label: const Text('Adicionar'),
+            )
+          : FloatingActionButton.extended(
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => const RevisaoFormScreen())),
               backgroundColor: AppColors.catRevisoes,
               foregroundColor: Colors.white,
               icon: const Icon(Icons.add),
               label: const Text('Registrar'),
-            )
-          : null,
+            ),
       body: TabBarView(
         controller: _tab,
-        children: [_historico(), _programar()],
+        children: [_programar(), _historico()],
       ),
     );
+  }
+
+  Future<void> _abrirItemSheet({ItemProgramado? original}) async {
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) => _ItemSheet(original: original),
+    );
+  }
+
+  // ─────────────────────────── Programar ───────────────────────────
+
+  Widget _programar() {
+    final abastecimentos = ref.watch(abastecimentosProvider).value ?? const [];
+    final odo = ultimoOdometro(abastecimentos);
+    final ritmo = ritmoKmPorDia(abastecimentos);
+
+    final itens = [...(ref.watch(programacaoProvider).value ?? const [])]
+      ..sort((a, b) {
+        if (a.feito != b.feito) return a.feito ? 1 : -1;
+        final fa = _faltam(a, odo);
+        final fb = _faltam(b, odo);
+        if (fa != null && fb != null) return fa.compareTo(fb);
+        if (fa != null) return -1;
+        if (fb != null) return 1;
+        return b.criadoEm.compareTo(a.criadoEm);
+      });
+
+    if (itens.isEmpty) {
+      return const EstadoVazio(
+        icone: Icons.checklist,
+        titulo: 'Nada programado ainda',
+        subtitulo:
+            'Toque em "Adicionar" para anotar o que verificar/trocar. Dá para '
+            'definir o km e a frequência (ex.: óleo a cada 10.000 km).',
+      );
+    }
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 96),
+      children: itens
+          .map((it) => _LinhaProgramado(
+                item: it,
+                odometroAtual: odo,
+                ritmoKmDia: ritmo,
+                onToggle: () => _alternarFeito(it, odo),
+                onEditar: () => _abrirItemSheet(original: it),
+                onExcluir: () =>
+                    ref.read(programacaoProvider.notifier).remover(it.id),
+              ))
+          .toList(),
+    );
+  }
+
+  double? _faltam(ItemProgramado it, double? odo) {
+    if (it.kmAlvo == null || odo == null) return null;
+    return it.kmAlvo! - odo;
+  }
+
+  void _alternarFeito(ItemProgramado it, double? odo) {
+    final notifier = ref.read(programacaoProvider.notifier);
+    final base = it.kmAlvo ?? odo;
+    if (it.intervaloKm != null && base != null) {
+      // Recorrente: "fiz agora" → reagenda para o próximo intervalo.
+      final proximo = base + it.intervaloKm!;
+      notifier.salvar(it.copyWith(kmAlvo: proximo, feito: false));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Feito! Reagendado para ${km(proximo)}.')));
+    } else {
+      notifier.salvar(it.copyWith(feito: !it.feito));
+    }
   }
 
   // ─────────────────────────── Histórico ───────────────────────────
@@ -129,78 +209,6 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
       ],
     );
   }
-
-  // ─────────────────────────── Programar ───────────────────────────
-
-  Widget _programar() {
-    final itens = [...(ref.watch(programacaoProvider).value ?? const [])]
-      ..sort((a, b) {
-        if (a.feito != b.feito) return a.feito ? 1 : -1;
-        return b.criadoEm.compareTo(a.criadoEm);
-      });
-
-    void adicionar() {
-      final t = _novoItem.text.trim();
-      if (t.isEmpty) return;
-      ref.read(programacaoProvider.notifier).salvar(ItemProgramado(
-            id: novoId(),
-            criadoEm: DateTime.now(),
-            descricao: t,
-          ));
-      _novoItem.clear();
-    }
-
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
-          child: Row(children: [
-            Expanded(
-              child: TextField(
-                controller: _novoItem,
-                textCapitalization: TextCapitalization.sentences,
-                onSubmitted: (_) => adicionar(),
-                decoration: const InputDecoration(
-                    hintText: 'O que verificar/trocar na próxima?'),
-              ),
-            ),
-            const SizedBox(width: 8),
-            IconButton.filled(
-              onPressed: adicionar,
-              style: IconButton.styleFrom(
-                  backgroundColor: AppColors.catRevisoes,
-                  foregroundColor: Colors.white),
-              icon: const Icon(Icons.add),
-            ),
-          ]),
-        ),
-        Expanded(
-          child: itens.isEmpty
-              ? const EstadoVazio(
-                  icone: Icons.checklist,
-                  titulo: 'Sua lista está vazia',
-                  subtitulo:
-                      'Anote itens para verificar na próxima revisão. Marque '
-                      'conforme forem resolvidos.',
-                )
-              : ListView(
-                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 24),
-                  children: itens
-                      .map((it) => _LinhaProgramado(
-                            item: it,
-                            onToggle: () => ref
-                                .read(programacaoProvider.notifier)
-                                .salvar(it.copyWith(feito: !it.feito)),
-                            onExcluir: () => ref
-                                .read(programacaoProvider.notifier)
-                                .remover(it.id),
-                          ))
-                      .toList(),
-                ),
-        ),
-      ],
-    );
-  }
 }
 
 class _CartaoProximaRevisao extends ConsumerWidget {
@@ -235,14 +243,9 @@ class _CartaoProximaRevisao extends ConsumerWidget {
 
     final alvoKm = baseOdo + v.revisaoIntervaloKm;
     final faltamKm = odoAtual != null ? alvoKm - odoAtual : v.revisaoIntervaloKm;
-    final ritmo = kmPorMesEstimado(abastecimentos);
-    String? previsao;
-    if (ritmo != null && ritmo > 0 && faltamKm > 0) {
-      final meses = faltamKm / ritmo;
-      final dias = (meses * 30).round();
-      final data = DateTime.now().add(Duration(days: dias));
-      previsao = '≈ ${dataLonga(data)}';
-    }
+    final data = previsaoData(
+        faltamKm.toDouble(), ritmoKmPorDia(abastecimentos));
+    final previsao = data != null ? '≈ ${dataLonga(data)}' : '—';
     final vencida = faltamKm <= 0;
 
     return wrap(Column(
@@ -261,11 +264,8 @@ class _CartaoProximaRevisao extends ConsumerWidget {
         const SizedBox(height: 12),
         Row(children: [
           Expanded(child: _mini('Alvo', km(alvoKm))),
-          Expanded(
-            child: _mini(vencida ? 'Passou' : 'Faltam',
-                km(faltamKm.abs())),
-          ),
-          Expanded(child: _mini('Previsão', previsao ?? '—')),
+          Expanded(child: _mini(vencida ? 'Passou' : 'Faltam', km(faltamKm.abs()))),
+          Expanded(child: _mini('Previsão', previsao)),
         ]),
       ],
     ));
@@ -283,6 +283,103 @@ class _CartaoProximaRevisao extends ConsumerWidget {
           Text(r, style: const TextStyle(color: AppColors.dim2, fontSize: 11.5)),
         ],
       );
+}
+
+class _LinhaProgramado extends StatelessWidget {
+  final ItemProgramado item;
+  final double? odometroAtual;
+  final double? ritmoKmDia;
+  final VoidCallback onToggle;
+  final VoidCallback onEditar;
+  final VoidCallback onExcluir;
+  const _LinhaProgramado({
+    required this.item,
+    required this.odometroAtual,
+    required this.ritmoKmDia,
+    required this.onToggle,
+    required this.onEditar,
+    required this.onExcluir,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final partes = <String>[];
+    Color corSub = AppColors.dim;
+    if (item.kmAlvo != null) {
+      partes.add('para ${km(item.kmAlvo!)}');
+      if (odometroAtual != null) {
+        final faltam = item.kmAlvo! - odometroAtual!;
+        if (faltam <= 0) {
+          partes.add('vencido');
+          corSub = AppColors.warn;
+        } else {
+          partes.add('faltam ${km(faltam)}');
+          final data = previsaoData(faltam, ritmoKmDia);
+          if (data != null) partes.add('≈ ${dataCurta(data)}');
+          if (faltam <= 500) corSub = AppColors.warn;
+        }
+      }
+    }
+    if (item.intervaloKm != null) {
+      partes.add('a cada ${km(item.intervaloKm!.toDouble())}');
+    }
+    final sub = partes.join(' · ');
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          onTap: onEditar,
+          borderRadius: BorderRadius.circular(14),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(8, 6, 6, 6),
+            child: Row(
+              children: [
+                IconButton(
+                  icon: Icon(
+                    item.feito
+                        ? Icons.check_circle
+                        : Icons.radio_button_unchecked,
+                    color: item.feito ? AppColors.ok : AppColors.dim,
+                  ),
+                  onPressed: onToggle,
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.descricao,
+                        style: TextStyle(
+                          color: item.feito ? AppColors.dim2 : AppColors.text,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          decoration:
+                              item.feito ? TextDecoration.lineThrough : null,
+                        ),
+                      ),
+                      if (sub.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(sub,
+                            style: TextStyle(color: corSub, fontSize: 12.5)),
+                      ],
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon:
+                      const Icon(Icons.close, size: 18, color: AppColors.dim2),
+                  onPressed: onExcluir,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _CartaoRevisao extends StatelessWidget {
@@ -380,31 +477,149 @@ class _CartaoRevisao extends StatelessWidget {
   }
 }
 
-class _LinhaProgramado extends StatelessWidget {
-  final ItemProgramado item;
-  final VoidCallback onToggle;
-  final VoidCallback onExcluir;
-  const _LinhaProgramado(
-      {required this.item, required this.onToggle, required this.onExcluir});
+/// Folha para adicionar/editar um item programado (descrição com autocomplete,
+/// km-alvo e frequência).
+class _ItemSheet extends ConsumerStatefulWidget {
+  final ItemProgramado? original;
+  const _ItemSheet({this.original});
+
+  @override
+  ConsumerState<_ItemSheet> createState() => _ItemSheetState();
+}
+
+class _ItemSheetState extends ConsumerState<_ItemSheet> {
+  late final TextEditingController _desc;
+  late final TextEditingController _kmAlvo;
+  late final TextEditingController _intervalo;
+
+  @override
+  void initState() {
+    super.initState();
+    final o = widget.original;
+    _desc = TextEditingController(text: o?.descricao ?? '');
+    _kmAlvo =
+        TextEditingController(text: o?.kmAlvo != null ? n0(o!.kmAlvo!) : '');
+    _intervalo = TextEditingController(
+        text: o?.intervaloKm != null ? '${o!.intervaloKm}' : '');
+    _desc.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _desc.dispose();
+    _kmAlvo.dispose();
+    _intervalo.dispose();
+    super.dispose();
+  }
+
+  void _escolher(ItemSugerido s) {
+    _desc.text = s.nome;
+    _desc.selection =
+        TextSelection.collapsed(offset: _desc.text.length);
+    if (_intervalo.text.trim().isEmpty) {
+      _intervalo.text = '${s.intervaloKm}';
+    }
+    setState(() {});
+  }
+
+  Future<void> _salvar() async {
+    final desc = _desc.text.trim();
+    if (desc.isEmpty) return;
+    final base = widget.original ??
+        ItemProgramado(id: novoId(), criadoEm: DateTime.now(), descricao: desc);
+    final item = base.copyWith(
+      descricao: desc,
+      kmAlvo: parseNumero(_kmAlvo.text),
+      intervaloKm: int.tryParse(_intervalo.text.trim().replaceAll('.', '')),
+      limparKmAlvo: parseNumero(_kmAlvo.text) == null,
+      limparIntervalo: _intervalo.text.trim().isEmpty,
+    );
+    await ref.read(programacaoProvider.notifier).salvar(item);
+    if (mounted) Navigator.of(context).pop();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: onToggle,
-      leading: Icon(
-        item.feito ? Icons.check_circle : Icons.radio_button_unchecked,
-        color: item.feito ? AppColors.ok : AppColors.dim,
-      ),
-      title: Text(
-        item.descricao,
-        style: TextStyle(
-          color: item.feito ? AppColors.dim2 : AppColors.text,
-          decoration: item.feito ? TextDecoration.lineThrough : null,
+    final desc = _desc.text.trim();
+    final sug = sugestoesPara(desc).where((s) => s.nome != desc).toList();
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+          20, 18, 20, MediaQuery.of(context).viewInsets.bottom + 20),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(widget.original == null ? 'Novo item' : 'Editar item',
+                style: const TextStyle(
+                    color: AppColors.text,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700)),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _desc,
+              autofocus: widget.original == null,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                  labelText: 'O que verificar/trocar',
+                  hintText: 'Ex.: óleo, filtro de ar, velas…'),
+            ),
+            if (sug.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: sug
+                    .map((s) => ActionChip(
+                          label: Text(s.nome),
+                          backgroundColor: AppColors.surface2,
+                          labelStyle: const TextStyle(
+                              color: AppColors.catRevisoes, fontSize: 12.5),
+                          side: const BorderSide(color: AppColors.line),
+                          onPressed: () => _escolher(s),
+                        ))
+                    .toList(),
+              ),
+            ],
+            const SizedBox(height: 14),
+            Row(children: [
+              Expanded(
+                child: TextField(
+                  controller: _kmAlvo,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  decoration: const InputDecoration(
+                      labelText: 'Fazer no km', hintText: 'ex.: 60000'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: _intervalo,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  decoration: const InputDecoration(
+                      labelText: 'A cada (km)', hintText: 'ex.: 10000'),
+                ),
+              ),
+            ]),
+            const SizedBox(height: 8),
+            const Text(
+              'Ambos opcionais. Com o km, o app mostra quanto falta e a data '
+              'provável (pelo seu ritmo de rodagem).',
+              style: TextStyle(color: AppColors.dim2, fontSize: 12),
+            ),
+            const SizedBox(height: 18),
+            FilledButton(
+              onPressed: _salvar,
+              style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.catRevisoes,
+                  foregroundColor: Colors.white),
+              child: const Text('Salvar'),
+            ),
+          ],
         ),
-      ),
-      trailing: IconButton(
-        icon: const Icon(Icons.close, size: 18, color: AppColors.dim2),
-        onPressed: onExcluir,
       ),
     );
   }

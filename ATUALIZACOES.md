@@ -2,6 +2,12 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-13 — v0.4.0.** (1) **Ícone novo** (seu logo, âmbar mais forte) e o app ficou **âmbar** como
+  os irmãos; (2) em **Minha FIPE**, o botão **“Usar como meu carro”** já cadastra marca/modelo/ano/
+  combustível (só a placa é manual); (3) **Revisões** — aba **Programar virou a 1ª**, cada item aceita
+  **km-alvo** e **frequência (a cada X km)**, com **sugestões** (digite “óleo” → “Óleo do motor”) e
+  **previsão de data**; (4) a **próxima revisão** agora estima a **data provável** pelo seu ritmo de
+  rodagem (km dos abastecimentos).
 - **2026-08-13 — v0.3.0.** Nuvem ligada: em Configurações, **entre com Google** → seus dados
   (abastecimentos, revisões, lembretes…) passam a **sincronizar** e sobrevivem à troca de celular.
 - **2026-08-13 — v0.2.1.** Notificações: em Configurações, ligue "Avisar sobre vencimentos e revisão"
