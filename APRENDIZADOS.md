@@ -2,6 +2,22 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-13 — Firebase provisionado / nuvem ligada (v0.3.0)
+
+Projeto **`carlog-b4ef3`** criado pelo usuário. Login Google + Firestore ativados, SHA-1 da keystore de
+upload registrado (`certificate_hash` do oauth_client type 1 bate com o SHA-1 da keystore → login
+reconhece o app). Wiring feito **sem** o plugin google-services (padrão FlutterFire: init por
+`FirebaseOptions` explícitas):
+- `firebase_config.dart`: `kFirebaseConfigured = true` + `kGoogleServerClientId` = Web client ID
+  (oauth_client `client_type: 3`).
+- `firebase_options.dart`: valores reais versionados (apiKey/appId/senderId/projectId/storageBucket —
+  **não são segredo**; segurança = regras Firestore + SHA-1). `google-services.json` NÃO é versionado
+  nem necessário (não aplicamos o plugin).
+- Nenhum secret novo no CI: o `firebase_options.dart` versionado basta.
+- **Gotcha herdado (lista_app):** o 1º google-services.json baixado vinha com `oauth_client: []` porque
+  o usuário baixou ANTES de ativar o Google Auth + adicionar o SHA-1. Rebaixar depois de ativar os dois
+  preencheu os clients (type 1 Android + type 3 Web). Sempre pedir o json DEPOIS desses passos.
+
 ## 2026-08-13 — Notificações (v0.2.0)
 
 **flutter_local_notifications 18.0.1 + timezone 0.9.4 + flutter_timezone 3.0.1.** Avisa no dia e 3 dias

@@ -23,10 +23,12 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 
 ## ⭐ ESTADO ATUAL (2026-08-13) — ler primeiro pós-/clear
 
-**v0.2.1 — COMPILANDO** (`flutter analyze` limpo, 4 testes de consumo passando). Repositório GitHub
+**v0.3.0 — NUVEM LIGADA** (`flutter analyze` limpo, 4 testes de consumo passando). Repositório GitHub
 **criado e no ar** (`viniciostristao1/carlog_app`, privado) — o CI compila **só o APK** a cada push
-(AAB só no lançamento; ver APRENDIZADOS). Firebase ainda **não** provisionado (próximo passo do
-usuário; ver `FIREBASE.md`). v0.1.0 = base; v0.2.x adicionou **notificações** de vencimento/revisão.
+(AAB só no lançamento; ver APRENDIZADOS), assinado pela keystore de upload. **Firebase provisionado**
+(projeto `carlog-b4ef3`): `kFirebaseConfigured = true`, **login Google + sync Firestore ativos**,
+`firebase_options.dart` real versionado, SHA-1 da keystore registrado. v0.1.0 = base; v0.2.x
+**notificações**; v0.3.0 **nuvem/login**.
 
 **Decisões de origem (2026-08-13):** nome **CarLog** (pacote `com.vinyapps.carlog`); armazenamento
 **Firebase + login Google** (escolha do usuário) — porém, como o Firebase exige o console Google do

@@ -4,7 +4,7 @@ publish_to: 'none'
 
 # versionName+versionCode. Ex.: 0.1.0+1 → versionName "0.1.0", versionCode 1.
 # O +N (versionCode) TEM de crescer a cada release. A tag do release = vX.Y.Z.
-version: 0.2.1+3
+version: 0.3.0+4
 
 environment:
   sdk: ^3.12.2

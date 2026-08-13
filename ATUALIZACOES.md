@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-13 — v0.3.0.** Nuvem ligada: em Configurações, **entre com Google** → seus dados
+  (abastecimentos, revisões, lembretes…) passam a **sincronizar** e sobrevivem à troca de celular.
 - **2026-08-13 — v0.2.1.** Notificações: em Configurações, ligue "Avisar sobre vencimentos e revisão"
   (pede permissão) → o app te avisa no dia e 3 dias antes de cada lembrete, e quando a próxima
   revisão se aproxima.

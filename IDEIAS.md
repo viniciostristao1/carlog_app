@@ -10,8 +10,8 @@ Datar e marcar status. Ideias saem daqui para virar versão.
 - **[x] Notificações de vencimento/revisão.** FEITO na v0.2.0 (`flutter_local_notifications` + timezone).
   Avisa no dia e 3 dias antes de cada lembrete e quando a próxima revisão se aproxima; toggle em
   Configurações. *Falta testar em aparelho real (agendamento só verificável no device).* *(2026-08-13)*
-- **[ ] Ligar a nuvem (Firebase).** Login Google + sync entre aparelhos. Passo a passo pronto em
-  `FIREBASE.md`; falta o usuário provisionar. *(2026-08-13)*
+- **[x] Ligar a nuvem (Firebase).** FEITO na v0.3.0 — projeto `carlog-b4ef3`, login Google + sync
+  Firestore. *Falta o usuário logar no app e testar o sync entre aparelhos.* *(2026-08-13)*
 
 ## Prioridade média
 - **[ ] FIPE por placa.** Só digitar a placa e puxar marca/modelo/ano/valor. Exige serviço **pago**
