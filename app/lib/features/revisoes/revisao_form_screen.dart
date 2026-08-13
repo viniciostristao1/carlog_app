@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../models/revisao.dart';
+import '../../services/ocr_service.dart';
 import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
 import '../../util/format.dart';
@@ -25,6 +27,7 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
   final _itemCtrl = TextEditingController();
   late DateTime _data;
   late List<String> _itens;
+  bool _ocrLoading = false;
 
   @override
   void initState() {
@@ -67,26 +70,83 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
     if (d != null) setState(() => _data = d);
   }
 
-  void _explicarOcr() {
-    showDialog(
+  Future<void> _lerFoto() async {
+    final source = await showModalBottomSheet<ImageSource>(
       context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: const Text('Ler foto do orçamento'),
-        content: const Text(
-          'Em breve: tirar foto do orçamento e o app extrai as peças/serviços '
-          'automaticamente (OCR no próprio aparelho). Por enquanto, cole ou '
-          'digite o texto no campo "Texto do orçamento" — ele também é buscável '
-          'pela lupa.',
-          style: TextStyle(color: AppColors.dim),
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined,
+                  color: AppColors.catRevisoes),
+              title: const Text('Tirar foto do orçamento',
+                  style: TextStyle(color: AppColors.text)),
+              onTap: () => Navigator.pop(context, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined,
+                  color: AppColors.catRevisoes),
+              title: const Text('Escolher da galeria',
+                  style: TextStyle(color: AppColors.text)),
+              onTap: () => Navigator.pop(context, ImageSource.gallery),
+            ),
+            const SizedBox(height: 8),
+          ],
         ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Entendi')),
-        ],
       ),
     );
+    if (source == null) return;
+
+    setState(() => _ocrLoading = true);
+    OcrResultado? res;
+    try {
+      res = await OcrService().lerDe(source);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Não foi possível ler a imagem.')));
+      }
+    } finally {
+      if (mounted) setState(() => _ocrLoading = false);
+    }
+    if (res == null) return;
+    if (res.itens.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Nenhum texto reconhecido na foto.')));
+      }
+      return;
+    }
+
+    if (!mounted) return;
+    final selecionados = await showModalBottomSheet<List<ItemLido>>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) => _OcrReviewSheet(resultado: res!),
+    );
+
+    final ocr = res;
+    setState(() {
+      for (final it in selecionados ?? const <ItemLido>[]) {
+        _itens.add(it.valor != null
+            ? '${it.descricao} — R\$ ${n2(it.valor!)}'
+            : it.descricao);
+      }
+      final base = _texto.text.trim();
+      _texto.text =
+          base.isEmpty ? ocr.textoBruto : '$base\n${ocr.textoBruto}';
+      if (ocr.total != null && parseNumero(_custo.text) == null) {
+        _custo.text = n2(ocr.total!);
+      }
+    });
   }
 
   Future<void> _salvar() async {
@@ -183,9 +243,14 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
                       fontWeight: FontWeight.w700)),
               const Spacer(),
               TextButton.icon(
-                onPressed: _explicarOcr,
-                icon: const Icon(Icons.photo_camera_outlined, size: 18),
-                label: const Text('Ler foto'),
+                onPressed: _ocrLoading ? null : _lerFoto,
+                icon: _ocrLoading
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.photo_camera_outlined, size: 18),
+                label: Text(_ocrLoading ? 'Lendo…' : 'Ler foto'),
               ),
             ],
           ),
@@ -248,6 +313,114 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
         inputFormatters:
             soDigitos ? [FilteringTextInputFormatter.digitsOnly] : null,
         decoration: InputDecoration(labelText: label, hintText: hint),
+      ),
+    );
+  }
+}
+
+/// Revisão do OCR: mostra as linhas lidas (com valor detectado) para o usuário
+/// escolher o que importar como itens. O texto completo é salvo à parte (buscável).
+class _OcrReviewSheet extends StatefulWidget {
+  final OcrResultado resultado;
+  const _OcrReviewSheet({required this.resultado});
+
+  @override
+  State<_OcrReviewSheet> createState() => _OcrReviewSheetState();
+}
+
+class _OcrReviewSheetState extends State<_OcrReviewSheet> {
+  late final List<bool> _sel;
+
+  @override
+  void initState() {
+    super.initState();
+    // Por padrão, marca linhas "de item" (curtas o bastante); pula linhas muito
+    // longas (provável cabeçalho/observação).
+    _sel = widget.resultado.itens
+        .map((it) => it.descricao.length <= 48)
+        .toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final itens = widget.resultado.itens;
+    final marcados = _sel.where((s) => s).length;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+          16, 16, 16, MediaQuery.of(context).viewInsets.bottom + 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('O que importar do orçamento',
+              style: TextStyle(
+                  color: AppColors.text,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          const Text(
+            'Marque as linhas que são peças/serviços. O texto completo será '
+            'salvo e fica buscável pela lupa.',
+            style: TextStyle(color: AppColors.dim, fontSize: 12.5),
+          ),
+          const SizedBox(height: 8),
+          Flexible(
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: itens.length,
+              itemBuilder: (_, i) {
+                final it = itens[i];
+                return CheckboxListTile(
+                  value: _sel[i],
+                  onChanged: (v) => setState(() => _sel[i] = v ?? false),
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  activeColor: AppColors.catRevisoes,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  title: Text(it.descricao,
+                      style: const TextStyle(
+                          color: AppColors.text, fontSize: 14)),
+                  secondary: it.valor != null
+                      ? Text('R\$ ${n2(it.valor!)}',
+                          style: const TextStyle(
+                              color: AppColors.dim,
+                              fontWeight: FontWeight.w600))
+                      : null,
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              TextButton(
+                onPressed: () => setState(() {
+                  final todos = marcados < itens.length;
+                  for (var i = 0; i < _sel.length; i++) {
+                    _sel[i] = todos;
+                  }
+                }),
+                child: Text(
+                    marcados < itens.length ? 'Marcar todos' : 'Desmarcar todos'),
+              ),
+              const Spacer(),
+              FilledButton(
+                onPressed: () {
+                  final out = <ItemLido>[];
+                  for (var i = 0; i < itens.length; i++) {
+                    if (_sel[i]) out.add(itens[i]);
+                  }
+                  Navigator.pop(context, out);
+                },
+                style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.catRevisoes,
+                    foregroundColor: Colors.white),
+                child: Text('Importar ($marcados)'),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

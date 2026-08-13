@@ -2,6 +2,22 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-13 — OCR do orçamento, grátis/offline (v0.6.0)
+
+- `google_mlkit_text_recognition` (0.15.1, modelo Latin **bundled**, roda no aparelho, sem custo/rede) +
+  `image_picker` (1.2.3, câmera/galeria). `services/ocr_service.dart`: `lerDe(ImageSource)` →
+  `TextRecognizer(latin).processImage` → `_parse`: separa **item × valor** por linha (regex de valor
+  BR `\d{1,3}(\.\d{3})*|\d+ , \d{2}`, pega o último match como valor, resto = descrição); detecta
+  **total** (linha com "total"). Fecha o recognizer no `finally`.
+- UI em `RevisaoFormScreen`: "Ler foto" → sheet câmera/galeria → OCR → `_OcrReviewSheet` (checkbox por
+  linha, marca por padrão linhas curtas ≤48; "Importar (N)") → adiciona itens (`desc — R$ x`) +
+  `textoBruto` (buscável) + preenche `custo` com o total se vazio.
+- **Defesa de build:** `kotlin.jvm.target.validation.mode=warning` no `android/gradle.properties` —
+  evita o erro "Inconsistent JVM Target" caso um plugin (ML Kit) misture alvos Java/Kotlin. Sem impacto
+  em runtime. (Foi o que derrubou o `flutter_timezone`; aqui prevenido.)
+- Sem permissão CAMERA no manifesto de propósito: o image_picker delega ao app de câmera (evita exigir
+  permissão). `analyze` limpo.
+
 ## 2026-08-13 — FIPE dentro do cadastro + ícone maior (v0.5.0)
 
 - Cascata FIPE extraída para `features/fipe/fipe_seletor.dart` (`FipeSeletor` + `FipeSelecao` +
