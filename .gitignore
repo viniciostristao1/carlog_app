@@ -1,0 +1,25 @@
+# Build / caches do Flutter (não versionar)
+app/build/
+app/.dart_tool/
+app/.flutter-plugins-dependencies
+
+# Venv de ferramentas (geração de ícone etc.), se existir
+tools_venv/
+
+# IDE / OS
+.idea/
+.DS_Store
+
+# Segredos de assinatura (keystore de upload — quando formos à Play Store)
+app/android/key.properties
+app/android/app/*.jks
+app/android/app/*.keystore
+
+# Firebase — google-services.json fica local/secret quando for provisionado.
+# (firebase_options.dart É versionado: os valores não são segredo e o app precisa
+#  dele para compilar; ver FIREBASE.md.)
+app/android/app/google-services.json
+
+# APK/AAB soltos na raiz (o build sai na nuvem; não versionar binários)
+*.apk
+*.aab

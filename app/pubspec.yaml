@@ -1,0 +1,40 @@
+name: carlog
+description: "CarLog — diário do seu carro: abastecimentos, consumo/média, revisões, FIPE, calibragem e lembretes."
+publish_to: 'none'
+
+# versionName+versionCode. Ex.: 0.1.0+1 → versionName "0.1.0", versionCode 1.
+# O +N (versionCode) TEM de crescer a cada release. A tag do release = vX.Y.Z.
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  flutter_riverpod: ^3.3.2       # estado
+  shared_preferences: ^2.3.2     # persistência local (fonte da verdade offline)
+  intl: ^0.20.2                  # formatação pt-BR (datas, moeda, litros)
+  http: ^1.2.2                   # consulta da tabela FIPE (API pública gratuita)
+
+  # Firebase — nuvem/sync + login Google. O código já está pronto (auth_service,
+  # sync_service), mas fica ATRÁS do flag kFirebaseConfigured (lib/firebase_config.dart)
+  # até o projeto Firebase ser provisionado (ver FIREBASE.md). Enquanto o flag é
+  # false, o app roda 100% local e o login não aparece.
+  firebase_core: ^4.12.1
+  firebase_auth: ^6.5.6
+  google_sign_in: ^7.2.0
+  cloud_firestore: ^6.7.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
