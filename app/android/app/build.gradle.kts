@@ -62,6 +62,13 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
+            // R8/minify com as regras do proguard-rules.pro (necessárias para o
+            // ML Kit — ignora os reconhecedores de idiomas que não usamos).
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }

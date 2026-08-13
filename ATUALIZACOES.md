@@ -2,7 +2,7 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
-- **2026-08-13 — v0.6.0.** **Ler foto do orçamento (OCR)** — em *Revisões → Registrar → “Ler foto”*,
+- **2026-08-13 — v0.6.1.** **Ler foto do orçamento (OCR)** — em *Revisões → Registrar → “Ler foto”*,
   tire foto (ou escolha da galeria) e o app **transcreve** o orçamento, separa **item × valor**, você
   marca o que importar e ele preenche os itens + o total. Tudo **no aparelho, grátis e offline**.
 - **2026-08-13 — v0.5.0.** (1) No **Cadastrar veículo** agora tem **“Preencher pela tabela FIPE”** —

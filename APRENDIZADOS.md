@@ -17,6 +17,12 @@ Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê"
   em runtime. (Foi o que derrubou o `flutter_timezone`; aqui prevenido.)
 - Sem permissão CAMERA no manifesto de propósito: o image_picker delega ao app de câmera (evita exigir
   permissão). `analyze` limpo.
+- **Build quebrou no 1º push (v0.6.0):** `R8: Missing class com.google.mlkit.vision.text.chinese/
+  japanese/korean/devanagari...` — o plugin referencia reconhecedores de outros idiomas (não incluídos,
+  só usamos Latin) e o minify (R8) trata classe faltante como ERRO. **Fix (v0.6.1):**
+  `android/app/proguard-rules.pro` com `-dontwarn com.google.mlkit.vision.text.{chinese,devanagari,
+  japanese,korean}.**` + `isMinifyEnabled=true` e `proguardFiles(...)` no release. Lição: plugin de
+  ML Kit + R8 quase sempre exige regra `-dontwarn` dos idiomas não usados.
 
 ## 2026-08-13 — FIPE dentro do cadastro + ícone maior (v0.5.0)
 
