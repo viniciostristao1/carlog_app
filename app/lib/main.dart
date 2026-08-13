@@ -8,6 +8,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'features/home/home_screen.dart';
 import 'firebase_config.dart';
 import 'firebase_options.dart';
+import 'services/notifications.dart';
 import 'services/sync_service.dart';
 import 'theme/app_theme.dart';
 import 'util/messenger.dart';
@@ -35,6 +36,7 @@ class CarLogApp extends ConsumerWidget {
     if (kFirebaseConfigured) {
       ref.watch(syncProvider); // mantém a sincronização ativa conforme o login
     }
+    ref.watch(notifSchedulerProvider); // reagenda notificações quando os dados mudam
     return MaterialApp(
       title: 'CarLog',
       scaffoldMessengerKey: scaffoldMessengerKey,

@@ -2,6 +2,28 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-13 — Notificações (v0.2.0)
+
+**flutter_local_notifications 18.0.1 + timezone 0.9.4 + flutter_timezone 3.0.1.** Avisa no dia e 3 dias
+antes de cada lembrete não-pago e quando a próxima revisão estimada se aproxima. Toggle em Config
+(`notifAtivasProvider`, pref `notif_ativas_v1`); só liga após permissão. `NotifScheduler`
+(`notifSchedulerProvider`, vivo no `main`) reprograma tudo (cancelAll + reschedule, debounce 600ms)
+quando lembretes/veículo/abastecimentos/revisões mudam. IDs estáveis por `hashCode` do id + offset.
+
+**Gotchas resolvidos:**
+- **Desugaring obrigatório:** `isCoreLibraryDesugaringEnabled = true` em `compileOptions` +
+  `coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")` no `dependencies {}` do
+  `app/build.gradle.kts` (o plugin usa `java.time`). Sem isso o build de release quebra.
+- **Manifesto:** permissões `POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`, `USE_EXACT_ALARM`,
+  `RECEIVE_BOOT_COMPLETED`, `VIBRATE` + os 2 `<receiver>` do plugin (agendado + boot).
+- **API v18:** `zonedSchedule` exige TANTO `androidScheduleMode` QUANTO
+  `uiLocalNotificationDateInterpretation: absoluteTime` (senão erro de arg obrigatório). Fallback:
+  se `exactAllowWhileIdle` falhar (sem permissão de alarme exato), reagenda `inexactAllowWhileIdle`.
+- **Timezone:** `initializeTimeZones()` + `setLocalLocation(getLocation(<nome do fuso via
+  flutter_timezone>))`, senão `tz.local` = UTC e o horário sai errado. `getLocalTimezone()` pode
+  retornar String (v3) ou objeto com `.identifier` (v4) — tratei os dois.
+- **Não-fatal:** toda chamada é try/catch; se algo falhar, o app segue.
+
 ## 2026-08-13 — Criação (v0.1.0)
 
 **Origem.** App do carro, inspirado na estrutura dos irmãos (`calistenia_app`, `lista_app`):

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../firebase_config.dart';
 import '../../services/auth_service.dart';
+import '../../services/notifications.dart';
 import '../../theme/app_colors.dart';
 
 class ConfigScreen extends ConsumerWidget {
@@ -21,6 +22,10 @@ class ConfigScreen extends ConsumerWidget {
             const _ContaCard()
           else
             const _NuvemEmBreve(),
+          const SizedBox(height: 24),
+          _tituloSecao('Notificações'),
+          const SizedBox(height: 8),
+          const _NotificacoesCard(),
           const SizedBox(height: 24),
           _tituloSecao('Sobre'),
           const SizedBox(height: 8),
@@ -50,7 +55,7 @@ class ConfigScreen extends ConsumerWidget {
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700)),
                         SizedBox(height: 2),
-                        Text('O diário do seu carro · v0.1.0',
+                        Text('O diário do seu carro · v0.2.0',
                             style:
                                 TextStyle(color: AppColors.dim, fontSize: 12.5)),
                       ],
@@ -191,6 +196,47 @@ class _ContaCard extends ConsumerWidget {
               child: const Text('Sair'),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NotificacoesCard extends ConsumerWidget {
+  const _NotificacoesCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ativas = ref.watch(notifAtivasProvider).value ?? false;
+
+    Future<void> alternar(bool ligar) async {
+      if (ligar) {
+        final ok = await ref.read(notificationsServiceProvider).pedirPermissao();
+        if (!ok) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text(
+                    'Permissão negada. Ative as notificações do CarLog nos '
+                    'ajustes do Android.')));
+          }
+          return;
+        }
+      }
+      await ref.read(notifAtivasProvider.notifier).definir(ligar);
+    }
+
+    return Card(
+      child: SwitchListTile(
+        value: ativas,
+        onChanged: alternar,
+        activeThumbColor: AppColors.accent,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        title: const Text('Avisar sobre vencimentos e revisão',
+            style: TextStyle(color: AppColors.text, fontWeight: FontWeight.w600)),
+        subtitle: const Text(
+          'Notifica no dia (e 3 dias antes) dos lembretes e quando a próxima '
+          'revisão se aproxima.',
+          style: TextStyle(color: AppColors.dim, fontSize: 12.5),
         ),
       ),
     );

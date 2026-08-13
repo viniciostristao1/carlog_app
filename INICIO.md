@@ -23,9 +23,10 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 
 ## ⭐ ESTADO ATUAL (2026-08-13) — ler primeiro pós-/clear
 
-**v0.1.0 recém-criada e COMPILANDO** (`flutter analyze` limpo, 4 testes de consumo passando).
-Ainda **não** há repositório GitHub nem projeto Firebase provisionados — são os próximos passos
-(dependem do usuário; ver abaixo e `FIREBASE.md`).
+**v0.2.0 — COMPILANDO** (`flutter analyze` limpo, 4 testes de consumo passando). Repositório GitHub
+**criado e no ar** (`viniciostristao1/carlog_app`, privado) — o CI compila o APK a cada push.
+Firebase ainda **não** provisionado (próximo passo do usuário; ver `FIREBASE.md`). v0.1.0 = base;
+v0.2.0 adicionou **notificações** de vencimento/revisão.
 
 **Decisões de origem (2026-08-13):** nome **CarLog** (pacote `com.vinyapps.carlog`); armazenamento
 **Firebase + login Google** (escolha do usuário) — porém, como o Firebase exige o console Google do
@@ -58,8 +59,8 @@ usuário, o código já está **Firebase-ready** e o app roda **100% local** at�
 2. **Instalar o APK** no celular e usar de verdade → iterar pelo feedback ([`IDEIAS.md`](IDEIAS.md)).
 3. **Provisionar o Firebase** (Auth Google + Firestore) e ligar a nuvem — passo a passo em
    [`FIREBASE.md`](FIREBASE.md). Só então `kFirebaseConfigured = true`.
-4. Candidatos de feature: **OCR do orçamento** (ML Kit on-device), **notificações** de lembrete/revisão
-   (flutter_local_notifications), **FIPE por placa** (serviço pago), **ícone próprio**.
+4. Candidatos de feature: **OCR do orçamento** (ML Kit on-device), **FIPE por placa** (serviço pago),
+   **ícone próprio**. (Notificações de lembrete/revisão já entraram na v0.2.0.)
 
 ## O que o app faz (MVP)
 Tela principal = 6 atalhos redondos:

@@ -7,9 +7,9 @@ Datar e marcar status. Ideias saem daqui para virar versão.
   virar itens buscáveis pela lupa. Plano: **Google ML Kit Text Recognition** (on-device, offline, grátis)
   via `google_mlkit_text_recognition` + `image_picker`. Hoje o app já aceita colar/digitar o texto do
   orçamento (campo `textoBruto`, buscável). *(2026-08-13)*
-- **[ ] Notificações de vencimento/revisão.** Lembrete de IPVA/seguro e "próxima revisão" com aviso no
-  celular (ex.: 7 dias antes). Plano: `flutter_local_notifications` + timezone + agendamento; pedir
-  permissão. *(2026-08-13)*
+- **[x] Notificações de vencimento/revisão.** FEITO na v0.2.0 (`flutter_local_notifications` + timezone).
+  Avisa no dia e 3 dias antes de cada lembrete e quando a próxima revisão se aproxima; toggle em
+  Configurações. *Falta testar em aparelho real (agendamento só verificável no device).* *(2026-08-13)*
 - **[ ] Ligar a nuvem (Firebase).** Login Google + sync entre aparelhos. Passo a passo pronto em
   `FIREBASE.md`; falta o usuário provisionar. *(2026-08-13)*
 
