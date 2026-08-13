@@ -7,6 +7,8 @@ import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
 import '../../util/format.dart';
 import '../../util/ids.dart';
+import '../fipe/fipe_picker_screen.dart';
+import '../fipe/fipe_seletor.dart';
 
 /// Cadastro/edição do veículo. Guarda também os parâmetros usados por outras
 /// telas: pressão recomendada (Calibragem) e intervalo de revisão (estimativa da
@@ -32,6 +34,13 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
   late final TextEditingController _revMeses;
   late Combustivel _combustivel;
 
+  // FIPE preenchida pelo seletor (ou herdada do veículo em edição).
+  String? _fipeCodigo;
+  String? _fipeCodigoTabela;
+  double? _fipeValor;
+  String? _fipeMesRef;
+  DateTime? _fipeConsultadoEm;
+
   @override
   void initState() {
     super.initState();
@@ -50,6 +59,34 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
     _revKm = TextEditingController(text: (v?.revisaoIntervaloKm ?? 10000).toString());
     _revMeses = TextEditingController(text: (v?.revisaoIntervaloMeses ?? 12).toString());
     _combustivel = v?.combustivel ?? Combustivel.flex;
+    _fipeCodigo = v?.fipeCodigo;
+    _fipeCodigoTabela = v?.fipeCodigoTabela;
+    _fipeValor = v?.fipeValor;
+    _fipeMesRef = v?.fipeMesRef;
+    _fipeConsultadoEm = v?.fipeConsultadoEm;
+  }
+
+  Future<void> _buscarFipe() async {
+    final sel = await Navigator.of(context).push<FipeSelecao>(
+        MaterialPageRoute(builder: (_) => const FipePickerScreen()));
+    if (sel == null) return;
+    final r = sel.resultado;
+    final anoInt = int.tryParse(r.anoModelo);
+    setState(() {
+      _marca.text = r.marca;
+      _modelo.text = r.modelo;
+      if (anoInt != null && anoInt <= 2100) _ano.text = '$anoInt';
+      _combustivel = combustivelDaFipe(r.combustivel);
+      _fipeCodigo = r.codigoFipe;
+      _fipeCodigoTabela = sel.codigoTabela;
+      _fipeValor = r.valor;
+      _fipeMesRef = r.mesReferencia;
+      _fipeConsultadoEm = DateTime.now();
+    });
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Dados preenchidos pela FIPE. Confira e salve.')));
+    }
   }
 
   @override
@@ -78,12 +115,12 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
       pressaoTraseira: parseNumero(_pTraseira.text),
       revisaoIntervaloKm: int.tryParse(_revKm.text.trim()) ?? 10000,
       revisaoIntervaloMeses: int.tryParse(_revMeses.text.trim()) ?? 12,
-      // preserva a FIPE já consultada
-      fipeCodigo: base?.fipeCodigo,
-      fipeCodigoTabela: base?.fipeCodigoTabela,
-      fipeValor: base?.fipeValor,
-      fipeMesRef: base?.fipeMesRef,
-      fipeConsultadoEm: base?.fipeConsultadoEm,
+      // FIPE (preenchida pelo seletor ou herdada)
+      fipeCodigo: _fipeCodigo,
+      fipeCodigoTabela: _fipeCodigoTabela,
+      fipeValor: _fipeValor,
+      fipeMesRef: _fipeMesRef,
+      fipeConsultadoEm: _fipeConsultadoEm,
     );
     await ref.read(veiculoProvider.notifier).salvar(v);
     if (mounted) Navigator.of(context).pop();
@@ -96,8 +133,25 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
         title: Text(widget.veiculo == null ? 'Cadastrar carro' : 'Meu carro'),
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
         children: [
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: _buscarFipe,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.catFipe,
+                side: const BorderSide(color: AppColors.catFipe),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+              icon: const Icon(Icons.request_quote_outlined),
+              label: const Text('Preencher pela tabela FIPE'),
+            ),
+          ),
+          const SizedBox(height: 6),
+          const Text('Busca marca, modelo, ano e combustível pela FIPE.',
+              style: TextStyle(color: AppColors.dim2, fontSize: 12)),
+          const SizedBox(height: 14),
           _campo(_apelido, 'Apelido', hint: 'Ex.: Meu Onix', capitalize: true),
           Row(children: [
             Expanded(child: _campo(_marca, 'Marca', capitalize: true)),

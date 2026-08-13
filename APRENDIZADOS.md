@@ -2,6 +2,14 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-13 — FIPE dentro do cadastro + ícone maior (v0.5.0)
+
+- Cascata FIPE extraída para `features/fipe/fipe_seletor.dart` (`FipeSeletor` + `FipeSelecao` +
+  `combustivelDaFipe`), reusada por `FipeScreen` (salva no veículo) e por `FipePickerScreen` (devolve a
+  seleção via `Navigator.pop`). No `VeiculoFormScreen`: botão **“Preencher pela tabela FIPE”** →
+  picker → preenche marca/modelo/ano/combustível + guarda os campos FIPE no state (persistem ao salvar).
+- Ícone: `gerar_icone.py` com `FG=800` (~78%, era 66%) → logo maior no adaptive.
+
 ## 2026-08-13 — Ícone, FIPE→cadastro, Programar + previsão (v0.4.0)
 
 - **Ícone:** logo do usuário (`1786658805549.png`, carro + 6 ícones, fundo âmbar) processado por

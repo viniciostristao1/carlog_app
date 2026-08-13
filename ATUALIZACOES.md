@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-13 — v0.5.0.** (1) No **Cadastrar veículo** agora tem **“Preencher pela tabela FIPE”** —
+  busca marca/modelo/ano/combustível ali dentro do cadastro; (2) **logo/ícone um pouco maior**.
 - **2026-08-13 — v0.4.0.** (1) **Ícone novo** (seu logo, âmbar mais forte) e o app ficou **âmbar** como
   os irmãos; (2) em **Minha FIPE**, o botão **“Usar como meu carro”** já cadastra marca/modelo/ano/
   combustível (só a placa é manual); (3) **Revisões** — aba **Programar virou a 1ª**, cada item aceita

@@ -28,8 +28,10 @@ sq.paste(img, ((side - w) // 2, (side - h) // 2))
 
 sq.resize((1024, 1024), Image.LANCZOS).save(f'{DEST}/carlog_icon.png')
 
+# foreground do adaptive: arte um pouco maior (menos margem âmbar)
+FG = 800  # ~78% do canvas (era 66%); logo maior no ícone
 fg = Image.new('RGB', (1024, 1024), bg)
-art = sq.resize((676, 676), Image.LANCZOS)
-fg.paste(art, ((1024 - 676) // 2, (1024 - 676) // 2))
+art = sq.resize((FG, FG), Image.LANCZOS)
+fg.paste(art, ((1024 - FG) // 2, (1024 - FG) // 2))
 fg.save(f'{DEST}/carlog_fg.png')
 print('ok -> carlog_icon.png, carlog_fg.png')
