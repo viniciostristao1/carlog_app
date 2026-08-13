@@ -23,6 +23,11 @@ Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê"
   `android/app/proguard-rules.pro` com `-dontwarn com.google.mlkit.vision.text.{chinese,devanagari,
   japanese,korean}.**` + `isMinifyEnabled=true` e `proguardFiles(...)` no release. Lição: plugin de
   ML Kit + R8 quase sempre exige regra `-dontwarn` dos idiomas não usados.
+- **2ª quebra (v0.6.1): exit code 143** ("operation was canceled" após ~12 min) = processo **morto por
+  falta de memória**. O R8 com ML Kit + Firebase é pesado E o `gradle.properties` pedia **`-Xmx8G` num
+  runner de ~7 GB** (provável causa também do AAB cancelado lá atrás). **Fix (v0.6.2):** `-Xmx8G→4G`
+  (+ MaxMetaspace 4G→1G) e **`isMinifyEnabled=false`** no release (desliga o R8 — passo mais pesado).
+  APK fica um pouco maior, mas o build é estável. Reativar minify só com runner maior.
 
 ## 2026-08-13 — FIPE dentro do cadastro + ícone maior (v0.5.0)
 

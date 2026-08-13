@@ -62,9 +62,11 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
-            // R8/minify com as regras do proguard-rules.pro (necessárias para o
-            // ML Kit — ignora os reconhecedores de idiomas que não usamos).
-            isMinifyEnabled = true
+            // R8/minify DESLIGADO: com ML Kit + Firebase o R8 estourava a RAM do
+            // runner grátis (build morria, exit 143). Sem minify o APK é um pouco
+            // maior, mas o build é estável. (Reativar só com runner maior + as
+            // regras do proguard-rules.pro, que já estão prontas para o ML Kit.)
+            isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
