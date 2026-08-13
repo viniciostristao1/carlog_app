@@ -4,7 +4,7 @@ publish_to: 'none'
 
 # versionName+versionCode. Ex.: 0.1.0+1 → versionName "0.1.0", versionCode 1.
 # O +N (versionCode) TEM de crescer a cada release. A tag do release = vX.Y.Z.
-version: 0.2.0+2
+version: 0.2.1+3
 
 environment:
   sdk: ^3.12.2
@@ -22,10 +22,10 @@ dependencies:
   http: ^1.2.2                   # consulta da tabela FIPE (API pública gratuita)
 
   # Notificações locais (vencimentos de lembrete + próxima revisão). Agendamento
-  # por wall-clock local → precisa de timezone + nome do fuso do aparelho.
+  # por wall-clock no fuso America/Sao_Paulo (usuário BR) — sem plugin de fuso
+  # nativo (flutter_timezone tinha conflito de JVM target sob o Flutter atual).
   flutter_local_notifications: ^18.0.1
   timezone: ^0.9.4
-  flutter_timezone: ^3.0.1
 
   # Firebase — nuvem/sync + login Google. O código já está pronto (auth_service,
   # sync_service), mas fica ATRÁS do flag kFirebaseConfigured (lib/firebase_config.dart)

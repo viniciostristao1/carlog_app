@@ -24,6 +24,18 @@ quando lembretes/veículo/abastecimentos/revisões mudam. IDs estáveis por `has
   retornar String (v3) ou objeto com `.identifier` (v4) — tratei os dois.
 - **Não-fatal:** toda chamada é try/catch; se algo falhar, o app segue.
 
+**Fixes de CI (v0.2.1) — o 1º build de notificações quebrou:**
+- `flutter_timezone 3.0.1` dava **"Inconsistent JVM Target"** (Java 11 × Kotlin 1.8) sob o Flutter
+  3.44.7 (que reclama de plugins aplicando o Kotlin Gradle Plugin com target antigo). **Removido** —
+  como o usuário é BR, fixamos `America/Sao_Paulo` direto (sem plugin de fuso). `timezone` (Dart puro)
+  ficou. Auto-detecção de fuso vira ideia futura.
+- Passo **Build AAB** era **cancelado** ("operation was canceled", ~10 min) — o runner grátis
+  estourava tempo/memória compilando Firebase DUAS vezes (APK split-per-abi + AAB). O **APK sozinho
+  compila OK**. CI passou a gerar **só o APK**; o AAB da Play Store sai só no lançamento. `release.sh`
+  também deixou de exigir o AAB.
+- Lição: validar o build na nuvem cedo; `flutter analyze` local NÃO pega conflito de JVM target de
+  plugin nem limite de runner.
+
 ## 2026-08-13 — Criação (v0.1.0)
 
 **Origem.** App do carro, inspirado na estrutura dos irmãos (`calistenia_app`, `lista_app`):

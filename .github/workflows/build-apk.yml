@@ -80,16 +80,13 @@ jobs:
         working-directory: app
         run: flutter build apk --release --split-per-abi
 
-      - name: Build AAB (release, para a Play Store)
-        working-directory: app
-        run: flutter build appbundle --release
-
-      - name: Publica APK+AAB no release ci-latest
+      # NB: o AAB (Play Store) é gerado só na hora do lançamento — compilar duas
+      # vezes (APK + AAB) no runner grátis estourava tempo/memória e cancelava o job.
+      - name: Publica APK no release ci-latest
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ci-latest
-          name: CI build (rolling — APK arm64 + AAB do último push)
+          name: CI build (rolling — APK arm64 do último push)
           prerelease: true
           files: |
             app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-            app/build/app/outputs/bundle/release/app-release.aab

@@ -55,7 +55,7 @@ class ConfigScreen extends ConsumerWidget {
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700)),
                         SizedBox(height: 2),
-                        Text('O diário do seu carro · v0.2.0',
+                        Text('O diário do seu carro · v0.2.1',
                             style:
                                 TextStyle(color: AppColors.dim, fontSize: 12.5)),
                       ],

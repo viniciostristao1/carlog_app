@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
@@ -22,23 +21,14 @@ class NotificationsService {
     if (_iniciado) return;
     tzdata.initializeTimeZones();
     try {
-      tz.setLocalLocation(tz.getLocation(await _nomeFuso()));
+      // Usuário BR: horário de Brasília. (Auto-detecção de fuso = ideia futura.)
+      tz.setLocalLocation(tz.getLocation('America/Sao_Paulo'));
     } catch (_) {
-      // fica em UTC se não conseguir o nome do fuso
+      // fica em UTC se algo falhar
     }
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     await _plugin.initialize(const InitializationSettings(android: android));
     _iniciado = true;
-  }
-
-  Future<String> _nomeFuso() async {
-    final dynamic r = await FlutterTimezone.getLocalTimezone();
-    if (r is String) return r;
-    try {
-      return (r as dynamic).identifier as String; // flutter_timezone >=4
-    } catch (_) {
-      return 'UTC';
-    }
   }
 
   /// Pede permissão de notificação (Android 13+) e de alarme exato. Retorna se
