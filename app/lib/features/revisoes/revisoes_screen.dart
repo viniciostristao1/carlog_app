@@ -541,7 +541,7 @@ class _ItemSheetState extends ConsumerState<_ItemSheet> {
     _desc.text = s.nome;
     _desc.selection =
         TextSelection.collapsed(offset: _desc.text.length);
-    if (_intervalo.text.trim().isEmpty) {
+    if (_intervalo.text.trim().isEmpty && s.intervaloKm > 0) {
       _intervalo.text = '${s.intervaloKm}';
     }
     setState(() {});

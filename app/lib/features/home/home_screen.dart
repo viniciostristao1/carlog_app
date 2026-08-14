@@ -182,19 +182,28 @@ class _CabecalhoVeiculo extends ConsumerWidget {
       v.combustivel.rotulo,
     ].where((s) => s.isNotEmpty).join(' · ');
 
+    void abrir(Widget tela) => Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => tela));
+
     final stats = <_Stat>[
       _Stat(Icons.speed, AppColors.accent, 'Odômetro',
-          odo != null ? km(odo) : '—'),
+          odo != null ? km(odo) : '—',
+          onTap: () => abrir(const AbastecimentoScreen())),
       _Stat(Icons.calendar_month, AppColors.catConsumo, 'Km no mês',
-          kmMes > 0 ? km(kmMes) : '—'),
+          kmMes > 0 ? km(kmMes) : '—',
+          onTap: () => abrir(const MediaScreen())),
       _Stat(Icons.local_gas_station, AppColors.catAbastecimento,
-          'Combustível/mês', gastoMes > 0 ? moeda(gastoMes) : '—'),
+          'Combustível/mês', gastoMes > 0 ? moeda(gastoMes) : '—',
+          onTap: () => abrir(const AbastecimentoScreen())),
       _Stat(Icons.request_quote_outlined, AppColors.catFipe, 'FIPE',
-          v.fipeValor != null ? moeda(v.fipeValor!) : '—'),
+          v.fipeValor != null ? moeda(v.fipeValor!) : '—',
+          onTap: () => abrir(const FipeScreen())),
       _Stat(Icons.tire_repair, AppColors.catCalibragem, 'Calibragem',
-          ultimaCalib != null ? dataCurta(ultimaCalib) : '—'),
+          ultimaCalib != null ? dataCurta(ultimaCalib) : '—',
+          onTap: () => abrir(const CalibragemScreen())),
       _Stat(Icons.build_circle_outlined, AppColors.catRevisoes, 'Prev. revisão',
-          _estimativaRevisao(v, abastecimentos, revisoes)),
+          _estimativaRevisao(v, abastecimentos, revisoes),
+          onTap: () => abrir(const RevisoesScreen())),
     ];
 
     return Card(
@@ -286,7 +295,8 @@ class _Stat {
   final Color cor;
   final String rotulo;
   final String valor;
-  const _Stat(this.icone, this.cor, this.rotulo, this.valor);
+  final VoidCallback? onTap;
+  const _Stat(this.icone, this.cor, this.rotulo, this.valor, {this.onTap});
 }
 
 class _StatTile extends StatelessWidget {
@@ -295,7 +305,7 @@ class _StatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final conteudo = Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.surface2,
@@ -321,6 +331,16 @@ class _StatTile extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(color: AppColors.dim2, fontSize: 10.5)),
         ],
+      ),
+    );
+    if (stat.onTap == null) return conteudo;
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: stat.onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: conteudo,
       ),
     );
   }

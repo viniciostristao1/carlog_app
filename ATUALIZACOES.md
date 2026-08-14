@@ -2,6 +2,10 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-14 — v0.8.1.** Lista de itens para programar melhorada (**amortecedores dianteiros/
+  traseiros**, **lâmpadas**, **filtro pressurizado**). Na tela inicial, os cartões agora são
+  **clicáveis**: **Calibragem** abre a tela de calibragem e **Prev. revisão** abre a aba **Programar**
+  (os outros também levam à tela relacionada).
 - **2026-08-14 — v0.8.0.** (1) No **abastecimento**, escolha **“informar preço/litro”** (calcula o
   total) ou **“informar valor total”** (calcula o preço/litro). (2) Na **próxima revisão**, aparece a
   **média de km/mês dos últimos 12 meses**. (3) Botão do cadastro renomeado para **“Pesquisar carro”**.

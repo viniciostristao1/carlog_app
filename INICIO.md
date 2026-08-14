@@ -23,7 +23,7 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 
 ## ⭐ ESTADO ATUAL (2026-08-13) — ler primeiro pós-/clear
 
-**v0.8.0 — NUVEM LIGADA + OCR** (`flutter analyze` limpo, 7 testes de consumo/previsão passando). Repositório GitHub
+**v0.8.1 — NUVEM LIGADA + OCR** (`flutter analyze` limpo, 7 testes de consumo/previsão passando). Repositório GitHub
 **criado e no ar** (`viniciostristao1/carlog_app`, privado) — o CI compila **só o APK** a cada push
 (AAB só no lançamento; ver APRENDIZADOS), assinado pela keystore de upload. **Firebase provisionado**
 (projeto `carlog-b4ef3`): `kFirebaseConfigured = true`, **login Google + sync Firestore ativos**,
