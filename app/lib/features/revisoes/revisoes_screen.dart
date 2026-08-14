@@ -220,37 +220,33 @@ class _CartaoProximaRevisao extends ConsumerWidget {
     final abastecimentos = ref.watch(abastecimentosProvider).value ?? const [];
     final revisoes = ref.watch(revisoesProvider).value ?? const [];
 
-    final odoAtual = ultimoOdometro(abastecimentos);
-    final comOdo = revisoes.where((r) => r.odometro != null).toList()
-      ..sort((a, b) => a.odometro!.compareTo(b.odometro!));
-    final baseOdo = comOdo.isNotEmpty ? comOdo.last.odometro! : odoAtual;
-
     Widget wrap(Widget child) => Card(
           child: Padding(padding: const EdgeInsets.all(16), child: child),
         );
 
-    if (v == null || baseOdo == null) {
+    final p = v == null
+        ? PrevisaoRevisao.vazio
+        : preverRevisao(v, abastecimentos, revisoes);
+
+    if (v == null || p.alvoKm == null) {
       return wrap(const Row(children: [
         Icon(Icons.event_repeat, color: AppColors.catRevisoes),
         SizedBox(width: 12),
         Expanded(
           child: Text(
-            'Cadastre o carro (intervalo de revisão) e registre abastecimentos '
-            'para o app estimar a próxima revisão.',
+            'Registre revisões e abastecimentos (com o km do painel) para o app '
+            'estimar a próxima revisão pela sua rodagem.',
             style: TextStyle(color: AppColors.dim, fontSize: 13),
           ),
         ),
       ]));
     }
 
-    final alvoKm = baseOdo + v.revisaoIntervaloKm;
-    final faltamKm = odoAtual != null ? alvoKm - odoAtual : v.revisaoIntervaloKm;
-    final data = previsaoData(
-        faltamKm.toDouble(), ritmoKmPorDia(abastecimentos));
-    final previsao = data != null ? '≈ ${dataLonga(data)}' : '—';
-    final vencida = faltamKm <= 0;
-    final ritmo12 = ritmoKmPorDia(abastecimentos, dias: 365);
-    final media12 = ritmo12 != null ? ritmo12 * 30 : null;
+    final alvoKm = p.alvoKm!;
+    final faltamKm = p.faltamKm ?? 0;
+    final previsao = p.data != null ? '≈ ${dataLonga(p.data!)}' : '—';
+    final vencida = p.vencida;
+    final media12 = p.mediaKmMes12;
 
     return wrap(Column(
       crossAxisAlignment: CrossAxisAlignment.start,

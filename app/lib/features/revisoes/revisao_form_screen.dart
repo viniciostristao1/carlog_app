@@ -181,6 +181,32 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
     });
   }
 
+  Future<void> _excluir() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('Excluir revisão?'),
+        content: Text(widget.original?.titulo.isNotEmpty == true
+            ? widget.original!.titulo
+            : dataLonga(_data)),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Excluir',
+                  style: TextStyle(color: AppColors.danger))),
+        ],
+      ),
+    );
+    if (ok == true) {
+      await ref.read(revisoesProvider.notifier).remover(widget.original!.id);
+      if (mounted) Navigator.of(context).pop();
+    }
+  }
+
   Future<void> _salvar() async {
     if (_titulo.text.trim().isEmpty && _itens.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -205,7 +231,16 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text(widget.original == null ? 'Nova revisão' : 'Revisão')),
+        title: Text(widget.original == null ? 'Nova revisão' : 'Revisão'),
+        actions: [
+          if (widget.original != null)
+            IconButton(
+              tooltip: 'Excluir',
+              icon: const Icon(Icons.delete_outline, color: AppColors.danger),
+              onPressed: _excluir,
+            ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [

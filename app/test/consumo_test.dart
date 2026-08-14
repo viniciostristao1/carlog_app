@@ -1,4 +1,6 @@
 import 'package:carlog/models/abastecimento.dart';
+import 'package:carlog/models/revisao.dart';
+import 'package:carlog/models/veiculo.dart';
 import 'package:carlog/util/consumo.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -78,6 +80,31 @@ void main() {
       expect(previsaoData(100, null), isNull);
       expect(previsaoData(0, 40), isNull);
       expect(previsaoData(-50, 40), isNull);
+    });
+  });
+
+  group('preverRevisao', () {
+    test('infere o intervalo de km do histórico de revisões', () {
+      const v = Veiculo(id: 'v', apelido: 'x'); // intervalo padrão do cadastro = 10000
+      final revs = [
+        Revisao(id: 'r1', data: DateTime(2024, 11, 5), odometro: 80161),
+        Revisao(id: 'r2', data: DateTime(2025, 8, 14), odometro: 100500),
+      ];
+      final ab = [
+        _ab('a1', DateTime(2025, 11, 20), 105557, 40),
+        _ab('a2', DateTime(2026, 2, 9), 110570, 40),
+      ];
+      final p = preverRevisao(v, ab, revs);
+      // intervalo observado = 100500-80161 = 20339 → alvo = 100500 + 20339
+      // (NÃO os 10000 do cadastro), e odômetro atual = 110570.
+      expect(p.alvoKm, closeTo(120839, 1));
+      expect(p.faltamKm, closeTo(120839 - 110570, 1));
+      expect(p.vencida, isFalse);
+    });
+
+    test('sem leituras não estima', () {
+      const v = Veiculo(id: 'v', apelido: 'x');
+      expect(preverRevisao(v, const [], const []).alvoKm, isNull);
     });
   });
 }

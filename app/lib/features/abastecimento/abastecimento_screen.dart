@@ -25,7 +25,7 @@ class AbastecimentoScreen extends ConsumerWidget {
     final doMes = lista.where(
         (a) => a.data.year == agora.year && a.data.month == agora.month);
     final gastoMes = doMes.fold<double>(0, (s, a) => s + a.total);
-    final litrosMes = doMes.fold<double>(0, (s, a) => s + a.litros);
+    final litrosMes = doMes.fold<double>(0, (s, a) => s + (a.litros ?? 0));
 
     return Scaffold(
       appBar: AppBar(title: const Text('Abastecimentos')),
@@ -130,7 +130,10 @@ class _CartaoAbastecimento extends StatelessWidget {
               builder: (_) => AlertDialog(
                 backgroundColor: AppColors.surface,
                 title: const Text('Excluir abastecimento?'),
-                content: Text('${dataLonga(a.data)} · ${litros(a.litros)}'),
+                content: Text([
+                  dataLonga(a.data),
+                  if (a.litros != null) litros(a.litros!),
+                ].join(' · ')),
                 actions: [
                   TextButton(
                       onPressed: () => Navigator.pop(context, false),
@@ -178,7 +181,11 @@ class _CartaoAbastecimento extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${litros(a.litros)}  ·  ${reais2(a.precoLitro)}/L',
+                          [
+                            if (a.litros != null) litros(a.litros!),
+                            if (a.precoLitro != null)
+                              '${reais2(a.precoLitro!)}/L',
+                          ].join('  ·  ').ou('Abastecimento'),
                           style: const TextStyle(
                               color: AppColors.text,
                               fontSize: 15,
@@ -186,7 +193,10 @@ class _CartaoAbastecimento extends StatelessWidget {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          [dataCurta(a.data), km(a.odometro)].join(' · '),
+                          [
+                            dataCurta(a.data),
+                            if (a.odometro != null) km(a.odometro!),
+                          ].join(' · '),
                           style: const TextStyle(
                               color: AppColors.dim, fontSize: 12.5),
                         ),
@@ -207,11 +217,12 @@ class _CartaoAbastecimento extends StatelessWidget {
                               style: const TextStyle(
                                   color: AppColors.dim2, fontSize: 10.5)),
                         ),
-                      Text(moeda(a.total),
-                          style: const TextStyle(
-                              color: AppColors.text,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w800)),
+                      if (a.litros != null && a.precoLitro != null)
+                        Text(moeda(a.total),
+                            style: const TextStyle(
+                                color: AppColors.text,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800)),
                     ],
                   ),
                 ],

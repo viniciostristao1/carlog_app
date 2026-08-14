@@ -2,6 +2,10 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-14 — v0.10.0.** (1) **Excluir abastecimento e revisão** por botão (lixeira) na tela de
+  edição — além do arrastar. (2) No abastecimento, **todos os campos são opcionais** (odômetro, litros,
+  preço). (3) **Previsão de revisão refeita**: usa o km dos **últimos 12 meses juntando abastecimentos
+  E revisões**, e aprende o **intervalo de km do seu histórico de revisões** (antes usava um valor fixo).
 - **2026-08-14 — v0.9.0.** (1) No histórico de abastecimento, o **nome do posto** aparece pequeno
   **acima do valor**. (2) Ao lançar abastecimento, o app **sugere os postos** que você já usou; (3) em
   revisões, **sugere a oficina** já usada; (4) no registro de revisão, **sugestões de peças** (como no

@@ -263,29 +263,10 @@ class _CabecalhoVeiculo extends ConsumerWidget {
   /// para o km-alvo se não houver data.
   String _estimativaRevisao(
       Veiculo v, List<Abastecimento> abastecimentos, List<Revisao> revisoes) {
-    final odo = ultimoOdometro(abastecimentos);
-    final comOdo = revisoes.where((r) => r.odometro != null).toList()
-      ..sort((a, b) => a.odometro!.compareTo(b.odometro!));
-    final baseOdo = comOdo.isNotEmpty ? comOdo.last.odometro! : odo;
-
-    DateTime? dataKm;
-    if (baseOdo != null && odo != null) {
-      final faltam = baseOdo + v.revisaoIntervaloKm - odo;
-      dataKm = previsaoData(faltam.toDouble(), ritmoKmPorDia(abastecimentos));
-    }
-
-    DateTime? dataTempo;
-    if (revisoes.isNotEmpty) {
-      final ult = revisoes
-          .map((r) => r.data)
-          .reduce((a, b) => a.isAfter(b) ? a : b);
-      dataTempo =
-          DateTime(ult.year, ult.month + v.revisaoIntervaloMeses, ult.day);
-    }
-
-    final datas = [dataKm, dataTempo].whereType<DateTime>().toList()..sort();
-    if (datas.isNotEmpty) return dataCurta(datas.first);
-    if (baseOdo != null) return km(baseOdo + v.revisaoIntervaloKm);
+    final p = preverRevisao(v, abastecimentos, revisoes);
+    if (p.vencida) return 'Vencida';
+    if (p.data != null) return dataCurta(p.data!);
+    if (p.alvoKm != null) return km(p.alvoKm!);
     return '—';
   }
 }

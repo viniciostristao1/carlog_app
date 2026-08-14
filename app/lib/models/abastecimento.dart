@@ -1,11 +1,12 @@
-/// Um abastecimento. O odômetro (km total do painel) é o que permite calcular a
-/// média entre abastecimentos de "tanque cheio". `precoLitro` × `litros` = total.
+/// Um abastecimento. Todos os campos numéricos são **opcionais** (o usuário pode
+/// registrar só o que tem à mão e completar depois). O odômetro (km do painel) é
+/// o que permite calcular média/previsão; `litros × precoLitro` = total.
 class Abastecimento {
   final String id;
   final DateTime data;
-  final double odometro; // km total no painel no momento do abastecimento
-  final double litros;
-  final double precoLitro;
+  final double? odometro; // km total no painel no momento do abastecimento
+  final double? litros;
+  final double? precoLitro;
   final bool tanqueCheio; // completou o tanque? (necessário p/ média confiável)
   final String posto;
   final String? combustivel; // rótulo livre (Gasolina comum, Etanol, ...)
@@ -14,16 +15,17 @@ class Abastecimento {
   const Abastecimento({
     required this.id,
     required this.data,
-    required this.odometro,
-    required this.litros,
-    required this.precoLitro,
+    this.odometro,
+    this.litros,
+    this.precoLitro,
     this.tanqueCheio = true,
     this.posto = '',
     this.combustivel,
     this.observacao = '',
   });
 
-  double get total => litros * precoLitro;
+  /// Total gasto (0 se litros/preço não informados).
+  double get total => (litros ?? 0) * (precoLitro ?? 0);
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -40,9 +42,9 @@ class Abastecimento {
   factory Abastecimento.fromJson(Map<String, dynamic> j) => Abastecimento(
         id: j['id'] as String,
         data: DateTime.parse(j['data'] as String),
-        odometro: (j['odometro'] as num).toDouble(),
-        litros: (j['litros'] as num).toDouble(),
-        precoLitro: (j['precoLitro'] as num).toDouble(),
+        odometro: (j['odometro'] as num?)?.toDouble(),
+        litros: (j['litros'] as num?)?.toDouble(),
+        precoLitro: (j['precoLitro'] as num?)?.toDouble(),
         tanqueCheio: (j['tanqueCheio'] ?? true) as bool,
         posto: (j['posto'] ?? '') as String,
         combustivel: j['combustivel'] as String?,

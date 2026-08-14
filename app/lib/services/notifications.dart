@@ -150,28 +150,20 @@ class NotifScheduler {
       );
     }
 
-    // Próxima revisão estimada.
+    // Próxima revisão estimada (mesma lógica da tela: km dos últimos 12 meses
+    // combinando abastecimentos + revisões).
     final v = ref.read(veiculoProvider).value;
     final ab = ref.read(abastecimentosProvider).value ?? const [];
     final revs = ref.read(revisoesProvider).value ?? const [];
     if (v != null) {
-      final odo = ultimoOdometro(ab);
-      final comOdo = revs.where((r) => r.odometro != null).toList()
-        ..sort((a, b) => a.odometro!.compareTo(b.odometro!));
-      final base = comOdo.isNotEmpty ? comOdo.last.odometro! : odo;
-      final ritmo = kmPorMesEstimado(ab);
-      if (base != null && odo != null && ritmo != null && ritmo > 0) {
-        final alvo = base + v.revisaoIntervaloKm;
-        final faltamKm = alvo - odo;
-        if (faltamKm > 0) {
-          final dias = (faltamKm / ritmo * 30).round();
-          await svc.agendar(
-            id: _id(v.id, 2),
-            titulo: 'CarLog · Revisão',
-            corpo: 'Sua próxima revisão está chegando (~${km(alvo)}).',
-            quando: _as9(DateTime.now().add(Duration(days: dias))),
-          );
-        }
+      final p = preverRevisao(v, ab, revs);
+      if (p.data != null && p.alvoKm != null) {
+        await svc.agendar(
+          id: _id(v.id, 2),
+          titulo: 'CarLog · Revisão',
+          corpo: 'Sua próxima revisão está chegando (~${km(p.alvoKm!)}).',
+          quando: _as9(p.data!),
+        );
       }
     }
   }

@@ -35,11 +35,14 @@ class _AbastecimentoFormScreenState
   void initState() {
     super.initState();
     final o = widget.original;
-    _odometro =
-        TextEditingController(text: o != null ? n0(o.odometro) : '');
-    _litros = TextEditingController(text: o != null ? n1(o.litros) : '');
-    _preco = TextEditingController(text: o != null ? n2(o.precoLitro) : '');
-    _total = TextEditingController(text: o != null ? n2(o.total) : '');
+    _odometro = TextEditingController(
+        text: o?.odometro != null ? n0(o!.odometro!) : '');
+    _litros =
+        TextEditingController(text: o?.litros != null ? n1(o!.litros!) : '');
+    _preco = TextEditingController(
+        text: o?.precoLitro != null ? n2(o!.precoLitro!) : '');
+    _total = TextEditingController(
+        text: (o?.litros != null && o?.precoLitro != null) ? n2(o!.total) : '');
     _posto = TextEditingController(text: o?.posto ?? '');
     _obs = TextEditingController(text: o?.observacao ?? '');
     _data = o?.data ?? DateTime.now();
@@ -91,27 +94,20 @@ class _AbastecimentoFormScreenState
   Future<void> _salvar() async {
     final odo = parseNumero(_odometro.text);
     final litros = parseNumero(_litros.text);
-    if (odo == null || litros == null || litros <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Preencha o odômetro e os litros.')));
-      return;
-    }
+    // preço/L: informado direto, ou derivado do total (se houver litros).
     double? preco;
     if (_modoTotal) {
       final total = parseNumero(_total.text);
-      if (total == null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Preencha o valor total.')));
-        return;
-      }
-      preco = total / litros;
+      if (total != null && litros != null && litros > 0) preco = total / litros;
     } else {
       preco = parseNumero(_preco.text);
-      if (preco == null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Preencha o preço por litro.')));
-        return;
-      }
+    }
+    // Tudo é opcional, mas ao menos um campo tem de existir.
+    if (odo == null && litros == null && preco == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content:
+              Text('Preencha ao menos um campo (odômetro, litros ou preço).')));
+      return;
     }
     final a = Abastecimento(
       id: widget.original?.id ?? novoId(),
@@ -127,21 +123,55 @@ class _AbastecimentoFormScreenState
     if (mounted) Navigator.of(context).pop();
   }
 
+  Future<void> _excluir() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('Excluir abastecimento?'),
+        content: Text(dataLonga(_data)),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Excluir',
+                  style: TextStyle(color: AppColors.danger))),
+        ],
+      ),
+    );
+    if (ok == true) {
+      await ref
+          .read(abastecimentosProvider.notifier)
+          .remover(widget.original!.id);
+      if (mounted) Navigator.of(context).pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
             widget.original == null ? 'Novo abastecimento' : 'Abastecimento'),
+        actions: [
+          if (widget.original != null)
+            IconButton(
+              tooltip: 'Excluir',
+              icon: const Icon(Icons.delete_outline, color: AppColors.danger),
+              onPressed: _excluir,
+            ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
           _linhaData(),
           const SizedBox(height: 12),
-          _campo(_odometro, 'Odômetro (km)',
+          _campo(_odometro, 'Odômetro (km, opcional)',
               teclado: TextInputType.number, soDigitos: true),
-          _campo(_litros, 'Litros',
+          _campo(_litros, 'Litros (opcional)',
               teclado: const TextInputType.numberWithOptions(decimal: true)),
           _seletorModo(),
           const SizedBox(height: 12),
