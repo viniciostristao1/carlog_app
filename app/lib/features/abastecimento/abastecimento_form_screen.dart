@@ -23,10 +23,12 @@ class _AbastecimentoFormScreenState
   late final TextEditingController _odometro;
   late final TextEditingController _litros;
   late final TextEditingController _preco;
+  late final TextEditingController _total;
   late final TextEditingController _posto;
   late final TextEditingController _obs;
   late DateTime _data;
   late bool _cheio;
+  bool _modoTotal = false; // false = informar preço/L; true = informar valor total
 
   @override
   void initState() {
@@ -36,25 +38,32 @@ class _AbastecimentoFormScreenState
         TextEditingController(text: o != null ? n0(o.odometro) : '');
     _litros = TextEditingController(text: o != null ? n1(o.litros) : '');
     _preco = TextEditingController(text: o != null ? n2(o.precoLitro) : '');
+    _total = TextEditingController(text: o != null ? n2(o.total) : '');
     _posto = TextEditingController(text: o?.posto ?? '');
     _obs = TextEditingController(text: o?.observacao ?? '');
     _data = o?.data ?? DateTime.now();
     _cheio = o?.tanqueCheio ?? true;
-    for (final c in [_litros, _preco]) {
+    for (final c in [_litros, _preco, _total]) {
       c.addListener(() => setState(() {}));
     }
   }
 
   @override
   void dispose() {
-    for (final c in [_odometro, _litros, _preco, _posto, _obs]) {
+    for (final c in [_odometro, _litros, _preco, _total, _posto, _obs]) {
       c.dispose();
     }
     super.dispose();
   }
 
-  double get _total =>
-      (parseNumero(_litros.text) ?? 0) * (parseNumero(_preco.text) ?? 0);
+  double get _litrosNum => parseNumero(_litros.text) ?? 0;
+
+  /// Total calculado (modo preço/L) = litros × preço.
+  double get _totalCalc => _litrosNum * (parseNumero(_preco.text) ?? 0);
+
+  /// Preço/L calculado (modo total) = total ÷ litros.
+  double get _precoCalc =>
+      _litrosNum > 0 ? (parseNumero(_total.text) ?? 0) / _litrosNum : 0;
 
   Future<void> _escolherData() async {
     final d = await showDatePicker(
@@ -69,11 +78,27 @@ class _AbastecimentoFormScreenState
   Future<void> _salvar() async {
     final odo = parseNumero(_odometro.text);
     final litros = parseNumero(_litros.text);
-    final preco = parseNumero(_preco.text);
-    if (odo == null || litros == null || litros <= 0 || preco == null) {
+    if (odo == null || litros == null || litros <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Preencha odômetro, litros e preço por litro.')));
+          content: Text('Preencha o odômetro e os litros.')));
       return;
+    }
+    double? preco;
+    if (_modoTotal) {
+      final total = parseNumero(_total.text);
+      if (total == null) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Preencha o valor total.')));
+        return;
+      }
+      preco = total / litros;
+    } else {
+      preco = parseNumero(_preco.text);
+      if (preco == null) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Preencha o preço por litro.')));
+        return;
+      }
     }
     final a = Abastecimento(
       id: widget.original?.id ?? novoId(),
@@ -103,18 +128,17 @@ class _AbastecimentoFormScreenState
           const SizedBox(height: 12),
           _campo(_odometro, 'Odômetro (km)',
               teclado: TextInputType.number, soDigitos: true),
-          Row(children: [
-            Expanded(
-                child: _campo(_litros, 'Litros',
-                    teclado:
-                        const TextInputType.numberWithOptions(decimal: true))),
-            const SizedBox(width: 12),
-            Expanded(
-                child: _campo(_preco, 'Preço / litro',
-                    teclado:
-                        const TextInputType.numberWithOptions(decimal: true))),
-          ]),
-          _cartaoTotal(),
+          _campo(_litros, 'Litros',
+              teclado: const TextInputType.numberWithOptions(decimal: true)),
+          _seletorModo(),
+          const SizedBox(height: 12),
+          if (_modoTotal)
+            _campo(_total, 'Valor total (R\$)',
+                teclado: const TextInputType.numberWithOptions(decimal: true))
+          else
+            _campo(_preco, 'Preço / litro',
+                teclado: const TextInputType.numberWithOptions(decimal: true)),
+          _cartaoCalculado(),
           const SizedBox(height: 12),
           SwitchListTile(
             value: _cheio,
@@ -164,7 +188,47 @@ class _AbastecimentoFormScreenState
     );
   }
 
-  Widget _cartaoTotal() {
+  Widget _seletorModo() {
+    Widget chip(String txt, bool total) {
+      final sel = _modoTotal == total;
+      return Expanded(
+        child: GestureDetector(
+          onTap: () => setState(() => _modoTotal = total),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 2),
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            decoration: BoxDecoration(
+              color: sel
+                  ? AppColors.catAbastecimento.withValues(alpha: 0.18)
+                  : AppColors.surface2,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                  color: sel ? AppColors.catAbastecimento : AppColors.line),
+            ),
+            child: Text(txt,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: sel ? AppColors.catAbastecimento : AppColors.dim,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600)),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(children: [
+        chip('Informar preço/litro', false),
+        chip('Informar valor total', true),
+      ]),
+    );
+  }
+
+  /// Mostra o valor calculado a partir do que NÃO foi digitado.
+  Widget _cartaoCalculado() {
+    final rotulo = _modoTotal ? 'Preço / litro' : 'Total';
+    final valor = _modoTotal ? _precoCalc : _totalCalc;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -173,10 +237,10 @@ class _AbastecimentoFormScreenState
       ),
       child: Row(
         children: [
-          const Text('Total',
-              style: TextStyle(color: AppColors.dim, fontSize: 14)),
+          Text(rotulo,
+              style: const TextStyle(color: AppColors.dim, fontSize: 14)),
           const Spacer(),
-          Text(moeda(_total),
+          Text(moeda(valor),
               style: const TextStyle(
                   color: AppColors.catAbastecimento,
                   fontSize: 20,

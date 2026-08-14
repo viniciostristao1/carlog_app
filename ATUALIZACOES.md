@@ -2,6 +2,10 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-14 — v0.8.0.** (1) No **abastecimento**, escolha **“informar preço/litro”** (calcula o
+  total) ou **“informar valor total”** (calcula o preço/litro). (2) Na **próxima revisão**, aparece a
+  **média de km/mês dos últimos 12 meses**. (3) Botão do cadastro renomeado para **“Pesquisar carro”**.
+  (4) Removido o desenho do carro da tela inicial.
 - **2026-08-14 — v0.7.0.** (1) **Ler foto do orçamento (OCR)** — em *Revisões → Registrar → “Ler foto”*,
   fotografe (ou escolha da galeria) e o app **transcreve**, separa **item × valor** e preenche os itens
   + total (grátis, offline, no aparelho). (2) **Cadastro do carro só pela FIPE**, com **busca (lupa)**

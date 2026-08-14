@@ -288,8 +288,7 @@ class _CartaoIdentidade extends StatelessWidget {
                     backgroundColor: AppColors.catFipe,
                     foregroundColor: const Color(0xFF160A2B)),
                 icon: const Icon(Icons.search),
-                label: Text(
-                    temIdentidade ? 'Alterar pela FIPE' : 'Buscar na tabela FIPE'),
+                label: const Text('Pesquisar carro'),
               ),
             ),
           ],

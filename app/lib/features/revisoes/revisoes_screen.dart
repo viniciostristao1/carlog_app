@@ -247,6 +247,8 @@ class _CartaoProximaRevisao extends ConsumerWidget {
         faltamKm.toDouble(), ritmoKmPorDia(abastecimentos));
     final previsao = data != null ? '≈ ${dataLonga(data)}' : '—';
     final vencida = faltamKm <= 0;
+    final ritmo12 = ritmoKmPorDia(abastecimentos, dias: 365);
+    final media12 = ritmo12 != null ? ritmo12 * 30 : null;
 
     return wrap(Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,6 +269,29 @@ class _CartaoProximaRevisao extends ConsumerWidget {
           Expanded(child: _mini(vencida ? 'Passou' : 'Faltam', km(faltamKm.abs()))),
           Expanded(child: _mini('Previsão', previsao)),
         ]),
+        if (media12 != null) ...[
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.surface2,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(children: [
+              const Icon(Icons.trending_up, color: AppColors.catConsumo, size: 18),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text('Média nos últimos 12 meses',
+                    style: const TextStyle(color: AppColors.dim, fontSize: 12.5)),
+              ),
+              Text('${km(media12)}/mês',
+                  style: const TextStyle(
+                      color: AppColors.text,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800)),
+            ]),
+          ),
+        ],
       ],
     ));
   }
