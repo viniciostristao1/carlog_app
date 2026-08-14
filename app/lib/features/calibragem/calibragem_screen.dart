@@ -7,6 +7,7 @@ import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
 import '../../util/format.dart';
 import '../../util/ids.dart';
+import '../../widgets/stepper_num.dart';
 
 class CalibragemScreen extends ConsumerWidget {
   const CalibragemScreen({super.key});
@@ -21,7 +22,7 @@ class CalibragemScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Calibragem')),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _registrar(context, ref, v),
+        onPressed: () => _abrirSheet(context, _RegistrarSheet(veiculo: v)),
         backgroundColor: AppColors.catCalibragem,
         foregroundColor: const Color(0xFF04221E),
         icon: const Icon(Icons.add),
@@ -30,7 +31,12 @@ class CalibragemScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
         children: [
-          _CartaoPressao(veiculo: v),
+          _CartaoPressao(
+            veiculo: v,
+            onEditar: v == null
+                ? null
+                : () => _abrirSheet(context, _EditarPressaoSheet(veiculo: v)),
+          ),
           const SizedBox(height: 14),
           _CartaoUltima(ultima: ultima),
           const SizedBox(height: 20),
@@ -52,28 +58,26 @@ class CalibragemScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _registrar(
-      BuildContext context, WidgetRef ref, Veiculo? v) async {
-    await showModalBottomSheet(
+  Future<void> _abrirSheet(BuildContext context, Widget sheet) {
+    return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (_) => _RegistrarSheet(veiculo: v),
+      builder: (_) => sheet,
     );
   }
 }
 
 class _CartaoPressao extends StatelessWidget {
   final Veiculo? veiculo;
-  const _CartaoPressao({required this.veiculo});
+  final VoidCallback? onEditar;
+  const _CartaoPressao({required this.veiculo, required this.onEditar});
 
   @override
   Widget build(BuildContext context) {
-    final temPressao = veiculo?.pressaoDianteira != null ||
-        veiculo?.pressaoTraseira != null;
-    if (!temPressao) {
+    if (veiculo == null) {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(16),
@@ -82,8 +86,8 @@ class _CartaoPressao extends StatelessWidget {
             SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Defina a calibragem recomendada no cadastro do carro (tela '
-                'inicial → cartão do veículo) para vê-la aqui.',
+                'Cadastre o carro (tela inicial) para definir a calibragem '
+                'recomendada aqui.',
                 style: TextStyle(color: AppColors.dim, fontSize: 13),
               ),
             ),
@@ -91,24 +95,42 @@ class _CartaoPressao extends StatelessWidget {
         ),
       );
     }
+    final semPressao = veiculo!.pressaoDianteira == null &&
+        veiculo!.pressaoTraseira == null;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Calibragem recomendada',
-                style: TextStyle(color: AppColors.dim, fontSize: 13)),
-            const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(
-                    child: _pneu('Dianteiro', veiculo?.pressaoDianteira)),
-                Container(width: 1, height: 46, color: AppColors.line),
-                Expanded(
-                    child: _pneu('Traseiro', veiculo?.pressaoTraseira)),
+                const Expanded(
+                  child: Text('Calibragem recomendada',
+                      style: TextStyle(color: AppColors.dim, fontSize: 13)),
+                ),
+                TextButton.icon(
+                  onPressed: onEditar,
+                  icon: Icon(semPressao ? Icons.add : Icons.edit_outlined,
+                      size: 18),
+                  label: Text(semPressao ? 'Definir' : 'Editar'),
+                  style:
+                      TextButton.styleFrom(foregroundColor: AppColors.catCalibragem),
+                ),
               ],
             ),
+            const SizedBox(height: 4),
+            if (semPressao)
+              const Text('Toque em "Definir" e ajuste com − / +.',
+                  style: TextStyle(color: AppColors.dim2, fontSize: 12.5))
+            else
+              Row(
+                children: [
+                  Expanded(child: _pneu('Dianteiro', veiculo!.pressaoDianteira)),
+                  Container(width: 1, height: 46, color: AppColors.line),
+                  Expanded(child: _pneu('Traseiro', veiculo!.pressaoTraseira)),
+                ],
+              ),
           ],
         ),
       ),
@@ -137,9 +159,7 @@ class _CartaoUltima extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final u = ultima;
-    final dias = u != null
-        ? DateTime.now().difference(u.data).inDays
-        : null;
+    final dias = u != null ? DateTime.now().difference(u.data).inDays : null;
     final alerta = dias != null && dias >= 30;
     return Card(
       child: Padding(
@@ -231,6 +251,86 @@ class _LinhaCalibragem extends StatelessWidget {
   }
 }
 
+/// Define a pressão RECOMENDADA (salva no veículo), com − / +.
+class _EditarPressaoSheet extends ConsumerStatefulWidget {
+  final Veiculo veiculo;
+  const _EditarPressaoSheet({required this.veiculo});
+
+  @override
+  ConsumerState<_EditarPressaoSheet> createState() =>
+      _EditarPressaoSheetState();
+}
+
+class _EditarPressaoSheetState extends ConsumerState<_EditarPressaoSheet> {
+  late double _dianteira;
+  late double _traseira;
+
+  @override
+  void initState() {
+    super.initState();
+    _dianteira = widget.veiculo.pressaoDianteira ?? 32;
+    _traseira = widget.veiculo.pressaoTraseira ?? 32;
+  }
+
+  Future<void> _salvar() async {
+    await ref.read(veiculoProvider.notifier).salvar(widget.veiculo.copyWith(
+          pressaoDianteira: _dianteira,
+          pressaoTraseira: _traseira,
+        ));
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+          20, 18, 20, MediaQuery.of(context).viewInsets.bottom + 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Calibragem recomendada',
+              style: TextStyle(
+                  color: AppColors.text,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700)),
+          const SizedBox(height: 16),
+          Row(children: [
+            Expanded(
+              child: StepperNum(
+                label: 'Dianteiro',
+                valor: _dianteira,
+                sufixo: 'psi',
+                cor: AppColors.catCalibragem,
+                onChanged: (v) => setState(() => _dianteira = v),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: StepperNum(
+                label: 'Traseiro',
+                valor: _traseira,
+                sufixo: 'psi',
+                cor: AppColors.catCalibragem,
+                onChanged: (v) => setState(() => _traseira = v),
+              ),
+            ),
+          ]),
+          const SizedBox(height: 18),
+          FilledButton(
+            onPressed: _salvar,
+            style: FilledButton.styleFrom(
+                backgroundColor: AppColors.catCalibragem,
+                foregroundColor: const Color(0xFF04221E)),
+            child: const Text('Salvar'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Registra uma calibragem feita (com − / + e data).
 class _RegistrarSheet extends ConsumerStatefulWidget {
   final Veiculo? veiculo;
   const _RegistrarSheet({required this.veiculo});
@@ -240,28 +340,20 @@ class _RegistrarSheet extends ConsumerStatefulWidget {
 }
 
 class _RegistrarSheetState extends ConsumerState<_RegistrarSheet> {
-  late final TextEditingController _dianteira;
-  late final TextEditingController _traseira;
+  late double _dianteira;
+  late double _traseira;
   final _obs = TextEditingController();
   DateTime _data = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    _dianteira = TextEditingController(
-        text: widget.veiculo?.pressaoDianteira != null
-            ? n1(widget.veiculo!.pressaoDianteira!)
-            : '');
-    _traseira = TextEditingController(
-        text: widget.veiculo?.pressaoTraseira != null
-            ? n1(widget.veiculo!.pressaoTraseira!)
-            : '');
+    _dianteira = widget.veiculo?.pressaoDianteira ?? 32;
+    _traseira = widget.veiculo?.pressaoTraseira ?? 32;
   }
 
   @override
   void dispose() {
-    _dianteira.dispose();
-    _traseira.dispose();
     _obs.dispose();
     super.dispose();
   }
@@ -280,8 +372,8 @@ class _RegistrarSheetState extends ConsumerState<_RegistrarSheet> {
     await ref.read(calibragemProvider.notifier).salvar(Calibragem(
           id: novoId(),
           data: _data,
-          pressaoDianteira: parseNumero(_dianteira.text),
-          pressaoTraseira: parseNumero(_traseira.text),
+          pressaoDianteira: _dianteira,
+          pressaoTraseira: _traseira,
           observacao: _obs.text.trim(),
         ));
     if (mounted) Navigator.of(context).pop();
@@ -322,24 +414,25 @@ class _RegistrarSheetState extends ConsumerState<_RegistrarSheet> {
               ]),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Row(children: [
             Expanded(
-              child: TextField(
-                controller: _dianteira,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                decoration:
-                    const InputDecoration(labelText: 'Dianteiro (psi)'),
+              child: StepperNum(
+                label: 'Dianteiro',
+                valor: _dianteira,
+                sufixo: 'psi',
+                cor: AppColors.catCalibragem,
+                onChanged: (v) => setState(() => _dianteira = v),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: TextField(
-                controller: _traseira,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Traseiro (psi)'),
+              child: StepperNum(
+                label: 'Traseiro',
+                valor: _traseira,
+                sufixo: 'psi',
+                cor: AppColors.catCalibragem,
+                onChanged: (v) => setState(() => _traseira = v),
               ),
             ),
           ]),

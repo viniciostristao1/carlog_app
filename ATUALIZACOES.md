@@ -2,6 +2,11 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-14 — v0.11.0.** (1) Quando a revisão passou da data, o título vira **"Sua revisão pode estar
+  vencida"** e o rótulo da data **"estava prevista"**. (2) A **calibragem recomendada** agora é definida
+  **na tela de Calibragem** (saiu do cadastro do carro), com botões **− / +** para ajustar a pressão dos
+  pneus dianteiros/traseiros. *(Multi-carro — até 3 — vem na próxima.)*
+
 - **2026-08-14 — v0.10.2.** **Previsão de data da revisão refinada** (a seu pedido): a data = **data da
   última revisão + o tempo para rodar um intervalo** no seu **ritmo médio dos últimos 12 meses** (assim
   não erra quando o odômetro está desatualizado). O card mostra **Alvo (km) + Previsão (data) + média/mês**.

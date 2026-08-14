@@ -254,16 +254,20 @@ class _CartaoProximaRevisao extends ConsumerWidget {
           Icon(vencida ? Icons.warning_amber_rounded : Icons.event_repeat,
               color: vencida ? AppColors.warn : AppColors.catRevisoes),
           const SizedBox(width: 10),
-          Text(vencida ? 'Revisão vencida' : 'Próxima revisão',
-              style: const TextStyle(
-                  color: AppColors.text,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700)),
+          Expanded(
+            child: Text(
+                vencida ? 'Sua revisão pode estar vencida' : 'Próxima revisão',
+                style: const TextStyle(
+                    color: AppColors.text,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700)),
+          ),
         ]),
         const SizedBox(height: 12),
         Row(children: [
           Expanded(child: _mini('Alvo', km(alvoKm))),
-          Expanded(child: _mini(vencida ? 'Venceu em' : 'Previsão', previsao)),
+          Expanded(
+              child: _mini(vencida ? 'estava prevista' : 'Previsão', previsao)),
         ]),
         if (media12 != null) ...[
           const SizedBox(height: 12),

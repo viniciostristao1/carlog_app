@@ -25,8 +25,6 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
   late final TextEditingController _apelido;
   late final TextEditingController _placa;
   late final TextEditingController _tanque;
-  late final TextEditingController _pDianteira;
-  late final TextEditingController _pTraseira;
   late final TextEditingController _revKm;
   late final TextEditingController _revMeses;
 
@@ -49,10 +47,6 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
     _placa = TextEditingController(text: v?.placa ?? '');
     _tanque = TextEditingController(
         text: v?.tanqueLitros != null ? n1(v!.tanqueLitros!) : '');
-    _pDianteira = TextEditingController(
-        text: v?.pressaoDianteira != null ? n1(v!.pressaoDianteira!) : '');
-    _pTraseira = TextEditingController(
-        text: v?.pressaoTraseira != null ? n1(v!.pressaoTraseira!) : '');
     _revKm =
         TextEditingController(text: (v?.revisaoIntervaloKm ?? 10000).toString());
     _revMeses = TextEditingController(
@@ -70,9 +64,7 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
 
   @override
   void dispose() {
-    for (final c in [
-      _apelido, _placa, _tanque, _pDianteira, _pTraseira, _revKm, _revMeses,
-    ]) {
+    for (final c in [_apelido, _placa, _tanque, _revKm, _revMeses]) {
       c.dispose();
     }
     super.dispose();
@@ -108,8 +100,9 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
       placa: _placa.text.trim(),
       combustivel: _combustivel,
       tanqueLitros: parseNumero(_tanque.text),
-      pressaoDianteira: parseNumero(_pDianteira.text),
-      pressaoTraseira: parseNumero(_pTraseira.text),
+      // Pressão recomendada é editada na tela de Calibragem — preserva a atual.
+      pressaoDianteira: widget.veiculo?.pressaoDianteira,
+      pressaoTraseira: widget.veiculo?.pressaoTraseira,
       revisaoIntervaloKm: int.tryParse(_revKm.text.trim()) ?? 10000,
       revisaoIntervaloMeses: int.tryParse(_revMeses.text.trim()) ?? 12,
       fipeCodigo: _fipeCodigo,
@@ -148,19 +141,6 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
           _campo(_placa, 'Placa (opcional)', upper: true),
           _campo(_tanque, 'Tanque (litros, opcional)',
               teclado: const TextInputType.numberWithOptions(decimal: true)),
-          const SizedBox(height: 4),
-          _secao('Calibragem recomendada (psi)'),
-          Row(children: [
-            Expanded(
-                child: _campo(_pDianteira, 'Dianteiro',
-                    teclado:
-                        const TextInputType.numberWithOptions(decimal: true))),
-            const SizedBox(width: 12),
-            Expanded(
-                child: _campo(_pTraseira, 'Traseiro',
-                    teclado:
-                        const TextInputType.numberWithOptions(decimal: true))),
-          ]),
           const SizedBox(height: 8),
           _secao('Intervalo de revisão'),
           Row(children: [
