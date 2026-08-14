@@ -2,6 +2,24 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-14 — Cadastro só-FIPE com busca, home-estatísticas, logo maior (v0.7.0)
+
+- **3ª quebra do OCR: "Removing unused resources requires unused code shrinking to be turned on"** — o
+  Flutter liga `shrinkResources` no release; ao pôr `isMinifyEnabled=false` ficou inconsistente. Fix:
+  `isShrinkResources=false` junto. (v0.7.0 foi o 1º build verde com o OCR.)
+- **Cadastro só-FIPE:** `VeiculoFormScreen` perdeu os campos manuais de marca/modelo/ano/combustível;
+  identidade vem do `FipePickerScreen` (botão "Buscar na tabela FIPE"), mostrada num cartão read-only.
+  Manuais só: apelido, placa, tanque, calibragem recomendada, intervalo de revisão.
+- **Busca (lupa) na FIPE:** `FipeSeletor` trocou os `DropdownButtonFormField` por campos que abrem um
+  `_BuscaSheet` (TextField + lista filtrada, normaliza acento) — evita rolar ~90 marcas / centenas de
+  modelos.
+- **Home sem duplicidade:** `_CabecalhoVeiculo` não repete mais marca/modelo (título = apelido OU
+  marca/modelo; subtítulo só com apelido). Grade de 6 estatísticas: odômetro, km/mês, combustível/mês,
+  FIPE, última calibragem, **previsão de revisão** (menor data entre km-based e tempo-based;
+  `_estimativaRevisao`).
+- **Ícone maior:** `gerar_icone.py` faz **autocrop** do conteúdo (bbox do navy sobre o âmbar) antes de
+  quadrar → desenhos preenchem; `FG=944` (~92%).
+
 ## 2026-08-13 — OCR do orçamento, grátis/offline (v0.6.0)
 
 - `google_mlkit_text_recognition` (0.15.1, modelo Latin **bundled**, roda no aparelho, sem custo/rede) +

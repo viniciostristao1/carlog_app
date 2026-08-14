@@ -23,14 +23,14 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 
 ## ⭐ ESTADO ATUAL (2026-08-13) — ler primeiro pós-/clear
 
-**v0.6.2 — NUVEM LIGADA + OCR** (`flutter analyze` limpo, 7 testes de consumo/previsão passando). Repositório GitHub
+**v0.7.0 — NUVEM LIGADA + OCR** (`flutter analyze` limpo, 7 testes de consumo/previsão passando). Repositório GitHub
 **criado e no ar** (`viniciostristao1/carlog_app`, privado) — o CI compila **só o APK** a cada push
 (AAB só no lançamento; ver APRENDIZADOS), assinado pela keystore de upload. **Firebase provisionado**
 (projeto `carlog-b4ef3`): `kFirebaseConfigured = true`, **login Google + sync Firestore ativos**,
 `firebase_options.dart` real versionado, SHA-1 da keystore registrado. v0.1.0 = base; v0.2.x
 **notificações**; v0.3.0 **nuvem/login**; v0.4.0 **ícone âmbar** (logo do usuário) + accent âmbar +
 **cadastro do carro pela FIPE** + **Revisões/Programar** (km-alvo, frequência, sugestões) + **previsão
-de data** da próxima revisão/itens; v0.5.0 **FIPE dentro do cadastro** + ícone maior; v0.6.2 **OCR do
+de data** da próxima revisão/itens; v0.5.0 **FIPE dentro do cadastro** + ícone maior; v0.7.0 **OCR do
 orçamento** (ML Kit, grátis/offline: foto → item×valor → itens + total).
 
 **Decisões de origem (2026-08-13):** nome **CarLog** (pacote `com.vinyapps.carlog`); armazenamento

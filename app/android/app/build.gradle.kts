@@ -67,6 +67,7 @@ android {
             // maior, mas o build é estável. (Reativar só com runner maior + as
             // regras do proguard-rules.pro, que já estão prontas para o ML Kit.)
             isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",

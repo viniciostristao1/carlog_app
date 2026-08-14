@@ -10,9 +10,9 @@ import '../../util/ids.dart';
 import '../fipe/fipe_picker_screen.dart';
 import '../fipe/fipe_seletor.dart';
 
-/// Cadastro/edição do veículo. Guarda também os parâmetros usados por outras
-/// telas: pressão recomendada (Calibragem) e intervalo de revisão (estimativa da
-/// próxima). A FIPE é preenchida pela tela "Minha FIPE".
+/// Cadastro/edição do veículo. A **identidade** (marca/modelo/ano/combustível)
+/// vem da **tabela FIPE** (busca com lupa); manual só a placa, apelido, tanque,
+/// calibragem recomendada e intervalo de revisão. Tudo opcional.
 class VeiculoFormScreen extends ConsumerStatefulWidget {
   final Veiculo? veiculo;
   const VeiculoFormScreen({super.key, this.veiculo});
@@ -23,18 +23,18 @@ class VeiculoFormScreen extends ConsumerStatefulWidget {
 
 class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
   late final TextEditingController _apelido;
-  late final TextEditingController _marca;
-  late final TextEditingController _modelo;
-  late final TextEditingController _ano;
   late final TextEditingController _placa;
   late final TextEditingController _tanque;
   late final TextEditingController _pDianteira;
   late final TextEditingController _pTraseira;
   late final TextEditingController _revKm;
   late final TextEditingController _revMeses;
-  late Combustivel _combustivel;
 
-  // FIPE preenchida pelo seletor (ou herdada do veículo em edição).
+  // Identidade (FIPE) — não editável à mão.
+  String _marca = '';
+  String _modelo = '';
+  int? _ano;
+  Combustivel _combustivel = Combustivel.flex;
   String? _fipeCodigo;
   String? _fipeCodigoTabela;
   double? _fipeValor;
@@ -46,9 +46,6 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
     super.initState();
     final v = widget.veiculo;
     _apelido = TextEditingController(text: v?.apelido ?? '');
-    _marca = TextEditingController(text: v?.marca ?? '');
-    _modelo = TextEditingController(text: v?.modelo ?? '');
-    _ano = TextEditingController(text: v?.ano?.toString() ?? '');
     _placa = TextEditingController(text: v?.placa ?? '');
     _tanque = TextEditingController(
         text: v?.tanqueLitros != null ? n1(v!.tanqueLitros!) : '');
@@ -56,14 +53,29 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
         text: v?.pressaoDianteira != null ? n1(v!.pressaoDianteira!) : '');
     _pTraseira = TextEditingController(
         text: v?.pressaoTraseira != null ? n1(v!.pressaoTraseira!) : '');
-    _revKm = TextEditingController(text: (v?.revisaoIntervaloKm ?? 10000).toString());
-    _revMeses = TextEditingController(text: (v?.revisaoIntervaloMeses ?? 12).toString());
+    _revKm =
+        TextEditingController(text: (v?.revisaoIntervaloKm ?? 10000).toString());
+    _revMeses = TextEditingController(
+        text: (v?.revisaoIntervaloMeses ?? 12).toString());
+    _marca = v?.marca ?? '';
+    _modelo = v?.modelo ?? '';
+    _ano = v?.ano;
     _combustivel = v?.combustivel ?? Combustivel.flex;
     _fipeCodigo = v?.fipeCodigo;
     _fipeCodigoTabela = v?.fipeCodigoTabela;
     _fipeValor = v?.fipeValor;
     _fipeMesRef = v?.fipeMesRef;
     _fipeConsultadoEm = v?.fipeConsultadoEm;
+  }
+
+  @override
+  void dispose() {
+    for (final c in [
+      _apelido, _placa, _tanque, _pDianteira, _pTraseira, _revKm, _revMeses,
+    ]) {
+      c.dispose();
+    }
+    super.dispose();
   }
 
   Future<void> _buscarFipe() async {
@@ -73,9 +85,9 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
     final r = sel.resultado;
     final anoInt = int.tryParse(r.anoModelo);
     setState(() {
-      _marca.text = r.marca;
-      _modelo.text = r.modelo;
-      if (anoInt != null && anoInt <= 2100) _ano.text = '$anoInt';
+      _marca = r.marca;
+      _modelo = r.modelo;
+      if (anoInt != null && anoInt <= 2100) _ano = anoInt;
       _combustivel = combustivelDaFipe(r.combustivel);
       _fipeCodigo = r.codigoFipe;
       _fipeCodigoTabela = sel.codigoTabela;
@@ -83,21 +95,6 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
       _fipeMesRef = r.mesReferencia;
       _fipeConsultadoEm = DateTime.now();
     });
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Dados preenchidos pela FIPE. Confira e salve.')));
-    }
-  }
-
-  @override
-  void dispose() {
-    for (final c in [
-      _apelido, _marca, _modelo, _ano, _placa, _tanque,
-      _pDianteira, _pTraseira, _revKm, _revMeses,
-    ]) {
-      c.dispose();
-    }
-    super.dispose();
   }
 
   Future<void> _salvar() async {
@@ -105,9 +102,9 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
     final v = Veiculo(
       id: base?.id ?? novoId(),
       apelido: _apelido.text.trim(),
-      marca: _marca.text.trim(),
-      modelo: _modelo.text.trim(),
-      ano: int.tryParse(_ano.text.trim()),
+      marca: _marca,
+      modelo: _modelo,
+      ano: _ano,
       placa: _placa.text.trim(),
       combustivel: _combustivel,
       tanqueLitros: parseNumero(_tanque.text),
@@ -115,7 +112,6 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
       pressaoTraseira: parseNumero(_pTraseira.text),
       revisaoIntervaloKm: int.tryParse(_revKm.text.trim()) ?? 10000,
       revisaoIntervaloMeses: int.tryParse(_revMeses.text.trim()) ?? 12,
-      // FIPE (preenchida pelo seletor ou herdada)
       fipeCodigo: _fipeCodigo,
       fipeCodigoTabela: _fipeCodigoTabela,
       fipeValor: _fipeValor,
@@ -128,6 +124,8 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final temIdentidade = _marca.isNotEmpty || _modelo.isNotEmpty;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.veiculo == null ? 'Cadastrar carro' : 'Meu carro'),
@@ -135,61 +133,22 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
         children: [
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: _buscarFipe,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.catFipe,
-                side: const BorderSide(color: AppColors.catFipe),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              icon: const Icon(Icons.request_quote_outlined),
-              label: const Text('Preencher pela tabela FIPE'),
-            ),
+          _CartaoIdentidade(
+            marca: _marca,
+            modelo: _modelo,
+            ano: _ano,
+            combustivel: _combustivel,
+            fipeValor: _fipeValor,
+            temIdentidade: temIdentidade,
+            onBuscar: _buscarFipe,
           ),
-          const SizedBox(height: 6),
-          const Text('Busca marca, modelo, ano e combustível pela FIPE.',
-              style: TextStyle(color: AppColors.dim2, fontSize: 12)),
-          const SizedBox(height: 14),
-          _campo(_apelido, 'Apelido', hint: 'Ex.: Meu Onix', capitalize: true),
-          Row(children: [
-            Expanded(child: _campo(_marca, 'Marca', capitalize: true)),
-            const SizedBox(width: 12),
-            Expanded(child: _campo(_modelo, 'Modelo', capitalize: true)),
-          ]),
-          Row(children: [
-            Expanded(
-                child: _campo(_ano, 'Ano',
-                    teclado: TextInputType.number, soDigitos: true)),
-            const SizedBox(width: 12),
-            Expanded(child: _campo(_placa, 'Placa', upper: true)),
-          ]),
-          const SizedBox(height: 4),
-          _rotulo('Combustível'),
-          const SizedBox(height: 6),
-          Wrap(
-            spacing: 8,
-            children: Combustivel.values.map((c) {
-              final sel = c == _combustivel;
-              return ChoiceChip(
-                label: Text(c.rotulo),
-                selected: sel,
-                onSelected: (_) => setState(() => _combustivel = c),
-                selectedColor: AppColors.accent.withValues(alpha: 0.25),
-                backgroundColor: AppColors.surface2,
-                labelStyle: TextStyle(
-                    color: sel ? AppColors.accent : AppColors.dim,
-                    fontWeight: FontWeight.w600),
-                side: BorderSide(
-                    color: sel ? AppColors.accent : AppColors.line),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 16),
-          _campo(_tanque, 'Tanque (litros)',
+          const SizedBox(height: 18),
+          _campo(_apelido, 'Apelido (opcional)',
+              hint: 'Ex.: Meu Onix', capitalize: true),
+          _campo(_placa, 'Placa (opcional)', upper: true),
+          _campo(_tanque, 'Tanque (litros, opcional)',
               teclado: const TextInputType.numberWithOptions(decimal: true)),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           _secao('Calibragem recomendada (psi)'),
           Row(children: [
             Expanded(
@@ -214,21 +173,11 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
                     teclado: TextInputType.number, soDigitos: true)),
           ]),
           const SizedBox(height: 24),
-          FilledButton(
-            onPressed: _salvar,
-            child: const Text('Salvar'),
-          ),
+          FilledButton(onPressed: _salvar, child: const Text('Salvar')),
         ],
       ),
     );
   }
-
-  Widget _rotulo(String t) => Padding(
-        padding: const EdgeInsets.only(left: 4),
-        child: Text(t,
-            style: const TextStyle(
-                color: AppColors.dim, fontSize: 13, fontWeight: FontWeight.w600)),
-      );
 
   Widget _secao(String t) => Padding(
         padding: const EdgeInsets.only(top: 8, bottom: 10, left: 4),
@@ -257,10 +206,94 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
             capitalize ? TextCapitalization.words : TextCapitalization.none,
         inputFormatters: [
           if (soDigitos) FilteringTextInputFormatter.digitsOnly,
-          if (upper) TextInputFormatter.withFunction(
-              (o, n) => n.copyWith(text: n.text.toUpperCase())),
+          if (upper)
+            TextInputFormatter.withFunction(
+                (o, n) => n.copyWith(text: n.text.toUpperCase())),
         ],
         decoration: InputDecoration(labelText: label, hintText: hint),
+      ),
+    );
+  }
+}
+
+class _CartaoIdentidade extends StatelessWidget {
+  final String marca;
+  final String modelo;
+  final int? ano;
+  final Combustivel combustivel;
+  final double? fipeValor;
+  final bool temIdentidade;
+  final VoidCallback onBuscar;
+  const _CartaoIdentidade({
+    required this.marca,
+    required this.modelo,
+    required this.ano,
+    required this.combustivel,
+    required this.fipeValor,
+    required this.temIdentidade,
+    required this.onBuscar,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.directions_car_filled,
+                    color: AppColors.catFipe),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: temIdentidade
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('$marca $modelo'.trim(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    color: AppColors.text,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700)),
+                            const SizedBox(height: 2),
+                            Text(
+                              [
+                                if (ano != null) '$ano',
+                                combustivel.rotulo,
+                                if (fipeValor != null) moeda(fipeValor!),
+                              ].join(' · '),
+                              style: const TextStyle(
+                                  color: AppColors.dim, fontSize: 12.5),
+                            ),
+                          ],
+                        )
+                      : const Text(
+                          'Busque seu carro na tabela FIPE (marca, modelo, ano).',
+                          style:
+                              TextStyle(color: AppColors.dim, fontSize: 13.5),
+                        ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: onBuscar,
+                style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.catFipe,
+                    foregroundColor: const Color(0xFF160A2B)),
+                icon: const Icon(Icons.search),
+                label: Text(
+                    temIdentidade ? 'Alterar pela FIPE' : 'Buscar na tabela FIPE'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

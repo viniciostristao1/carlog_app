@@ -2,9 +2,12 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
-- **2026-08-13 — v0.6.2.** **Ler foto do orçamento (OCR)** — em *Revisões → Registrar → “Ler foto”*,
-  tire foto (ou escolha da galeria) e o app **transcreve** o orçamento, separa **item × valor**, você
-  marca o que importar e ele preenche os itens + o total. Tudo **no aparelho, grátis e offline**.
+- **2026-08-14 — v0.7.0.** (1) **Ler foto do orçamento (OCR)** — em *Revisões → Registrar → “Ler foto”*,
+  fotografe (ou escolha da galeria) e o app **transcreve**, separa **item × valor** e preenche os itens
+  + total (grátis, offline, no aparelho). (2) **Cadastro do carro só pela FIPE**, com **busca (lupa)**
+  em marca/modelo/ano — sem rolar listas gigantes. (3) **Tela inicial** sem informação repetida: agora
+  mostra **odômetro, km no mês, combustível no mês, FIPE, última calibragem e previsão de revisão**.
+  (4) **Logo maior** no ícone.
 - **2026-08-13 — v0.5.0.** (1) No **Cadastrar veículo** agora tem **“Preencher pela tabela FIPE”** —
   busca marca/modelo/ano/combustível ali dentro do cadastro; (2) **logo/ícone um pouco maior**.
 - **2026-08-13 — v0.4.0.** (1) **Ícone novo** (seu logo, âmbar mais forte) e o app ficou **âmbar** como

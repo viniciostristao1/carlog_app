@@ -31,7 +31,18 @@ Combustivel combustivelDaFipe(String s) {
   return Combustivel.flex;
 }
 
-/// Cascata reutilizável marca → modelo → ano → valor da tabela FIPE. Chama
+String _norm(String s) {
+  const de = 'áàâãäéèêëíìîïóòôõöúùûüç';
+  const para = 'aaaaaeeeeiiiiooooouuuuc';
+  var out = s.toLowerCase();
+  for (var i = 0; i < de.length; i++) {
+    out = out.replaceAll(de[i], para[i]);
+  }
+  return out;
+}
+
+/// Cascata reutilizável marca → modelo → ano → valor. Cada campo abre uma BUSCA
+/// (com lupa) para filtrar por digitação — sem rolar listas enormes. Chama
 /// [onSelecao] com a seleção quando um valor é consultado (ou null ao limpar).
 class FipeSeletor extends StatefulWidget {
   final ValueChanged<FipeSelecao?> onSelecao;
@@ -80,8 +91,7 @@ class _FipeSeletorState extends State<FipeSeletor> {
     }
   }
 
-  Future<void> _selecionarMarca(FipeItem? m) async {
-    if (m == null) return;
+  Future<void> _selecionarMarca(FipeItem m) async {
     widget.onSelecao(null);
     setState(() {
       _marca = m;
@@ -103,8 +113,8 @@ class _FipeSeletorState extends State<FipeSeletor> {
     }
   }
 
-  Future<void> _selecionarModelo(FipeItem? m) async {
-    if (m == null || _marca == null) return;
+  Future<void> _selecionarModelo(FipeItem m) async {
+    if (_marca == null) return;
     widget.onSelecao(null);
     setState(() {
       _modelo = m;
@@ -124,8 +134,8 @@ class _FipeSeletorState extends State<FipeSeletor> {
     }
   }
 
-  Future<void> _selecionarAno(FipeItem? a) async {
-    if (a == null || _marca == null || _modelo == null) return;
+  Future<void> _selecionarAno(FipeItem a) async {
+    if (_marca == null || _modelo == null) return;
     widget.onSelecao(null);
     setState(() {
       _ano = a;
@@ -150,30 +160,31 @@ class _FipeSeletorState extends State<FipeSeletor> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _dropdown(
+        _campo(
           rotulo: 'Marca',
-          itens: _marcas,
           valor: _marca,
+          itens: _marcas,
           carregando: _carregandoMarcas,
-          onChanged: _selecionarMarca,
+          habilitado: true,
+          onSel: _selecionarMarca,
         ),
         const SizedBox(height: 12),
-        _dropdown(
+        _campo(
           rotulo: 'Modelo',
-          itens: _modelos,
           valor: _modelo,
+          itens: _modelos,
           carregando: _carregandoModelos,
           habilitado: _marca != null,
-          onChanged: _selecionarModelo,
+          onSel: _selecionarModelo,
         ),
         const SizedBox(height: 12),
-        _dropdown(
+        _campo(
           rotulo: 'Ano',
-          itens: _anos,
           valor: _ano,
+          itens: _anos,
           carregando: _carregandoAnos,
           habilitado: _modelo != null,
-          onChanged: _selecionarAno,
+          onSel: _selecionarAno,
         ),
         const SizedBox(height: 16),
         if (_carregandoValor)
@@ -196,41 +207,143 @@ class _FipeSeletorState extends State<FipeSeletor> {
     );
   }
 
-  Widget _dropdown({
+  Widget _campo({
     required String rotulo,
-    required List<FipeItem> itens,
     required FipeItem? valor,
-    required ValueChanged<FipeItem?> onChanged,
-    bool carregando = false,
-    bool habilitado = true,
+    required List<FipeItem> itens,
+    required bool carregando,
+    required bool habilitado,
+    required ValueChanged<FipeItem> onSel,
   }) {
-    return DropdownButtonFormField<FipeItem>(
-      initialValue: valor,
-      isExpanded: true,
-      dropdownColor: AppColors.surface2,
-      decoration: InputDecoration(
-        labelText: rotulo,
-        suffixIcon: carregando
-            ? const Padding(
-                padding: EdgeInsets.all(12),
-                child: SizedBox(
+    final ativo = habilitado && !carregando && itens.isNotEmpty;
+    return InkWell(
+      onTap: ativo
+          ? () async {
+              final sel = await showModalBottomSheet<FipeItem>(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: AppColors.surface,
+                shape: const RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(20))),
+                builder: (_) => _BuscaSheet(titulo: rotulo, itens: itens),
+              );
+              if (sel != null) onSel(sel);
+            }
+          : null,
+      borderRadius: BorderRadius.circular(14),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: rotulo,
+          enabled: habilitado,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                valor?.nome ??
+                    (carregando
+                        ? 'Carregando…'
+                        : (habilitado ? 'Toque para buscar' : '—')),
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    color: valor != null ? AppColors.text : AppColors.dim2),
+              ),
+            ),
+            carregando
+                ? const SizedBox(
                     width: 18,
                     height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2)),
-              )
-            : null,
+                    child: CircularProgressIndicator(strokeWidth: 2))
+                : Icon(Icons.search,
+                    color: ativo ? AppColors.accent : AppColors.dim2),
+          ],
+        ),
       ),
-      hint: Text(carregando ? 'Carregando…' : 'Selecione',
-          style: const TextStyle(color: AppColors.dim2)),
-      items: itens
-          .map((e) => DropdownMenuItem(
-                value: e,
-                child: Text(e.nome,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: AppColors.text)),
-              ))
-          .toList(),
-      onChanged: (habilitado && !carregando) ? onChanged : null,
+    );
+  }
+}
+
+/// Busca com lupa: campo de texto no topo + lista filtrada. Devolve o item.
+class _BuscaSheet extends StatefulWidget {
+  final String titulo;
+  final List<FipeItem> itens;
+  const _BuscaSheet({required this.titulo, required this.itens});
+
+  @override
+  State<_BuscaSheet> createState() => _BuscaSheetState();
+}
+
+class _BuscaSheetState extends State<_BuscaSheet> {
+  final _c = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _c.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final termo = _norm(_c.text.trim());
+    final filtrados = termo.isEmpty
+        ? widget.itens
+        : widget.itens.where((i) => _norm(i.nome).contains(termo)).toList();
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.82,
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                  color: AppColors.line,
+                  borderRadius: BorderRadius.circular(2)),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: TextField(
+                controller: _c,
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: 'Buscar ${widget.titulo.toLowerCase()}…',
+                  prefixIcon: const Icon(Icons.search, color: AppColors.dim),
+                  suffixIcon: _c.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.close, color: AppColors.dim),
+                          onPressed: () => _c.clear(),
+                        )
+                      : null,
+                ),
+              ),
+            ),
+            Expanded(
+              child: filtrados.isEmpty
+                  ? const Center(
+                      child: Text('Nada encontrado.',
+                          style: TextStyle(color: AppColors.dim)))
+                  : ListView.builder(
+                      itemCount: filtrados.length,
+                      itemBuilder: (_, i) => ListTile(
+                        title: Text(filtrados[i].nome,
+                            style: const TextStyle(color: AppColors.text)),
+                        onTap: () => Navigator.pop(context, filtrados[i]),
+                      ),
+                    ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
