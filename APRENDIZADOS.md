@@ -2,6 +2,20 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-14 — Multi-veículo até 3 (v0.12.0)
+
+- `veiculo` (objeto único, `veiculo_v1`) → **lista** `veiculos_v1` (`VeiculosNotifier`, máx `maxVeiculos=3`)
+  + `veiculo_sel_v1` (id selecionado, `VeiculoSelIdNotifier`) + derivado `veiculoSelecionadoProvider`.
+  **Migração local** automática do `veiculo_v1` antigo → lista de 1 (id preservado). `veiculo_v1` NÃO
+  entra em `todosOsStores` (a migração é local; o `veiculos_v1` é que sincroniza). `veiculo_sel_v1` é
+  string simples → `storesObjeto` (merge "mantém local, senão nuvem", não união por id).
+- **Cada modelo ganhou `veiculoId`** (nullable). Telas leem via providers FILTRADOS
+  (`xDoVeiculoProvider`, base `_doVeiculoSel`): item pertence ao carro se `veiculoId==sel` OU
+  (`veiculoId==null` E é o 1º carro). Forms carimbam `veiculoId` ao criar (preservam ao editar).
+  Notificações usam os dados filtrados do carro selecionado + reagendam ao trocar de carro.
+- Home: `_SeletorCarros` (chips + "+ Carro"); excluir carro no form (`remover`, reajusta seleção).
+- Padrão documentado no ARQUITETURA (seção multi-veículo) para o DeepSeek não misturar carros.
+
 ## 2026-08-14 — Campos opcionais + previsão de revisão refeita (v0.10.0)
 
 - **Abastecimento: `odometro`, `litros`, `precoLitro` agora NULLABLE** (`double?`). `total = (litros ??

@@ -3,6 +3,7 @@
 /// o que permite calcular média/previsão; `litros × precoLitro` = total.
 class Abastecimento {
   final String id;
+  final String? veiculoId; // a qual carro pertence (null = carro original)
   final DateTime data;
   final double? odometro; // km total no painel no momento do abastecimento
   final double? litros;
@@ -14,6 +15,7 @@ class Abastecimento {
 
   const Abastecimento({
     required this.id,
+    this.veiculoId,
     required this.data,
     this.odometro,
     this.litros,
@@ -29,6 +31,7 @@ class Abastecimento {
 
   Map<String, dynamic> toJson() => {
         'id': id,
+        'veiculoId': veiculoId,
         'data': data.toIso8601String(),
         'odometro': odometro,
         'litros': litros,
@@ -41,6 +44,7 @@ class Abastecimento {
 
   factory Abastecimento.fromJson(Map<String, dynamic> j) => Abastecimento(
         id: j['id'] as String,
+        veiculoId: j['veiculoId'] as String?,
         data: DateTime.parse(j['data'] as String),
         odometro: (j['odometro'] as num?)?.toDouble(),
         litros: (j['litros'] as num?)?.toDouble(),

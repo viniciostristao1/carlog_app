@@ -48,7 +48,7 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
 
   /// Oficinas já usadas, mais recentes primeiro (sugestão ao preencher).
   List<String> _oficinasAnteriores() {
-    final lista = ref.read(revisoesProvider).value ?? const [];
+    final lista = ref.read(revisoesDoVeiculoProvider);
     final ordenados = [...lista]..sort((a, b) => b.data.compareTo(a.data));
     final vistos = <String>[];
     for (final r in ordenados) {
@@ -63,7 +63,7 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
   List<String> _sugestoesItens() {
     final termo = semAcento(_itemCtrl.text.trim());
     final usados =
-        (ref.read(revisoesProvider).value ?? const []).expand((r) => r.itens);
+        (ref.read(revisoesDoVeiculoProvider)).expand((r) => r.itens);
     final nomes = <String>{...itensSugeridos.map((s) => s.nome), ...usados};
     final out = <String>[];
     for (final n in nomes) {
@@ -215,6 +215,8 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
     }
     final r = Revisao(
       id: widget.original?.id ?? novoId(),
+      veiculoId:
+          widget.original?.veiculoId ?? ref.read(veiculoSelecionadoProvider)?.id,
       data: _data,
       odometro: parseNumero(_odometro.text),
       titulo: _titulo.text.trim(),

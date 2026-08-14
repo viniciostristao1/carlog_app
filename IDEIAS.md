@@ -22,7 +22,7 @@ Datar e marcar status. Ideias saem daqui para virar versão.
 - **[ ] Custo por km e "gasto total do carro"** (combustível + revisões + impostos) num painel. *(2026-08-13)*
 
 ## Prioridade baixa / a discutir
-- **[ ] Multi-veículo** (hoje é um carro só). Exigiria escopar todos os stores por veículo. *(2026-08-13)*
+- **[x] Multi-veículo (até 3) — FEITO v0.12.0** (hoje é um carro só). Exigiria escopar todos os stores por veículo. *(2026-08-13)*
 - **[ ] Exportar/compartilhar** histórico (CSV/PDF). *(2026-08-13)*
 - **[ ] Tema claro** (hoje só escuro; `AppColors` está pronto para virar switch de paleta). *(2026-08-13)*
 - **[ ] Registro de estacionamento/pedágio como despesa** (hoje entram como lembrete). *(2026-08-13)*

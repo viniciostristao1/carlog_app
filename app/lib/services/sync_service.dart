@@ -76,7 +76,7 @@ class SyncController {
       _primeiroSnapshot = false;
       _aplicandoRemoto = true;
       for (final chave in todosOsStores) {
-        if (chave == chaveVeiculo) {
+        if (storesObjeto.contains(chave)) {
           _mergeObjeto(prefs, chave, data[chave]);
         } else {
           _mergeLista(prefs, chave, data[chave]);
@@ -158,7 +158,8 @@ class SyncController {
   }
 
   void _invalidar() {
-    ref.invalidate(veiculoProvider);
+    ref.invalidate(veiculosProvider);
+    ref.invalidate(veiculoSelIdProvider);
     ref.invalidate(abastecimentosProvider);
     ref.invalidate(mediasProvider);
     ref.invalidate(revisoesProvider);
@@ -185,7 +186,8 @@ final syncProvider = Provider<SyncController>((ref) {
     }
   }, fireImmediately: true);
 
-  ref.listen(veiculoProvider, (_, _) => controller.onLocalChange());
+  ref.listen(veiculosProvider, (_, _) => controller.onLocalChange());
+  ref.listen(veiculoSelIdProvider, (_, _) => controller.onLocalChange());
   ref.listen(abastecimentosProvider, (_, _) => controller.onLocalChange());
   ref.listen(mediasProvider, (_, _) => controller.onLocalChange());
   ref.listen(revisoesProvider, (_, _) => controller.onLocalChange());

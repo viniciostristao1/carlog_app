@@ -132,8 +132,8 @@ class NotifScheduler {
     final ativo = ref.read(notifAtivasProvider).value ?? false;
     if (!ativo) return;
 
-    // Lembretes não pagos: no dia e 3 dias antes.
-    final lembretes = ref.read(lembretesProvider).value ?? const [];
+    // Lembretes não pagos do carro selecionado: no dia e 3 dias antes.
+    final lembretes = ref.read(lembretesDoVeiculoProvider);
     for (final l in lembretes.where((e) => !e.pago)) {
       final nome = l.titulo.isNotEmpty ? l.titulo : l.tipo.rotulo;
       await svc.agendar(
@@ -152,9 +152,9 @@ class NotifScheduler {
 
     // Próxima revisão estimada (mesma lógica da tela: km dos últimos 12 meses
     // combinando abastecimentos + revisões).
-    final v = ref.read(veiculoProvider).value;
-    final ab = ref.read(abastecimentosProvider).value ?? const [];
-    final revs = ref.read(revisoesProvider).value ?? const [];
+    final v = ref.read(veiculoSelecionadoProvider);
+    final ab = ref.read(abastecimentosDoVeiculoProvider);
+    final revs = ref.read(revisoesDoVeiculoProvider);
     if (v != null) {
       final p = preverRevisao(v, ab, revs);
       if (p.data != null && p.alvoKm != null) {
@@ -176,7 +176,8 @@ final notifSchedulerProvider = Provider<NotifScheduler>((ref) {
   ref.listen(notifAtivasProvider, (_, _) => s.agendaReagendamento(),
       fireImmediately: true);
   ref.listen(lembretesProvider, (_, _) => s.agendaReagendamento());
-  ref.listen(veiculoProvider, (_, _) => s.agendaReagendamento());
+  ref.listen(veiculosProvider, (_, _) => s.agendaReagendamento());
+  ref.listen(veiculoSelIdProvider, (_, _) => s.agendaReagendamento());
   ref.listen(abastecimentosProvider, (_, _) => s.agendaReagendamento());
   ref.listen(revisoesProvider, (_, _) => s.agendaReagendamento());
   return s;

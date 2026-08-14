@@ -18,7 +18,7 @@ class AbastecimentoScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final lista = [...(ref.watch(abastecimentosProvider).value ?? const [])]
+    final lista = [...(ref.watch(abastecimentosDoVeiculoProvider))]
       ..sort((a, b) => b.data.compareTo(a.data));
 
     final agora = DateTime.now();

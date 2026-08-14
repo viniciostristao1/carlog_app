@@ -14,8 +14,8 @@ class CalibragemScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Veiculo? v = ref.watch(veiculoProvider).value;
-    final log = [...(ref.watch(calibragemProvider).value ?? const [])]
+    final Veiculo? v = ref.watch(veiculoSelecionadoProvider);
+    final log = [...(ref.watch(calibragemDoVeiculoProvider))]
       ..sort((a, b) => b.data.compareTo(a.data));
     final ultima = log.isNotEmpty ? log.first : null;
 
@@ -273,7 +273,7 @@ class _EditarPressaoSheetState extends ConsumerState<_EditarPressaoSheet> {
   }
 
   Future<void> _salvar() async {
-    await ref.read(veiculoProvider.notifier).salvar(widget.veiculo.copyWith(
+    await ref.read(veiculosProvider.notifier).salvar(widget.veiculo.copyWith(
           pressaoDianteira: _dianteira,
           pressaoTraseira: _traseira,
         ));
@@ -371,6 +371,7 @@ class _RegistrarSheetState extends ConsumerState<_RegistrarSheet> {
   Future<void> _salvar() async {
     await ref.read(calibragemProvider.notifier).salvar(Calibragem(
           id: novoId(),
+          veiculoId: ref.read(veiculoSelecionadoProvider)?.id,
           data: _data,
           pressaoDianteira: _dianteira,
           pressaoTraseira: _traseira,

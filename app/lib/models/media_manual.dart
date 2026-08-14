@@ -13,6 +13,7 @@ extension TipoTrechoX on TipoTrecho {
 
 class MediaManual {
   final String id;
+  final String? veiculoId;
   final DateTime data;
   final double km; // distância percorrida no trecho
   final double litros; // litros consumidos no trecho
@@ -21,6 +22,7 @@ class MediaManual {
 
   const MediaManual({
     required this.id,
+    this.veiculoId,
     required this.data,
     required this.km,
     required this.litros,
@@ -32,6 +34,7 @@ class MediaManual {
 
   Map<String, dynamic> toJson() => {
         'id': id,
+        'veiculoId': veiculoId,
         'data': data.toIso8601String(),
         'km': km,
         'litros': litros,
@@ -41,6 +44,7 @@ class MediaManual {
 
   factory MediaManual.fromJson(Map<String, dynamic> j) => MediaManual(
         id: j['id'] as String,
+        veiculoId: j['veiculoId'] as String?,
         data: DateTime.parse(j['data'] as String),
         km: (j['km'] as num).toDouble(),
         litros: (j['litros'] as num).toDouble(),

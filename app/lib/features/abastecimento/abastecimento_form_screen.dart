@@ -81,7 +81,7 @@ class _AbastecimentoFormScreenState
 
   /// Postos já usados, mais recentes primeiro (para sugerir no preenchimento).
   List<String> _postosAnteriores() {
-    final lista = ref.read(abastecimentosProvider).value ?? const [];
+    final lista = ref.read(abastecimentosDoVeiculoProvider);
     final ordenados = [...lista]..sort((a, b) => b.data.compareTo(a.data));
     final vistos = <String>[];
     for (final a in ordenados) {
@@ -111,6 +111,8 @@ class _AbastecimentoFormScreenState
     }
     final a = Abastecimento(
       id: widget.original?.id ?? novoId(),
+      veiculoId:
+          widget.original?.veiculoId ?? ref.read(veiculoSelecionadoProvider)?.id,
       data: _data,
       odometro: odo,
       litros: litros,

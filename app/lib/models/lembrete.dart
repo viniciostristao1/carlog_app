@@ -37,6 +37,7 @@ extension RecorrenciaX on Recorrencia {
 
 class Lembrete {
   final String id;
+  final String? veiculoId;
   final TipoLembrete tipo;
   final String titulo;
   final DateTime vencimento;
@@ -47,6 +48,7 @@ class Lembrete {
 
   const Lembrete({
     required this.id,
+    this.veiculoId,
     required this.tipo,
     required this.titulo,
     required this.vencimento,
@@ -67,6 +69,7 @@ class Lembrete {
   }) =>
       Lembrete(
         id: id,
+        veiculoId: veiculoId,
         tipo: tipo ?? this.tipo,
         titulo: titulo ?? this.titulo,
         vencimento: vencimento ?? this.vencimento,
@@ -78,6 +81,7 @@ class Lembrete {
 
   Map<String, dynamic> toJson() => {
         'id': id,
+        'veiculoId': veiculoId,
         'tipo': tipo.name,
         'titulo': titulo,
         'vencimento': vencimento.toIso8601String(),
@@ -89,6 +93,7 @@ class Lembrete {
 
   factory Lembrete.fromJson(Map<String, dynamic> j) => Lembrete(
         id: j['id'] as String,
+        veiculoId: j['veiculoId'] as String?,
         tipo: TipoLembrete.values.firstWhere(
           (t) => t.name == j['tipo'],
           orElse: () => TipoLembrete.outro,

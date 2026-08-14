@@ -3,6 +3,7 @@
 /// do que de fato foi feito e quando.
 class Calibragem {
   final String id;
+  final String? veiculoId;
   final DateTime data;
   final double? pressaoDianteira; // psi
   final double? pressaoTraseira; // psi
@@ -10,6 +11,7 @@ class Calibragem {
 
   const Calibragem({
     required this.id,
+    this.veiculoId,
     required this.data,
     this.pressaoDianteira,
     this.pressaoTraseira,
@@ -18,6 +20,7 @@ class Calibragem {
 
   Map<String, dynamic> toJson() => {
         'id': id,
+        'veiculoId': veiculoId,
         'data': data.toIso8601String(),
         'pressaoDianteira': pressaoDianteira,
         'pressaoTraseira': pressaoTraseira,
@@ -26,6 +29,7 @@ class Calibragem {
 
   factory Calibragem.fromJson(Map<String, dynamic> j) => Calibragem(
         id: j['id'] as String,
+        veiculoId: j['veiculoId'] as String?,
         data: DateTime.parse(j['data'] as String),
         pressaoDianteira: (j['pressaoDianteira'] as num?)?.toDouble(),
         pressaoTraseira: (j['pressaoTraseira'] as num?)?.toDouble(),

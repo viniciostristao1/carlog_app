@@ -4,6 +4,7 @@
 /// buscável.
 class Revisao {
   final String id;
+  final String? veiculoId;
   final DateTime data;
   final double? odometro;
   final String titulo; // "Revisão dos 40 mil", "Troca de correia"
@@ -14,6 +15,7 @@ class Revisao {
 
   const Revisao({
     required this.id,
+    this.veiculoId,
     required this.data,
     this.odometro,
     this.titulo = '',
@@ -34,6 +36,7 @@ class Revisao {
 
   Map<String, dynamic> toJson() => {
         'id': id,
+        'veiculoId': veiculoId,
         'data': data.toIso8601String(),
         'odometro': odometro,
         'titulo': titulo,
@@ -45,6 +48,7 @@ class Revisao {
 
   factory Revisao.fromJson(Map<String, dynamic> j) => Revisao(
         id: j['id'] as String,
+        veiculoId: j['veiculoId'] as String?,
         data: DateTime.parse(j['data'] as String),
         odometro: (j['odometro'] as num?)?.toDouble(),
         titulo: (j['titulo'] ?? '') as String,

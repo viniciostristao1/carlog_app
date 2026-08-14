@@ -111,8 +111,33 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
       fipeMesRef: _fipeMesRef,
       fipeConsultadoEm: _fipeConsultadoEm,
     );
-    await ref.read(veiculoProvider.notifier).salvar(v);
+    await ref.read(veiculosProvider.notifier).salvar(v);
     if (mounted) Navigator.of(context).pop();
+  }
+
+  Future<void> _excluir() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('Excluir este carro?'),
+        content: const Text(
+            'O carro sai da lista. Os lançamentos dele deixam de aparecer.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Excluir',
+                  style: TextStyle(color: AppColors.danger))),
+        ],
+      ),
+    );
+    if (ok == true) {
+      await ref.read(veiculosProvider.notifier).remover(widget.veiculo!.id);
+      if (mounted) Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -122,6 +147,14 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.veiculo == null ? 'Cadastrar carro' : 'Meu carro'),
+        actions: [
+          if (widget.veiculo != null)
+            IconButton(
+              tooltip: 'Excluir carro',
+              icon: const Icon(Icons.delete_outline, color: AppColors.danger),
+              onPressed: _excluir,
+            ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),

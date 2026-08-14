@@ -2,6 +2,11 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-14 — v0.12.0.** **Até 3 carros!** Na tela inicial, os chips no topo trocam de carro; toque em
+  **"+ Carro"** para adicionar. Cada carro tem os **seus** abastecimentos, revisões, lembretes,
+  calibragem e estatísticas (odômetro, km/mês, FIPE, previsão) — o carro selecionado é o que aparece.
+  Dá para **excluir** um carro no "Meu carro". (Seus dados atuais viram o 1º carro automaticamente.)
+
 - **2026-08-14 — v0.11.0.** (1) Quando a revisão passou da data, o título vira **"Sua revisão pode estar
   vencida"** e o rótulo da data **"estava prevista"**. (2) A **calibragem recomendada** agora é definida
   **na tela de Calibragem** (saiu do cadastro do carro), com botões **− / +** para ajustar a pressão dos

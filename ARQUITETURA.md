@@ -51,6 +51,18 @@ Exemplo: um store de "multas". Faça TODOS os passos, senão a sincronização n
 - Formulários: controllers no `initState`, `parseNumero` para números pt-BR, salvar via
   `ref.read(xProvider.notifier).salvar(...)`.
 
+## Multi-veículo (até 3) — MUITO IMPORTANTE ao mexer em qualquer store
+- Veículos: `veiculosProvider` (lista, máx `maxVeiculos`) + `veiculoSelIdProvider` (id selecionado) +
+  `veiculoSelecionadoProvider` (derivado). Salvar novo carro o seleciona; `remover(id)` reajusta a seleção.
+- **Cada item de store tem `veiculoId`.** Ao CRIAR um item, carimbe:
+  `veiculoId: original?.veiculoId ?? ref.read(veiculoSelecionadoProvider)?.id`.
+- **Ao LER numa tela, use o provider FILTRADO** `xDoVeiculoProvider` (ex.: `abastecimentosDoVeiculoProvider`),
+  NÃO o `xProvider` cru — senão mistura os carros. (Escrita continua via `xProvider.notifier`.)
+- Itens antigos com `veiculoId == null` pertencem ao PRIMEIRO carro (o migrado). Não precisa migrar os
+  stores de itens.
+- Store novo (ver checklist acima): adicione `veiculoId` ao modelo + crie o `xDoVeiculoProvider` filtrado
+  (`_doVeiculoSel`) e use-o nas telas.
+
 ## Contrato de sincronização (sync_service.dart)
 - Escreve `users/{uid}` com `{ <chave>: <jsonString>, updatedAt }` por store.
 - 1º snapshot no aparelho: **união por `id`** (não perde de nenhum lado). Depois: **última escrita

@@ -23,7 +23,7 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
     final sel = _sel;
     if (sel == null) return;
     final r = sel.resultado;
-    final atual = ref.read(veiculoProvider).value;
+    final atual = ref.read(veiculoSelecionadoProvider);
     final anoInt = int.tryParse(r.anoModelo);
     final ano = (anoInt != null && anoInt <= 2100) ? anoInt : atual?.ano;
     final base = atual ?? Veiculo(id: novoId(), apelido: '');
@@ -38,7 +38,7 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
       fipeMesRef: r.mesReferencia,
       fipeConsultadoEm: DateTime.now(),
     );
-    await ref.read(veiculoProvider.notifier).salvar(v);
+    await ref.read(veiculosProvider.notifier).salvar(v);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(atual == null
@@ -48,7 +48,7 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
   }
 
   Future<void> _informarManual() async {
-    final atual = ref.read(veiculoProvider).value;
+    final atual = ref.read(veiculoSelecionadoProvider);
     final ctrl = TextEditingController(
         text: atual?.fipeValor != null ? n2(atual!.fipeValor!) : '');
     final valor = await showDialog<double>(
@@ -79,7 +79,7 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
     );
     if (valor != null) {
       final base = atual ?? Veiculo(id: novoId(), apelido: '');
-      await ref.read(veiculoProvider.notifier).salvar(base.copyWith(
+      await ref.read(veiculosProvider.notifier).salvar(base.copyWith(
             fipeValor: valor,
             fipeMesRef: 'informado manualmente',
             fipeConsultadoEm: DateTime.now(),
@@ -89,7 +89,7 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Veiculo? v = ref.watch(veiculoProvider).value;
+    final Veiculo? v = ref.watch(veiculoSelecionadoProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Minha FIPE')),

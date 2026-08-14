@@ -13,29 +13,119 @@ import '../models/veiculo.dart';
 import 'lista_notifier.dart';
 import 'store_keys.dart';
 
-// ─────────────────────────── Veículo (objeto único) ───────────────────────────
+// ─────────────────────────── Veículos (até 3) + seleção ───────────────────────────
 
-final veiculoProvider =
-    AsyncNotifierProvider<VeiculoNotifier, Veiculo?>(VeiculoNotifier.new);
+const maxVeiculos = 3;
 
-class VeiculoNotifier extends AsyncNotifier<Veiculo?> {
+final veiculosProvider =
+    AsyncNotifierProvider<VeiculosNotifier, List<Veiculo>>(VeiculosNotifier.new);
+
+class VeiculosNotifier extends AsyncNotifier<List<Veiculo>> {
   @override
-  Future<Veiculo?> build() async {
+  Future<List<Veiculo>> build() async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(chaveVeiculo);
-    if (raw == null || raw.isEmpty) return null;
-    try {
-      return Veiculo.fromJson(jsonDecode(raw) as Map<String, dynamic>);
-    } catch (_) {
-      return null;
+    final raw = prefs.getString(chaveVeiculos);
+    if (raw != null && raw.isNotEmpty) {
+      try {
+        return (jsonDecode(raw) as List)
+            .map((e) => Veiculo.fromJson(e as Map<String, dynamic>))
+            .toList();
+      } catch (_) {
+        return [];
+      }
+    }
+    // Migração do carro único antigo (veiculo_v1) → lista.
+    final antigo = prefs.getString(chaveVeiculo);
+    if (antigo != null && antigo.isNotEmpty) {
+      try {
+        final v = Veiculo.fromJson(jsonDecode(antigo) as Map<String, dynamic>);
+        await _persist(prefs, [v]);
+        return [v];
+      } catch (_) {}
+    }
+    return [];
+  }
+
+  Future<void> _persist(SharedPreferences prefs, List<Veiculo> lista) async {
+    await prefs.setString(
+        chaveVeiculos, jsonEncode(lista.map((v) => v.toJson()).toList()));
+  }
+
+  List<Veiculo> get _atual => List<Veiculo>.of(state.value ?? const []);
+
+  /// Insere (novo, respeitando [maxVeiculos]) ou atualiza por id. Novo vira o
+  /// carro selecionado.
+  Future<void> salvar(Veiculo v) async {
+    final lista = _atual;
+    final i = lista.indexWhere((x) => x.id == v.id);
+    if (i >= 0) {
+      lista[i] = v;
+    } else {
+      if (lista.length >= maxVeiculos) return;
+      lista.add(v);
+      ref.read(veiculoSelIdProvider.notifier).definir(v.id);
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await _persist(prefs, lista);
+    state = AsyncData(lista);
+  }
+
+  Future<void> remover(String id) async {
+    final lista = _atual..removeWhere((x) => x.id == id);
+    final prefs = await SharedPreferences.getInstance();
+    await _persist(prefs, lista);
+    state = AsyncData(lista);
+    if (ref.read(veiculoSelIdProvider).value == id) {
+      ref
+          .read(veiculoSelIdProvider.notifier)
+          .definir(lista.isNotEmpty ? lista.first.id : null);
     }
   }
+}
 
-  Future<void> salvar(Veiculo v) async {
+/// Id do carro selecionado (persistido).
+final veiculoSelIdProvider =
+    AsyncNotifierProvider<VeiculoSelIdNotifier, String?>(
+        VeiculoSelIdNotifier.new);
+
+class VeiculoSelIdNotifier extends AsyncNotifier<String?> {
+  @override
+  Future<String?> build() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(chaveVeiculo, jsonEncode(v.toJson()));
-    state = AsyncData(v);
+    final s = prefs.getString(chaveVeiculoSel);
+    return (s != null && s.isNotEmpty) ? s : null;
   }
+
+  Future<void> definir(String? id) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (id == null) {
+      await prefs.remove(chaveVeiculoSel);
+    } else {
+      await prefs.setString(chaveVeiculoSel, id);
+    }
+    state = AsyncData(id);
+  }
+}
+
+/// Veículo selecionado (derivado). Se o id salvo não existir, usa o primeiro.
+final veiculoSelecionadoProvider = Provider<Veiculo?>((ref) {
+  final lista = ref.watch(veiculosProvider).value ?? const [];
+  if (lista.isEmpty) return null;
+  final selId = ref.watch(veiculoSelIdProvider).value;
+  return lista.firstWhere((v) => v.id == selId, orElse: () => lista.first);
+});
+
+/// Filtra itens de um store para o carro selecionado. Itens sem `veiculoId`
+/// (dados antigos) pertencem ao PRIMEIRO carro (o migrado). Sem carro: mostra tudo.
+List<T> _doVeiculoSel<T>(Ref ref, List<T> itens, String? Function(T) idDe) {
+  final sel = ref.watch(veiculoSelecionadoProvider);
+  if (sel == null) return itens;
+  final lista = ref.watch(veiculosProvider).value ?? const [];
+  final ehPrimeiro = lista.isNotEmpty && lista.first.id == sel.id;
+  return itens.where((i) {
+    final vid = idDe(i);
+    return vid == sel.id || (vid == null && ehPrimeiro);
+  }).toList();
 }
 
 // ─────────────────────────── Abastecimentos ───────────────────────────
@@ -138,3 +228,27 @@ class CalibragemNotifier extends ListaNotifier<Calibragem> {
   @override
   String idDe(Calibragem v) => v.id;
 }
+
+// ───────────── Providers FILTRADOS pelo carro selecionado (para leitura) ─────────────
+// Escrita continua via <store>Provider.notifier (carimbe veiculoId ao criar).
+
+final abastecimentosDoVeiculoProvider = Provider<List<Abastecimento>>((ref) =>
+    _doVeiculoSel(ref, ref.watch(abastecimentosProvider).value ?? const [],
+        (a) => a.veiculoId));
+
+final mediasDoVeiculoProvider = Provider<List<MediaManual>>((ref) => _doVeiculoSel(
+    ref, ref.watch(mediasProvider).value ?? const [], (m) => m.veiculoId));
+
+final revisoesDoVeiculoProvider = Provider<List<Revisao>>((ref) => _doVeiculoSel(
+    ref, ref.watch(revisoesProvider).value ?? const [], (r) => r.veiculoId));
+
+final programacaoDoVeiculoProvider = Provider<List<ItemProgramado>>((ref) =>
+    _doVeiculoSel(ref, ref.watch(programacaoProvider).value ?? const [],
+        (p) => p.veiculoId));
+
+final lembretesDoVeiculoProvider = Provider<List<Lembrete>>((ref) => _doVeiculoSel(
+    ref, ref.watch(lembretesProvider).value ?? const [], (l) => l.veiculoId));
+
+final calibragemDoVeiculoProvider = Provider<List<Calibragem>>((ref) =>
+    _doVeiculoSel(ref, ref.watch(calibragemProvider).value ?? const [],
+        (c) => c.veiculoId));

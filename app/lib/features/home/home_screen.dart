@@ -27,7 +27,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final veiculo = ref.watch(veiculoProvider).value;
+    final veiculo = ref.watch(veiculoSelecionadoProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -44,6 +44,7 @@ class HomeScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
           children: [
+            const _SeletorCarros(),
             _CabecalhoVeiculo(
               veiculo: veiculo,
               onEditar: () =>
@@ -159,9 +160,9 @@ class _CabecalhoVeiculo extends ConsumerWidget {
       );
     }
 
-    final abastecimentos = ref.watch(abastecimentosProvider).value ?? const [];
-    final revisoes = ref.watch(revisoesProvider).value ?? const [];
-    final calibragens = ref.watch(calibragemProvider).value ?? const [];
+    final abastecimentos = ref.watch(abastecimentosDoVeiculoProvider);
+    final revisoes = ref.watch(revisoesDoVeiculoProvider);
+    final calibragens = ref.watch(calibragemDoVeiculoProvider);
     final agora = DateTime.now();
 
     final odo = ultimoOdometro(abastecimentos);
@@ -347,6 +348,80 @@ class _PlacaChip extends StatelessWidget {
           fontSize: 13,
           fontWeight: FontWeight.w700,
           letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+}
+
+/// Chips dos carros (até 3): toca para selecionar; "+ Carro" para adicionar.
+class _SeletorCarros extends ConsumerWidget {
+  const _SeletorCarros();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final veiculos = ref.watch(veiculosProvider).value ?? const [];
+    if (veiculos.isEmpty) return const SizedBox.shrink();
+    final selId = ref.watch(veiculoSelecionadoProvider)?.id;
+
+    Widget pill({required Widget child, required VoidCallback onTap, bool sel = false}) {
+      return Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: sel ? AppColors.accent.withValues(alpha: 0.18) : AppColors.surface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: sel ? AppColors.accent : AppColors.line),
+            ),
+            child: child,
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: SizedBox(
+        height: 38,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          children: [
+            ...veiculos.map((v) {
+              final sel = v.id == selId;
+              return pill(
+                sel: sel,
+                onTap: () => ref.read(veiculoSelIdProvider.notifier).definir(v.id),
+                child: Row(children: [
+                  Icon(Icons.directions_car_filled,
+                      size: 15, color: sel ? AppColors.accent : AppColors.dim),
+                  const SizedBox(width: 6),
+                  Text(v.titulo,
+                      style: TextStyle(
+                          color: sel ? AppColors.text : AppColors.dim,
+                          fontSize: 13,
+                          fontWeight: sel ? FontWeight.w700 : FontWeight.w600)),
+                ]),
+              );
+            }),
+            if (veiculos.length < maxVeiculos)
+              pill(
+                onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const VeiculoFormScreen())),
+                child: const Row(children: [
+                  Icon(Icons.add, size: 16, color: AppColors.accent),
+                  SizedBox(width: 4),
+                  Text('Carro',
+                      style: TextStyle(
+                          color: AppColors.accent,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600)),
+                ]),
+              ),
+          ],
         ),
       ),
     );

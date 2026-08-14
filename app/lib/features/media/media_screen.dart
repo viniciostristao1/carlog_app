@@ -13,9 +13,9 @@ class MediaScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final abastecimentos = ref.watch(abastecimentosProvider).value ?? const [];
+    final abastecimentos = ref.watch(abastecimentosDoVeiculoProvider);
     final resumo = calcularConsumo(abastecimentos);
-    final medias = ref.watch(mediasProvider).value ?? const [];
+    final medias = ref.watch(mediasDoVeiculoProvider);
     final agora = DateTime.now();
     final kmMes = kmRodadosNoMes(abastecimentos, agora.year, agora.month);
     final kmMesAnt = kmRodadosNoMes(
@@ -402,6 +402,7 @@ class _CalculadoraSheetState extends ConsumerState<_CalculadoraSheet> {
     if (k == null || l == null || l <= 0) return;
     await ref.read(mediasProvider.notifier).salvar(MediaManual(
           id: novoId(),
+          veiculoId: ref.read(veiculoSelecionadoProvider)?.id,
           data: DateTime.now(),
           km: k,
           litros: l,

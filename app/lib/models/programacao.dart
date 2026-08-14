@@ -6,6 +6,7 @@
 /// reagendados (kmAlvo avança um intervalo).
 class ItemProgramado {
   final String id;
+  final String? veiculoId;
   final DateTime criadoEm;
   final String descricao;
   final bool feito;
@@ -14,6 +15,7 @@ class ItemProgramado {
 
   const ItemProgramado({
     required this.id,
+    this.veiculoId,
     required this.criadoEm,
     required this.descricao,
     this.feito = false,
@@ -31,6 +33,7 @@ class ItemProgramado {
   }) =>
       ItemProgramado(
         id: id,
+        veiculoId: veiculoId,
         criadoEm: criadoEm,
         descricao: descricao ?? this.descricao,
         feito: feito ?? this.feito,
@@ -40,6 +43,7 @@ class ItemProgramado {
 
   Map<String, dynamic> toJson() => {
         'id': id,
+        'veiculoId': veiculoId,
         'criadoEm': criadoEm.toIso8601String(),
         'descricao': descricao,
         'feito': feito,
@@ -49,6 +53,7 @@ class ItemProgramado {
 
   factory ItemProgramado.fromJson(Map<String, dynamic> j) => ItemProgramado(
         id: j['id'] as String,
+        veiculoId: j['veiculoId'] as String?,
         criadoEm: DateTime.parse(j['criadoEm'] as String),
         descricao: (j['descricao'] ?? '') as String,
         feito: (j['feito'] ?? false) as bool,

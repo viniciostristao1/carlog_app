@@ -13,7 +13,7 @@ class LembretesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final lista = [...(ref.watch(lembretesProvider).value ?? const [])]
+    final lista = [...(ref.watch(lembretesDoVeiculoProvider))]
       ..sort((a, b) {
         if (a.pago != b.pago) return a.pago ? 1 : -1;
         return a.vencimento.compareTo(b.vencimento);
@@ -249,6 +249,8 @@ class _LembreteFormSheetState extends ConsumerState<_LembreteFormSheet> {
   Future<void> _salvar() async {
     final l = Lembrete(
       id: widget.original?.id ?? novoId(),
+      veiculoId:
+          widget.original?.veiculoId ?? ref.read(veiculoSelecionadoProvider)?.id,
       tipo: _tipo,
       titulo: _titulo.text.trim(),
       vencimento: _vencimento,

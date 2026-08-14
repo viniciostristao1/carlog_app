@@ -91,11 +91,11 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
   // ─────────────────────────── Programar ───────────────────────────
 
   Widget _programar() {
-    final abastecimentos = ref.watch(abastecimentosProvider).value ?? const [];
+    final abastecimentos = ref.watch(abastecimentosDoVeiculoProvider);
     final odo = ultimoOdometro(abastecimentos);
     final ritmo = ritmoKmPorDia(abastecimentos);
 
-    final itens = [...(ref.watch(programacaoProvider).value ?? const [])]
+    final itens = [...(ref.watch(programacaoDoVeiculoProvider))]
       ..sort((a, b) {
         if (a.feito != b.feito) return a.feito ? 1 : -1;
         final fa = _faltam(a, odo);
@@ -158,7 +158,7 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
   // ─────────────────────────── Histórico ───────────────────────────
 
   Widget _historico() {
-    final todas = [...(ref.watch(revisoesProvider).value ?? const [])]
+    final todas = [...(ref.watch(revisoesDoVeiculoProvider))]
       ..sort((a, b) => b.data.compareTo(a.data));
     final termo = _busca.text.trim().toLowerCase();
     final lista = termo.isEmpty
@@ -216,9 +216,9 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
 class _CartaoProximaRevisao extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Veiculo? v = ref.watch(veiculoProvider).value;
-    final abastecimentos = ref.watch(abastecimentosProvider).value ?? const [];
-    final revisoes = ref.watch(revisoesProvider).value ?? const [];
+    final Veiculo? v = ref.watch(veiculoSelecionadoProvider);
+    final abastecimentos = ref.watch(abastecimentosDoVeiculoProvider);
+    final revisoes = ref.watch(revisoesDoVeiculoProvider);
 
     Widget wrap(Widget child) => Card(
           child: Padding(padding: const EdgeInsets.all(16), child: child),
@@ -551,7 +551,12 @@ class _ItemSheetState extends ConsumerState<_ItemSheet> {
     final desc = _desc.text.trim();
     if (desc.isEmpty) return;
     final base = widget.original ??
-        ItemProgramado(id: novoId(), criadoEm: DateTime.now(), descricao: desc);
+        ItemProgramado(
+          id: novoId(),
+          veiculoId: ref.read(veiculoSelecionadoProvider)?.id,
+          criadoEm: DateTime.now(),
+          descricao: desc,
+        );
     final item = base.copyWith(
       descricao: desc,
       kmAlvo: parseNumero(_kmAlvo.text),
