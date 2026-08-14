@@ -11,11 +11,13 @@ tudo do veículo — rápido, num toque.
 Link fixo — sempre a versão mais nova (basta atualizar a página):
 `https://github.com/viniciostristao1/carlog_app/releases/latest/download/carlog.apk`
 
-## Para desenvolver
+## Para desenvolver / contribuir (inclusive IA)
 - Flutter 3.44.7 em `/root/flutter`. Código em `app/`.
 - Conferir: `cd app && flutter analyze lib/` e `flutter test`.
-- Ver [`INICIO.md`](INICIO.md) (visão + fluxo), [`APRENDIZADOS.md`](APRENDIZADOS.md) (técnico),
+- **Contribuindo (DeepSeek/IA):** leia [`AGENTS.md`](AGENTS.md) (fluxo + regras) e
+  [`ARQUITETURA.md`](ARQUITETURA.md) (padrões: como adicionar store/tela/sync).
+- Docs: [`INICIO.md`](INICIO.md) (visão + estado), [`APRENDIZADOS.md`](APRENDIZADOS.md) (técnico/gotchas),
   [`ATUALIZACOES.md`](ATUALIZACOES.md) (changelog), [`IDEIAS.md`](IDEIAS.md) (futuro),
-  [`FIREBASE.md`](FIREBASE.md) (ligar a nuvem).
+  [`FIREBASE.md`](FIREBASE.md) (nuvem).
 
 Build de release sai na nuvem (GitHub Actions) — a VPS não compila Android bem.

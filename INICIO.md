@@ -18,10 +18,11 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 > 4. **commit + push na `main`** → o CI compila o APK/AAB na nuvem e publica no `ci-latest`;
 >    depois `scripts/release.sh vX.Y.Z "<nota>"` corta o release nomeado (link perene `carlog.apk`).
 >
-> Papéis dos docs: referência (`INICIO`) · técnico (`APRENDIZADOS`) · changelog do usuário
-> (`ATUALIZACOES`) · futuro (`IDEIAS`) · nuvem (`FIREBASE`).
+> Papéis dos docs: referência (`INICIO`) · **como contribuir/regras (`AGENTS.md` — LER antes de editar
+> código)** · mapa de padrões (`ARQUITETURA.md`) · técnico/gotchas (`APRENDIZADOS`) · changelog do
+> usuário (`ATUALIZACOES`) · futuro (`IDEIAS`) · nuvem (`FIREBASE`).
 
-## ⭐ ESTADO ATUAL (2026-08-13) — ler primeiro pós-/clear
+## ⭐ ESTADO ATUAL (2026-08-14) — ler primeiro pós-/clear
 
 **v0.8.1 — NUVEM LIGADA + OCR** (`flutter analyze` limpo, 7 testes de consumo/previsão passando). Repositório GitHub
 **criado e no ar** (`viniciostristao1/carlog_app`, privado) — o CI compila **só o APK** a cada push
@@ -39,33 +40,35 @@ usuário, o código já está **Firebase-ready** e o app roda **100% local** at�
 `kFirebaseConfigured` (`app/lib/firebase_config.dart`) virar `true`; FIPE via **API pública gratuita**
 (parallelum) por marca/modelo/ano + valor manual de reserva.
 
-**O que existe e funciona (local, offline):**
-- **Home** com cabeçalho do veículo (odômetro, km do mês, FIPE) + **6 botões redondos**.
-- **Abastecimento** — adicionar (data, odômetro, litros, preço/L, tanque cheio, posto), total ao vivo,
-  histórico, excluir (swipe), resumo do mês.
-- **Consumo/Média** — média geral **km/L** calculada por trechos *tanque-cheio→tanque-cheio* (soma
-  parciais no meio), melhor/pior, km rodados no mês, e uma **calculadora de média avulsa**
-  (cidade × rodovia) salva no histórico.
-- **Revisões** — abas **Histórico** (com **lupa** que busca peça/serviço/oficina/texto do orçamento)
-  e **Programar** (checklist do que verificar na próxima) + **estimativa da próxima revisão**
-  (alvo em km + previsão de data pelo ritmo de rodagem).
-- **Minha FIPE** — consulta em cascata marca→modelo→ano na API pública; salva o valor no veículo;
-  **valor manual** como reserva.
-- **Calibragem** — pressão recomendada (vem do cadastro do veículo) + data/registro da última + histórico.
-- **Lembretes** — IPVA/seguro/licenciamento/etc. com "faltam X dias", recorrência (marcar pago empurra
-  a data no caso recorrente), valor, excluir.
-- **Configurações** — bloco de conta (login Google **quando** a nuvem estiver ligada; senão "dados
-  neste aparelho") + sobre.
-- **Dados 100% locais** (`shared_preferences`), já modelados para sincronizar na nuvem sem migração.
+**O que existe e funciona (offline + nuvem):**
+- **Home** — cabeçalho do veículo (SEM desenho do carro) com **6 estatísticas clicáveis** (odômetro,
+  km no mês, combustível/mês, FIPE, última calibragem, previsão de revisão) + **6 botões redondos**.
+- **Abastecimento** — data, odômetro, litros e **ou preço/L (calcula total) ou valor total (calcula
+  preço/L)**, tanque cheio, posto; histórico, excluir (swipe), resumo do mês.
+- **Consumo/Média** — média **km/L** por trechos *tanque-cheio→tanque-cheio* (soma parciais),
+  melhor/pior, km no mês, **calculadora avulsa** (cidade × rodovia).
+- **Revisões** — abas **Programar** (1ª: itens com km-alvo + frequência + **autocomplete** de itens
+  comuns + previsão de data) e **Histórico** (**lupa** busca peça/serviço/oficina/OCR) + **previsão da
+  próxima revisão** (km ou tempo) + **média km/mês dos últimos 12 meses**. **OCR do orçamento** (foto →
+  transcreve → item×valor → importa itens + total; ML Kit, grátis/offline).
+- **Minha FIPE** — cascata marca→modelo→ano com **busca (lupa)**; salva no veículo; **valor manual**.
+- **Cadastro do carro** — identidade **só pela FIPE** (botão "Pesquisar carro"); manual só apelido,
+  placa, tanque, calibragem recomendada, intervalo de revisão.
+- **Calibragem** — pressão recomendada + registro/última + histórico.
+- **Lembretes** — IPVA/seguro/etc. com "faltam X dias", recorrência, valor.
+- **Notificações** — avisa vencimentos e revisão (toggle em Config; fuso America/Sao_Paulo).
+- **Nuvem LIGADA** — login Google + sync Firestore (Config → Entrar).
+- **Dados locais** (`shared_preferences`) = fonte da verdade; sync espelha cada store no Firestore.
 
-**O que falta (próximos passos, em ordem):**
-1. **Criar o repositório GitHub** `viniciostristao1/carlog_app` e dar o primeiro push (dispara o CI →
-   gera o APK). *Requer o usuário* (ou `gh repo create`).
-2. **Instalar o APK** no celular e usar de verdade → iterar pelo feedback ([`IDEIAS.md`](IDEIAS.md)).
-3. **Provisionar o Firebase** (Auth Google + Firestore) e ligar a nuvem — passo a passo em
-   [`FIREBASE.md`](FIREBASE.md). Só então `kFirebaseConfigured = true`.
-4. Candidatos de feature: **OCR do orçamento** (ML Kit on-device), **FIPE por placa** (serviço pago),
-   **ícone próprio**. (Notificações de lembrete/revisão já entraram na v0.2.0.)
+**O que falta / próximos passos:**
+1. **Usuário usar de verdade** e iterar pelo feedback ([`IDEIAS.md`](IDEIAS.md)). App instalável no link
+   perene (abaixo).
+2. Backlog em [`IDEIAS.md`](IDEIAS.md): **FIPE por placa** (pago), **multi-veículo**, **tema claro**,
+   gráficos, exportar histórico.
+3. **Reativar minify/R8** só quando houver runner de CI maior (hoje desligado por OOM — ver
+   `APRENDIZADOS`); **AAB** volta na hora do lançamento na Play Store.
+4. **Contribuição por IA (DeepSeek):** seguir o [`AGENTS.md`](AGENTS.md) — DeepSeek implementa em branch,
+   Claude audita (`analyze`/`test`/gotchas) e só então mescla + corta release.
 
 ## O que o app faz (MVP)
 Tela principal = 6 atalhos redondos:
@@ -92,19 +95,22 @@ Tela principal = 6 atalhos redondos:
 - `minSdk` **23** (exigência do Firebase Auth). **Build de release: na nuvem (GitHub Actions).**
 
 ## Estrutura do código (`app/lib/`)
+> Mapa de PADRÕES (como adicionar store/tela/sync) → [`ARQUITETURA.md`](ARQUITETURA.md).
 - `models/` — `veiculo.dart`, `abastecimento.dart`, `media_manual.dart`, `revisao.dart`,
-  `programacao.dart`, `lembrete.dart`, `calibragem.dart` (todos com `toJson/fromJson`).
+  `programacao.dart` (item com km-alvo/intervalo), `lembrete.dart`, `calibragem.dart` (todos `toJson/fromJson`).
 - `services/` — `repositories.dart` (providers Riverpod por store, via `lista_notifier.dart` base),
-  `store_keys.dart` (chaves = campos do Firestore), `auth_service.dart`, `sync_service.dart` (JSON por
-  store em `users/{uid}`, gated pelo flag).
-- `util/` — `consumo.dart` (cálculo de média/km-mês, **com testes**), `format.dart` (pt-BR),
-  `ids.dart`, `messenger.dart`.
-- `theme/` — `app_colors.dart` (tokens + cor por categoria), `app_theme.dart`.
+  `store_keys.dart` (chaves = campos do Firestore + `todosOsStores`), `auth_service.dart`,
+  `sync_service.dart` (JSON por store em `users/{uid}`), `notifications.dart` (agenda lembrete/revisão),
+  `ocr_service.dart` (ML Kit: foto→texto→item×valor).
+- `util/` — `consumo.dart` (média km/L, km-mês, `ritmoKmPorDia`, `previsaoData`, **com testes**),
+  `format.dart` (pt-BR + `parseNumero`), `ids.dart` (`novoId`), `messenger.dart`.
+- `theme/` — `app_colors.dart` (tokens + `accent` âmbar + cor por categoria), `app_theme.dart`.
 - `widgets/` — `botao_redondo.dart`, `estado_vazio.dart`.
-- `features/` — `home/`, `veiculo/`, `abastecimento/`, `media/`, `revisoes/`, `fipe/`,
-  `calibragem/`, `lembretes/`, `config/`.
-- `firebase_config.dart` — o flag `kFirebaseConfigured` (interruptor da nuvem) + `kGoogleServerClientId`.
-- `firebase_options.dart` — **placeholder** versionado (substituir ao provisionar; ver `FIREBASE.md`).
+- `features/` — `home/`, `veiculo/` (cadastro só-FIPE), `abastecimento/`, `media/`, `revisoes/`
+  (+ `itens_sugeridos.dart`, OCR no form), `fipe/` (`fipe_service`, `fipe_seletor` c/ busca,
+  `fipe_picker_screen`, `fipe_screen`), `calibragem/`, `lembretes/`, `config/`.
+- `firebase_config.dart` — flag `kFirebaseConfigured` (=true) + `kGoogleServerClientId`.
+- `firebase_options.dart` — config real do projeto `carlog-b4ef3` (valores não são segredo).
 
 ## Entrega & Release (como o app chega no celular)
 A VPS não compila Android bem → o build sai na **nuvem** (GitHub Actions,
