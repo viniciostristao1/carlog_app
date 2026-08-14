@@ -186,11 +186,7 @@ class _CartaoAbastecimento extends StatelessWidget {
                         ),
                         const SizedBox(height: 3),
                         Text(
-                          [
-                            dataCurta(a.data),
-                            km(a.odometro),
-                            if (a.posto.isNotEmpty) a.posto,
-                          ].join(' · '),
+                          [dataCurta(a.data), km(a.odometro)].join(' · '),
                           style: const TextStyle(
                               color: AppColors.dim, fontSize: 12.5),
                         ),
@@ -198,11 +194,26 @@ class _CartaoAbastecimento extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text(moeda(a.total),
-                      style: const TextStyle(
-                          color: AppColors.text,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800)),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      if (a.posto.trim().isNotEmpty)
+                        SizedBox(
+                          width: 96,
+                          child: Text(a.posto,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.right,
+                              style: const TextStyle(
+                                  color: AppColors.dim2, fontSize: 10.5)),
+                        ),
+                      Text(moeda(a.total),
+                          style: const TextStyle(
+                              color: AppColors.text,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800)),
+                    ],
+                  ),
                 ],
               ),
             ),

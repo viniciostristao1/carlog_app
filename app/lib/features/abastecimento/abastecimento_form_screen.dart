@@ -7,6 +7,7 @@ import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
 import '../../util/format.dart';
 import '../../util/ids.dart';
+import '../../widgets/campo_sugestoes.dart';
 
 /// Formulário de um abastecimento. Mostra o total (litros × preço/L) ao vivo.
 class AbastecimentoFormScreen extends ConsumerStatefulWidget {
@@ -73,6 +74,18 @@ class _AbastecimentoFormScreenState
       lastDate: DateTime.now().add(const Duration(days: 1)),
     );
     if (d != null) setState(() => _data = d);
+  }
+
+  /// Postos já usados, mais recentes primeiro (para sugerir no preenchimento).
+  List<String> _postosAnteriores() {
+    final lista = ref.read(abastecimentosProvider).value ?? const [];
+    final ordenados = [...lista]..sort((a, b) => b.data.compareTo(a.data));
+    final vistos = <String>[];
+    for (final a in ordenados) {
+      final p = a.posto.trim();
+      if (p.isNotEmpty && !vistos.contains(p)) vistos.add(p);
+    }
+    return vistos;
   }
 
   Future<void> _salvar() async {
@@ -152,7 +165,13 @@ class _AbastecimentoFormScreenState
                 style: TextStyle(color: AppColors.dim, fontSize: 12.5)),
           ),
           const SizedBox(height: 4),
-          _campo(_posto, 'Posto (opcional)', capitalize: true),
+          CampoSugestoes(
+            controller: _posto,
+            label: 'Posto (opcional)',
+            hint: 'Ex.: Shell da avenida',
+            cor: AppColors.catAbastecimento,
+            sugestoes: _postosAnteriores(),
+          ),
           _campo(_obs, 'Observação (opcional)', capitalize: true),
           const SizedBox(height: 20),
           FilledButton(onPressed: _salvar, child: const Text('Salvar')),

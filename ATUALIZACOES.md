@@ -2,6 +2,10 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-14 — v0.9.0.** (1) No histórico de abastecimento, o **nome do posto** aparece pequeno
+  **acima do valor**. (2) Ao lançar abastecimento, o app **sugere os postos** que você já usou; (3) em
+  revisões, **sugere a oficina** já usada; (4) no registro de revisão, **sugestões de peças** (como no
+  Programar). (5) A **"próxima revisão"** (e a média de 12 meses) foi para a aba **Programar**.
 - **2026-08-14 — v0.8.1.** Lista de itens para programar melhorada (**amortecedores dianteiros/
   traseiros**, **lâmpadas**, **filtro pressurizado**). Na tela inicial, os cartões agora são
   **clicáveis**: **Calibragem** abre a tela de calibragem e **Prev. revisão** abre a aba **Programar**

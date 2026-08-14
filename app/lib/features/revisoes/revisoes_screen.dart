@@ -106,20 +106,24 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
         return b.criadoEm.compareTo(a.criadoEm);
       });
 
-    if (itens.isEmpty) {
-      return const EstadoVazio(
-        icone: Icons.checklist,
-        titulo: 'Nada programado ainda',
-        subtitulo:
-            'Toque em "Adicionar" para anotar o que verificar/trocar. Dá para '
-            'definir o km e a frequência (ex.: óleo a cada 10.000 km).',
-      );
-    }
-
     return ListView(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 96),
-      children: itens
-          .map((it) => _LinhaProgramado(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
+      children: [
+        _CartaoProximaRevisao(),
+        const SizedBox(height: 14),
+        if (itens.isEmpty)
+          const Padding(
+            padding: EdgeInsets.only(top: 24),
+            child: EstadoVazio(
+              icone: Icons.checklist,
+              titulo: 'Nada programado ainda',
+              subtitulo:
+                  'Toque em "Adicionar" para anotar o que verificar/trocar. Dá '
+                  'para definir o km e a frequência (ex.: óleo a cada 10.000 km).',
+            ),
+          )
+        else
+          ...itens.map((it) => _LinhaProgramado(
                 item: it,
                 odometroAtual: odo,
                 ritmoKmDia: ritmo,
@@ -127,8 +131,8 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
                 onEditar: () => _abrirItemSheet(original: it),
                 onExcluir: () =>
                     ref.read(programacaoProvider.notifier).remover(it.id),
-              ))
-          .toList(),
+              )),
+      ],
     );
   }
 
@@ -164,8 +168,6 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
       children: [
-        _CartaoProximaRevisao(),
-        const SizedBox(height: 14),
         TextField(
           controller: _busca,
           decoration: InputDecoration(

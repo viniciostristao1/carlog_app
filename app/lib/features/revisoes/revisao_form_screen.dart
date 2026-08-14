@@ -9,6 +9,8 @@ import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
 import '../../util/format.dart';
 import '../../util/ids.dart';
+import '../../widgets/campo_sugestoes.dart';
+import 'itens_sugeridos.dart';
 
 class RevisaoFormScreen extends ConsumerStatefulWidget {
   final Revisao? original;
@@ -41,6 +43,36 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
     _texto = TextEditingController(text: o?.textoBruto ?? '');
     _data = o?.data ?? DateTime.now();
     _itens = [...(o?.itens ?? const [])];
+    _itemCtrl.addListener(() => setState(() {}));
+  }
+
+  /// Oficinas já usadas, mais recentes primeiro (sugestão ao preencher).
+  List<String> _oficinasAnteriores() {
+    final lista = ref.read(revisoesProvider).value ?? const [];
+    final ordenados = [...lista]..sort((a, b) => b.data.compareTo(a.data));
+    final vistos = <String>[];
+    for (final r in ordenados) {
+      final o = r.local.trim();
+      if (o.isNotEmpty && !vistos.contains(o)) vistos.add(o);
+    }
+    return vistos;
+  }
+
+  /// Sugestões de peças/serviços: catálogo comum + o que o usuário já registrou,
+  /// filtradas pelo que está digitado e sem repetir o que já foi adicionado.
+  List<String> _sugestoesItens() {
+    final termo = semAcento(_itemCtrl.text.trim());
+    final usados =
+        (ref.read(revisoesProvider).value ?? const []).expand((r) => r.itens);
+    final nomes = <String>{...itensSugeridos.map((s) => s.nome), ...usados};
+    final out = <String>[];
+    for (final n in nomes) {
+      if (n.trim().isEmpty || _itens.contains(n)) continue;
+      if (termo.isNotEmpty && !semAcento(n).contains(termo)) continue;
+      out.add(n);
+      if (out.length >= 6) break;
+    }
+    return out;
   }
 
   @override
@@ -190,7 +222,13 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
                     teclado:
                         const TextInputType.numberWithOptions(decimal: true))),
           ]),
-          _campo(_local, 'Oficina / concessionária'),
+          CampoSugestoes(
+            controller: _local,
+            label: 'Oficina / concessionária',
+            hint: 'Ex.: Auto Center do João',
+            cor: AppColors.catRevisoes,
+            sugestoes: _oficinasAnteriores(),
+          ),
           const SizedBox(height: 4),
           const Text('Peças / serviços trocados',
               style: TextStyle(
@@ -217,6 +255,28 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
               icon: const Icon(Icons.add),
             ),
           ]),
+          if (_sugestoesItens().isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _sugestoesItens()
+                  .map((n) => ActionChip(
+                        avatar: const Icon(Icons.add,
+                            size: 16, color: AppColors.catRevisoes),
+                        label: Text(n),
+                        backgroundColor: AppColors.surface2,
+                        labelStyle: const TextStyle(
+                            color: AppColors.catRevisoes, fontSize: 12.5),
+                        side: const BorderSide(color: AppColors.line),
+                        onPressed: () => setState(() {
+                          _itens.add(n);
+                          _itemCtrl.clear();
+                        }),
+                      ))
+                  .toList(),
+            ),
+          ],
           if (_itens.isNotEmpty) ...[
             const SizedBox(height: 10),
             Wrap(

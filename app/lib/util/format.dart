@@ -20,6 +20,17 @@ String n0(num v) => _num0.format(v);
 String dataLonga(DateTime d) => _data.format(d);
 String dataCurta(DateTime d) => _dataCurta.format(d);
 
+/// Minúsculas sem acento — para buscas/sugestões que ignoram acento e caixa.
+String semAcento(String s) {
+  const de = 'áàâãäéèêëíìîïóòôõöúùûüç';
+  const para = 'aaaaaeeeeiiiiooooouuuuc';
+  var out = s.toLowerCase();
+  for (var i = 0; i < de.length; i++) {
+    out = out.replaceAll(de[i], para[i]);
+  }
+  return out;
+}
+
 /// Interpreta um número digitado em pt-BR: aceita vírgula OU ponto como decimal.
 /// "1.234,5" → 1234.5; "10,5" → 10.5; "10.5" → 10.5; vazio → null.
 double? parseNumero(String s) {
