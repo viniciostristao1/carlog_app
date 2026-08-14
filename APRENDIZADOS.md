@@ -17,6 +17,11 @@ Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê"
   (última revisão + `revisaoIntervaloMeses` do cadastro). Reusado na home, no card de Revisões e nas
   notificações. `kmPorMesEstimado` removido. *(v0.10.0 tinha inferido o intervalo do histórico —
   revertido na v0.10.1 a pedido do usuário.)*
+- **v0.10.2 — método da DATA (definido pelo usuário):** `data = data da última revisão + (intervalo_km
+  ÷ ritmo_km_dia_12meses)`. É uma **cadência por tempo** que NÃO depende do odômetro atual (que costuma
+  estar desatualizado — o usuário lança abastecimento esporádico). `vencida = data.isBefore(now)`. O
+  card de Revisões passou a mostrar **Alvo + Previsão(data) + média/mês** (tirado o "faltam km", que
+  confundia por causa do odômetro velho). Teste trava a data ≈ últimaRevisão + intervalo/ritmo.
 
 ## 2026-08-14 — Cadastro só-FIPE com busca, home-estatísticas, logo maior (v0.7.0)
 

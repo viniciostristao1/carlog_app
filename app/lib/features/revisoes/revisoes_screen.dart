@@ -243,8 +243,7 @@ class _CartaoProximaRevisao extends ConsumerWidget {
     }
 
     final alvoKm = p.alvoKm!;
-    final faltamKm = p.faltamKm ?? 0;
-    final previsao = p.data != null ? '≈ ${dataLonga(p.data!)}' : '—';
+    final previsao = p.data != null ? dataLonga(p.data!) : '—';
     final vencida = p.vencida;
     final media12 = p.mediaKmMes12;
 
@@ -264,8 +263,7 @@ class _CartaoProximaRevisao extends ConsumerWidget {
         const SizedBox(height: 12),
         Row(children: [
           Expanded(child: _mini('Alvo', km(alvoKm))),
-          Expanded(child: _mini(vencida ? 'Passou' : 'Faltam', km(faltamKm.abs()))),
-          Expanded(child: _mini('Previsão', previsao)),
+          Expanded(child: _mini(vencida ? 'Venceu em' : 'Previsão', previsao)),
         ]),
         if (media12 != null) ...[
           const SizedBox(height: 12),

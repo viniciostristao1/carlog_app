@@ -101,6 +101,27 @@ void main() {
       expect(p.faltamKm, closeTo(110500 - 110570, 1));
     });
 
+    test('data = última revisão + tempo para rodar 1 intervalo (ritmo 12 meses)',
+        () {
+      final agora = DateTime.now();
+      const v = Veiculo(id: 'v', apelido: 'x'); // intervalo do cadastro = 10000
+      final revs = [
+        Revisao(
+            id: 'r',
+            data: agora.subtract(const Duration(days: 10)),
+            odometro: 13000),
+      ];
+      final ab = [
+        _ab('a', agora.subtract(const Duration(days: 100)), 10000, 40),
+      ];
+      final p = preverRevisao(v, ab, revs);
+      // ritmo = (13000-10000)/90 ≈ 33,33 km/dia → 10000/33,33 ≈ 300 dias após a
+      // revisão (agora-10) → ≈ agora + 290 dias.
+      expect(p.alvoKm, closeTo(23000, 1));
+      expect(p.data, isNotNull);
+      expect(p.data!.difference(agora).inDays, inInclusiveRange(285, 295));
+    });
+
     test('sem leituras não estima', () {
       const v = Veiculo(id: 'v', apelido: 'x');
       expect(preverRevisao(v, const [], const []).alvoKm, isNull);

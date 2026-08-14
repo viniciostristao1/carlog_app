@@ -172,18 +172,19 @@ double? ultimoOdometro(List<Abastecimento> abastecimentos) {
 /// Previsão da próxima revisão, combinando abastecimentos + revisões.
 class PrevisaoRevisao {
   final double? alvoKm; // odômetro estimado da próxima revisão
-  final double? faltamKm; // alvoKm - odômetro atual (negativo = vencida)
+  final double? faltamKm; // alvoKm - odômetro atual (negativo = já passou)
   final DateTime? data; // data provável
   final double? mediaKmMes12; // média de km/mês nos últimos 12 meses
+  final bool vencida;
 
   const PrevisaoRevisao({
     this.alvoKm,
     this.faltamKm,
     this.data,
     this.mediaKmMes12,
+    this.vencida = false,
   });
 
-  bool get vencida => faltamKm != null && faltamKm! <= 0;
   static const vazio = PrevisaoRevisao();
 }
 
@@ -227,32 +228,35 @@ PrevisaoRevisao preverRevisao(
   }
   final media12 = kmDia != null ? kmDia * 30 : null;
 
-  // Alvo = odômetro da ÚLTIMA revisão + o intervalo do CADASTRO (fixo, ex.: 10 mil).
+  // Alvo (km) = odômetro da ÚLTIMA revisão + o intervalo do CADASTRO (fixo).
   final revsOdo = revisoes.where((r) => r.odometro != null).toList()
     ..sort((a, b) => a.odometro!.compareTo(b.odometro!));
   final baseOdo = revsOdo.isNotEmpty ? revsOdo.last.odometro! : odoAtual;
   final alvoKm = baseOdo + v.revisaoIntervaloKm;
   final faltamKm = alvoKm - odoAtual;
 
-  // Data prevista: km primeiro (faltamKm ÷ ritmo dos últimos 12 meses); se não
-  // der por km, tempo (última revisão + intervalo de meses do cadastro).
+  // DATA = data da última revisão + o tempo para rodar UM intervalo no ritmo dos
+  // últimos 12 meses (método do usuário — robusto a odômetro desatualizado). Sem
+  // ritmo: última revisão + o intervalo de meses do cadastro.
+  final revsData = [...revisoes]..sort((a, b) => a.data.compareTo(b.data));
   DateTime? data;
-  if (faltamKm > 0 && kmDia != null && kmDia > 0) {
-    data = DateTime.now().add(Duration(days: (faltamKm / kmDia).ceil()));
-  } else if (faltamKm > 0) {
-    final revsData = [...revisoes]..sort((a, b) => a.data.compareTo(b.data));
-    if (revsData.isNotEmpty) {
-      final ult = revsData.last.data;
-      final d =
-          DateTime(ult.year, ult.month + v.revisaoIntervaloMeses, ult.day);
-      if (d.isAfter(DateTime.now())) data = d;
+  if (revsData.isNotEmpty) {
+    final ult = revsData.last.data;
+    if (kmDia != null && kmDia > 0) {
+      data = ult.add(Duration(days: (v.revisaoIntervaloKm / kmDia).round()));
+    } else {
+      data = DateTime(ult.year, ult.month + v.revisaoIntervaloMeses, ult.day);
     }
   }
+
+  final vencida =
+      data != null ? data.isBefore(DateTime.now()) : faltamKm <= 0;
 
   return PrevisaoRevisao(
     alvoKm: alvoKm,
     faltamKm: faltamKm,
     data: data,
     mediaKmMes12: media12,
+    vencida: vencida,
   );
 }

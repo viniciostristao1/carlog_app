@@ -2,6 +2,10 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-14 — v0.10.2.** **Previsão de data da revisão refinada** (a seu pedido): a data = **data da
+  última revisão + o tempo para rodar um intervalo** no seu **ritmo médio dos últimos 12 meses** (assim
+  não erra quando o odômetro está desatualizado). O card mostra **Alvo (km) + Previsão (data) + média/mês**.
+
 - **2026-08-14 — v0.10.1.** (1) **Excluir abastecimento e revisão** por botão (lixeira) na tela de
   edição — além do arrastar. (2) No abastecimento, **todos os campos são opcionais** (odômetro, litros,
   preço). (3) **Data da próxima revisão corrigida**: o **alvo em km** continua sendo a última revisão +
