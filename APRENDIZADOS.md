@@ -9,14 +9,14 @@ Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê"
   nulos), cards e resumos (mostram só o que existe; `String.ou(fallback)` em `format.dart`). Regra de
   salvar: ao menos 1 campo presente. **Excluir** abastecimento/revisão por botão lixeira na AppBar de
   edição (`_excluir`), além do swipe.
-- **`preverRevisao(v, ab, revs)` (novo, em consumo.dart, COM teste):** substitui a previsão antiga que
-  (a) usava só abastecimentos p/ o ritmo, (b) ritmo de 90 dias, (c) intervalo de km FIXO do cadastro.
-  Agora: **odômetro atual = maior leitura de abast.+revisões**; **ritmo km/dia dos últimos 365 dias
-  combinando as duas fontes**; **intervalo de km = média dos espaçamentos entre revisões do histórico**
-  (≥2 revisões) e só cai no valor do cadastro se não houver histórico; fallback por tempo (última
-  revisão + meses médios) quando não dá por km. Reusado na home, no card de Revisões e nas notificações.
-  Motivo: com revisões a ~20 mil km, o padrão de 10 mil dava alvo/data muito errados (feedback do
-  usuário). `kmPorMesEstimado` removido (redundante).
+- **`preverRevisao(v, ab, revs)` (novo, em consumo.dart, COM teste):** o BUG era a **DATA**, não o alvo.
+  **Alvo (km) = última revisão + `v.revisaoIntervaloKm` (do CADASTRO, fixo)** — NÃO inferir do histórico
+  (o usuário deixou claro: "10 mil da última revisão sempre será o alvo"). O que melhorou: **odômetro
+  atual = maior leitura de abastecimentos + revisões**; **ritmo = km/dia dos últimos 365 dias juntando
+  as duas fontes** (antes: só abastecimentos, janela 90 dias → data muito errada); fallback por tempo
+  (última revisão + `revisaoIntervaloMeses` do cadastro). Reusado na home, no card de Revisões e nas
+  notificações. `kmPorMesEstimado` removido. *(v0.10.0 tinha inferido o intervalo do histórico —
+  revertido na v0.10.1 a pedido do usuário.)*
 
 ## 2026-08-14 — Cadastro só-FIPE com busca, home-estatísticas, logo maior (v0.7.0)
 

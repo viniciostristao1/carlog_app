@@ -201,10 +201,10 @@ List<(DateTime, double)> _leituras(
   return r;
 }
 
-/// Estima a próxima revisão. **Km é o principal** (odômetro dos abastecimentos +
-/// revisões dos últimos 12 meses); o intervalo de km sai do HISTÓRICO de revisões
-/// (média dos espaçamentos) quando há ≥2, senão do cadastro do veículo. Se não dá
-/// para prever por km, cai para o tempo (última revisão + intervalo de meses).
+/// Estima a próxima revisão. **Alvo (km) = última revisão + intervalo do CADASTRO**
+/// (fixo). O que melhora é a **DATA**: km atual = maior leitura de abastecimentos
+/// + revisões; ritmo = km/dia dos últimos 12 meses juntando as duas fontes. Se não
+/// der por km, cai para o tempo (última revisão + intervalo de meses do cadastro).
 PrevisaoRevisao preverRevisao(
     Veiculo v, List<Abastecimento> abastecimentos, List<Revisao> revisoes) {
   final leituras = _leituras(abastecimentos, revisoes);
@@ -227,43 +227,24 @@ PrevisaoRevisao preverRevisao(
   }
   final media12 = kmDia != null ? kmDia * 30 : null;
 
-  // intervalo de km: média dos espaçamentos entre revisões; senão o do veículo
+  // Alvo = odômetro da ÚLTIMA revisão + o intervalo do CADASTRO (fixo, ex.: 10 mil).
   final revsOdo = revisoes.where((r) => r.odometro != null).toList()
     ..sort((a, b) => a.odometro!.compareTo(b.odometro!));
-  double intervaloKm = v.revisaoIntervaloKm.toDouble();
-  if (revsOdo.length >= 2) {
-    final gaps = <double>[];
-    for (var i = 1; i < revsOdo.length; i++) {
-      final g = revsOdo[i].odometro! - revsOdo[i - 1].odometro!;
-      if (g > 0) gaps.add(g);
-    }
-    if (gaps.isNotEmpty) {
-      intervaloKm = gaps.reduce((a, b) => a + b) / gaps.length;
-    }
-  }
-
   final baseOdo = revsOdo.isNotEmpty ? revsOdo.last.odometro! : odoAtual;
-  final alvoKm = baseOdo + intervaloKm;
+  final alvoKm = baseOdo + v.revisaoIntervaloKm;
   final faltamKm = alvoKm - odoAtual;
 
+  // Data prevista: km primeiro (faltamKm ÷ ritmo dos últimos 12 meses); se não
+  // der por km, tempo (última revisão + intervalo de meses do cadastro).
   DateTime? data;
   if (faltamKm > 0 && kmDia != null && kmDia > 0) {
     data = DateTime.now().add(Duration(days: (faltamKm / kmDia).ceil()));
   } else if (faltamKm > 0) {
-    // fallback por tempo: última revisão + intervalo de meses (histórico/veículo)
     final revsData = [...revisoes]..sort((a, b) => a.data.compareTo(b.data));
     if (revsData.isNotEmpty) {
-      int meses = v.revisaoIntervaloMeses;
-      if (revsData.length >= 2) {
-        final difs = <int>[];
-        for (var i = 1; i < revsData.length; i++) {
-          difs.add(revsData[i].data.difference(revsData[i - 1].data).inDays);
-        }
-        final mediaDias = difs.reduce((a, b) => a + b) / difs.length;
-        if (mediaDias > 0) meses = (mediaDias / 30).round();
-      }
       final ult = revsData.last.data;
-      final d = DateTime(ult.year, ult.month + meses, ult.day);
+      final d =
+          DateTime(ult.year, ult.month + v.revisaoIntervaloMeses, ult.day);
       if (d.isAfter(DateTime.now())) data = d;
     }
   }

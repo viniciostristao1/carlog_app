@@ -84,8 +84,9 @@ void main() {
   });
 
   group('preverRevisao', () {
-    test('infere o intervalo de km do histórico de revisões', () {
-      const v = Veiculo(id: 'v', apelido: 'x'); // intervalo padrão do cadastro = 10000
+    test('alvo = última revisão + intervalo do CADASTRO (não infere do histórico)',
+        () {
+      const v = Veiculo(id: 'v', apelido: 'x'); // intervalo do cadastro = 10000
       final revs = [
         Revisao(id: 'r1', data: DateTime(2024, 11, 5), odometro: 80161),
         Revisao(id: 'r2', data: DateTime(2025, 8, 14), odometro: 100500),
@@ -95,11 +96,9 @@ void main() {
         _ab('a2', DateTime(2026, 2, 9), 110570, 40),
       ];
       final p = preverRevisao(v, ab, revs);
-      // intervalo observado = 100500-80161 = 20339 → alvo = 100500 + 20339
-      // (NÃO os 10000 do cadastro), e odômetro atual = 110570.
-      expect(p.alvoKm, closeTo(120839, 1));
-      expect(p.faltamKm, closeTo(120839 - 110570, 1));
-      expect(p.vencida, isFalse);
+      // 100500 (última revisão) + 10000 (cadastro) = 110500; km atual = 110570.
+      expect(p.alvoKm, closeTo(110500, 1));
+      expect(p.faltamKm, closeTo(110500 - 110570, 1));
     });
 
     test('sem leituras não estima', () {
