@@ -73,6 +73,12 @@ Exemplo: um store de "multas". Faça TODOS os passos, senão a sincronização n
   por linha (regex de valor BR) e detecta **total**. UI de revisão no form de Revisão
   (`_OcrReviewSheet`). Tudo no aparelho, offline.
 
+## Sugestões / autocomplete (widgets/campo_sugestoes.dart)
+- `CampoSugestoes(controller, label, sugestoes: List<String>, cor)` = TextField + chips filtradas por
+  `semAcento` (util/format.dart); tocar preenche o campo. Fonte típica = histórico do usuário
+  (postos distintos, oficinas distintas). Em Revisões, as **peças** somam o catálogo `itens_sugeridos`
+  + itens já usados (tocar adiciona à lista).
+
 ## Testes
 - Lógica pura em `util/` (ex.: `consumo.dart`) tem teste em `test/` (`consumo_test.dart`). Ao mexer em
   cálculo (média, previsão, parsing), **adicione/atualize o teste**. Rode `flutter test`.

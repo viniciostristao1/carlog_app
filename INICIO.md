@@ -105,7 +105,8 @@ Tela principal = 6 atalhos redondos:
 - `util/` — `consumo.dart` (média km/L, km-mês, `ritmoKmPorDia`, `previsaoData`, **com testes**),
   `format.dart` (pt-BR + `parseNumero`), `ids.dart` (`novoId`), `messenger.dart`.
 - `theme/` — `app_colors.dart` (tokens + `accent` âmbar + cor por categoria), `app_theme.dart`.
-- `widgets/` — `botao_redondo.dart`, `estado_vazio.dart`.
+- `widgets/` — `botao_redondo.dart`, `estado_vazio.dart`, `campo_sugestoes.dart` (campo + chips de
+  sugestão, ex.: postos/oficinas).
 - `features/` — `home/`, `veiculo/` (cadastro só-FIPE), `abastecimento/`, `media/`, `revisoes/`
   (+ `itens_sugeridos.dart`, OCR no form), `fipe/` (`fipe_service`, `fipe_seletor` c/ busca,
   `fipe_picker_screen`, `fipe_screen`), `calibragem/`, `lembretes/`, `config/`.
