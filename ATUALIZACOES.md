@@ -2,6 +2,10 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-15 — v0.13.1.** **Correção:** os **botões redondos** ("O que você quer registrar?") sumiam
+  na tela inicial quando havia carro cadastrado — um erro de layout na faixa de "outros carros" derrubava
+  o conteúdo abaixo. Voltaram ao normal (Abastecimento, Consumo, Revisões, FIPE, Calibragem, Lembretes).
+
 - **2026-08-15 — v0.13.0.** **Temas, tamanho de fonte e idiomas.** (1) 4 **temas** (Âmbar, Azul, Expresso,
   Madeira) e **4 tamanhos de fonte** nas Configurações → Aparência. (2) **Inglês e Espanhol** (Config →
   Idioma). (3) Home: os **outros carros** viraram cartões meia-largura abaixo do principal; o carro

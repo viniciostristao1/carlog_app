@@ -443,16 +443,21 @@ class _OutrosCarros extends ConsumerWidget {
     if (tiles.isEmpty) return const SizedBox.shrink();
 
     // Row de Expanded: 1 tile ocupa a linha toda; 2 tiles, metade cada.
+    // IntrinsicHeight dá ao Row uma altura limitada — sem ele, o
+    // CrossAxisAlignment.stretch pediria altura infinita dentro do ListView
+    // (erro de layout que sumia com os botões abaixo).
     return Padding(
       padding: const EdgeInsets.only(top: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < tiles.length; i++) ...[
-            if (i > 0) const SizedBox(width: 10),
-            Expanded(child: tiles[i]),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < tiles.length; i++) ...[
+              if (i > 0) const SizedBox(width: 10),
+              Expanded(child: tiles[i]),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

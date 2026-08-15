@@ -2,6 +2,21 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-15 — Fix: botões redondos sumiam (v0.13.1)
+
+- ⚠️ **GOTCHA:** `_OutrosCarros` (faixa de outros carros na Home) usava
+  `Row(crossAxisAlignment: CrossAxisAlignment.stretch, [Expanded, …])` **dentro do `ListView`** da Home.
+  `stretch` no eixo cross de um `Row` = **vertical**, e o `ListView` dá altura **ilimitada** → o stretch
+  pede altura infinita → **erro de layout em runtime** ("BoxConstraints forces an infinite height") que
+  derrubava tudo abaixo na lista (os botões redondos "sumiam"). **Só aparecia com ≥1 carro** (com 0 carros
+  `_OutrosCarros` já retornava `shrink`). **Fix:** envolver o `Row` em **`IntrinsicHeight`** (dá altura
+  limitada = maior filho; stretch mantém os meio-cards com a mesma altura).
+- **Não é pego por `flutter analyze` nem por teste de lógica** — é erro de LAYOUT em runtime. Adicionado
+  `test/home_layout_test.dart` (widget test headless) que reproduz o padrão: sem `IntrinsicHeight`
+  `takeException()` != null; com ele rende e o conteúdo abaixo continua presente. **Regra:** tela nova com
+  layout não trivial → ao menos um `testWidgets` que dá `pumpWidget` (widget tests pegam
+  overflow/constraint infinito; `analyze` não).
+
 ## 2026-08-15 — Temas + tamanho de fonte + idiomas EN/ES (v0.13.0)
 
 - **Temas (item 10):** `AppColors` deixou de ser constantes e virou paleta trocável (padrão do irmão
