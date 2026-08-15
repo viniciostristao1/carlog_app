@@ -5,8 +5,11 @@ final _moeda = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
 final _num1 = NumberFormat('#,##0.0', 'pt_BR');
 final _num2 = NumberFormat('#,##0.00', 'pt_BR');
 final _num0 = NumberFormat('#,##0', 'pt_BR');
-final _data = DateFormat("d 'de' MMM. y", 'pt_BR');
 final _dataCurta = DateFormat('dd/MM/yy', 'pt_BR');
+
+/// Locale das datas por extenso (`dataLonga`), atualizado pelo `main` quando o
+/// idioma muda. Números/moeda/unidades seguem pt-BR (o carro é do Brasil).
+String localeDatas = 'pt_BR';
 
 String moeda(num v) => _moeda.format(v);
 String reais2(num v) => 'R\$ ${_num2.format(v)}';
@@ -17,7 +20,17 @@ String n1(num v) => _num1.format(v);
 String n2(num v) => _num2.format(v);
 String n0(num v) => _num0.format(v);
 
-String dataLonga(DateTime d) => _data.format(d);
+String dataLonga(DateTime d) {
+  switch (localeDatas) {
+    case 'en_US':
+      return DateFormat('MMM d, y', 'en_US').format(d);
+    case 'es_ES':
+      return DateFormat("d 'de' MMM y", 'es_ES').format(d);
+    default:
+      return DateFormat("d 'de' MMM. y", 'pt_BR').format(d);
+  }
+}
+
 String dataCurta(DateTime d) => _dataCurta.format(d);
 
 extension StringFallback on String {

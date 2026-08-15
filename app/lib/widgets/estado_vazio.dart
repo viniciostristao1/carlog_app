@@ -26,14 +26,14 @@ class EstadoVazio extends StatelessWidget {
             const SizedBox(height: 16),
             Text(titulo,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                     color: AppColors.text,
                     fontSize: 17,
                     fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),
             Text(subtitulo,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.dim, fontSize: 13.5)),
+                style: TextStyle(color: AppColors.dim, fontSize: 13.5)),
           ],
         ),
       ),

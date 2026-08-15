@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../l10n/strings.dart';
 import '../../models/abastecimento.dart';
+import '../../services/prefs.dart';
 import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
 import '../../util/format.dart';
@@ -104,9 +106,8 @@ class _AbastecimentoFormScreenState
     }
     // Tudo é opcional, mas ao menos um campo tem de existir.
     if (odo == null && litros == null && preco == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content:
-              Text('Preencha ao menos um campo (odômetro, litros ou preço).')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(ref.read(stringsProvider).preenchaUmCampo)));
       return;
     }
     final a = Abastecimento(
@@ -130,16 +131,16 @@ class _AbastecimentoFormScreenState
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Excluir abastecimento?'),
+        title: Text(ref.read(stringsProvider).excluirAbastecimento),
         content: Text(dataLonga(_data)),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar')),
+              child: Text(ref.read(stringsProvider).cancelar)),
           TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Excluir',
-                  style: TextStyle(color: AppColors.danger))),
+              child: Text(ref.read(stringsProvider).excluir,
+                  style: const TextStyle(color: AppColors.danger))),
         ],
       ),
     );
@@ -153,14 +154,15 @@ class _AbastecimentoFormScreenState
 
   @override
   Widget build(BuildContext context) {
+    final t = ref.watch(stringsProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            widget.original == null ? 'Novo abastecimento' : 'Abastecimento'),
+            widget.original == null ? t.novoAbastecimento : t.abastecimento),
         actions: [
           if (widget.original != null)
             IconButton(
-              tooltip: 'Excluir',
+              tooltip: t.excluir,
               icon: const Icon(Icons.delete_outline, color: AppColors.danger),
               onPressed: _excluir,
             ),
@@ -169,50 +171,50 @@ class _AbastecimentoFormScreenState
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
-          _linhaData(),
+          _linhaData(t),
           const SizedBox(height: 12),
-          _campo(_odometro, 'Odômetro (km, opcional)',
+          _campo(_odometro, t.odometroKmOpc,
               teclado: TextInputType.number, soDigitos: true),
-          _campo(_litros, 'Litros (opcional)',
+          _campo(_litros, t.litrosOpc,
               teclado: const TextInputType.numberWithOptions(decimal: true)),
-          _seletorModo(),
+          _seletorModo(t),
           const SizedBox(height: 12),
           if (_modoTotal)
-            _campo(_total, 'Valor total (R\$)',
+            _campo(_total, t.valorTotalRs,
                 teclado: const TextInputType.numberWithOptions(decimal: true))
           else
-            _campo(_preco, 'Preço / litro',
+            _campo(_preco, t.precoLitro,
                 teclado: const TextInputType.numberWithOptions(decimal: true)),
-          _cartaoCalculado(),
+          _cartaoCalculado(t),
           const SizedBox(height: 12),
           SwitchListTile(
             value: _cheio,
             onChanged: (v) => setState(() => _cheio = v),
             contentPadding: EdgeInsets.zero,
             activeThumbColor: AppColors.accent,
-            title: const Text('Enchi o tanque',
+            title: Text(t.enchiTanque,
                 style: TextStyle(color: AppColors.text)),
-            subtitle: const Text(
-                'Necessário para o cálculo de média confiável',
+            subtitle: Text(
+                t.enchiTanqueSub,
                 style: TextStyle(color: AppColors.dim, fontSize: 12.5)),
           ),
           const SizedBox(height: 4),
           CampoSugestoes(
             controller: _posto,
-            label: 'Posto (opcional)',
-            hint: 'Ex.: Shell da avenida',
+            label: t.postoOpc,
+            hint: t.postoHint,
             cor: AppColors.catAbastecimento,
             sugestoes: _postosAnteriores(),
           ),
-          _campo(_obs, 'Observação (opcional)', capitalize: true),
+          _campo(_obs, t.observacaoOpc, capitalize: true),
           const SizedBox(height: 20),
-          FilledButton(onPressed: _salvar, child: const Text('Salvar')),
+          FilledButton(onPressed: _salvar, child: Text(t.salvar)),
         ],
       ),
     );
   }
 
-  Widget _linhaData() {
+  Widget _linhaData(AppStrings t) {
     return InkWell(
       onTap: _escolherData,
       borderRadius: BorderRadius.circular(14),
@@ -225,13 +227,13 @@ class _AbastecimentoFormScreenState
         ),
         child: Row(
           children: [
-            const Icon(Icons.event, color: AppColors.dim, size: 20),
+            Icon(Icons.event, color: AppColors.dim, size: 20),
             const SizedBox(width: 12),
             Text(dataLonga(_data),
-                style: const TextStyle(
+                style: TextStyle(
                     color: AppColors.text, fontWeight: FontWeight.w600)),
             const Spacer(),
-            const Text('alterar',
+            Text(t.alterar,
                 style: TextStyle(color: AppColors.accent, fontSize: 13)),
           ],
         ),
@@ -239,7 +241,7 @@ class _AbastecimentoFormScreenState
     );
   }
 
-  Widget _seletorModo() {
+  Widget _seletorModo(AppStrings t) {
     Widget chip(String txt, bool total) {
       final sel = _modoTotal == total;
       return Expanded(
@@ -270,15 +272,15 @@ class _AbastecimentoFormScreenState
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(children: [
-        chip('Informar preço/litro', false),
-        chip('Informar valor total', true),
+        chip(t.informarPrecoLitro, false),
+        chip(t.informarValorTotal, true),
       ]),
     );
   }
 
   /// Mostra o valor calculado a partir do que NÃO foi digitado.
-  Widget _cartaoCalculado() {
-    final rotulo = _modoTotal ? 'Preço / litro' : 'Total';
+  Widget _cartaoCalculado(AppStrings t) {
+    final rotulo = _modoTotal ? t.precoLitro : t.total;
     final valor = _modoTotal ? _precoCalc : _totalCalc;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -289,7 +291,7 @@ class _AbastecimentoFormScreenState
       child: Row(
         children: [
           Text(rotulo,
-              style: const TextStyle(color: AppColors.dim, fontSize: 14)),
+              style: TextStyle(color: AppColors.dim, fontSize: 14)),
           const Spacer(),
           Text(moeda(valor),
               style: const TextStyle(

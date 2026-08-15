@@ -6,9 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
-import '../models/lembrete.dart';
 import '../util/consumo.dart';
 import '../util/format.dart';
+import 'prefs.dart';
 import 'repositories.dart';
 
 /// Wrapper do flutter_local_notifications: inicialização (com timezone do
@@ -132,20 +132,23 @@ class NotifScheduler {
     final ativo = ref.read(notifAtivasProvider).value ?? false;
     if (!ativo) return;
 
+    final t = ref.read(stringsProvider);
+
     // Lembretes não pagos do carro selecionado: no dia e 3 dias antes.
     final lembretes = ref.read(lembretesDoVeiculoProvider);
     for (final l in lembretes.where((e) => !e.pago)) {
-      final nome = l.titulo.isNotEmpty ? l.titulo : l.tipo.rotulo;
+      final tipo = t.rotuloTipoLembrete(l.tipo);
+      final nome = l.titulo.isNotEmpty ? l.titulo : tipo;
       await svc.agendar(
         id: _id(l.id, 0),
-        titulo: 'CarLog · ${l.tipo.rotulo}',
-        corpo: '$nome vence hoje.',
+        titulo: 'CarLog · $tipo',
+        corpo: t.notifVenceHoje(nome),
         quando: _as9(l.vencimento),
       );
       await svc.agendar(
         id: _id(l.id, 1),
-        titulo: 'CarLog · ${l.tipo.rotulo}',
-        corpo: '$nome vence em 3 dias.',
+        titulo: 'CarLog · $tipo',
+        corpo: t.notifVence3Dias(nome),
         quando: _as9(l.vencimento.subtract(const Duration(days: 3))),
       );
     }
@@ -160,8 +163,8 @@ class NotifScheduler {
       if (p.data != null && p.alvoKm != null) {
         await svc.agendar(
           id: _id(v.id, 2),
-          titulo: 'CarLog · Revisão',
-          corpo: 'Sua próxima revisão está chegando (~${km(p.alvoKm!)}).',
+          titulo: 'CarLog · ${t.revisao}',
+          corpo: t.notifRevisaoChegando(km(p.alvoKm!)),
           quando: _as9(p.data!),
         );
       }

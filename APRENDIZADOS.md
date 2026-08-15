@@ -2,6 +2,38 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-15 — Temas + tamanho de fonte + idiomas EN/ES (v0.13.0)
+
+- **Temas (item 10):** `AppColors` deixou de ser constantes e virou paleta trocável (padrão do irmão
+  Calis): `Paleta` + getters (`bg/surface/surface2/line/lineStrong/text/dim/dim2/accent/onAccent/brilho`)
+  lidos de `_pal`, setado por `aplicarTema(TemaApp)` dentro de `buildAppTheme(tema)`. **Categorias
+  (`catX`) + `danger/ok/warn` seguem `const`** (decisão do usuário: cores de categoria fixas em todos os
+  temas → menos churn). 4 temas: `ambar` (padrão, = grafite atual), `azul`, `espresso`, `madeira` (claro).
+- ⚠️ **GOTCHA-mãe:** tokens de cor viraram getters → **`const` deixa de valer** em qualquer widget que
+  referencie um token dinâmico (erro `invalid_constant`). Foram ~128 sítios. Corrigidos com script que
+  acha o `const` externo que governa o token e o remove (`scratchpad/fix_const.py`; guiado por
+  `dart analyze --format=machine`). `flutter_lints` **não** habilita `prefer_const_constructors`, então
+  remover `const` de irmãos estáticos NÃO gera lint. **Ao escrever tela nova: nunca `const` em widget que
+  usa `AppColors.text/dim/surface/...`** (só nas cores fixas de categoria).
+- `StepperNum.cor` e `CampoSugestoes.cor` viraram `Color?` (default `AppColors.accent` deixou de ser
+  const) → resolvem `cor ?? AppColors.accent` no build.
+- **Fonte (item 11):** `TamanhoFonte {menor,normal,maior,maximo}` (0.9/1.0/1.15/1.3) em `prefs.dart`;
+  aplicado global no `main` via `MediaQuery.withClampedTextScaling`. Grades da Home (`childAspectRatio`)
+  ficaram adaptativas à escala (`/escala`, clamp) p/ o rótulo/valor não estourarem.
+- **Idiomas (item 12):** `Idioma {pt,en,es}` + `AppStrings(idioma)` com `_s(pt,en,es)` em
+  `lib/l10n/strings.dart`; `idiomaProvider`/`stringsProvider` em `prefs.dart`. Telas leem
+  `ref.watch(stringsProvider)`; **helpers `StatelessWidget` com texto viraram `ConsumerWidget`**, e os que
+  não têm `ref` recebem `AppStrings t` por parâmetro (ex.: `_OcrReviewSheet`, `_BuscaSheet`). Rótulos de
+  enum saíram dos getters `.rotulo` para métodos `t.rotuloX(enum)` (os getters `.rotulo` viraram dead code
+  inofensivo). `main` inicializa **todos** os locales (`initializeDateFormatting()`), seta `locale` +
+  `supportedLocales` (pt/en/es) e `format.localeDatas` p/ `dataLonga` localizada; números/moeda/unidades
+  seguem pt-BR de propósito (carro é do Brasil). `KeyedSubtree(ValueKey((tema,idioma)))` força repintura.
+- **Itens de UI (1–9):** outros carros = cartões meia-largura (`_OutrosCarros`/`_CarroTile`, Row de
+  Expanded) abaixo do principal; cabeçalho marca-em-cima/modelo-embaixo (modelo `maxLines:2`); revisão
+  vencida → `⚠` centralizado no tile (flag `_Stat.alerta`); catálogo de itens ampliado
+  (`itens_sugeridos.dart`); campos "a cada km"/"fazer no km" invertidos; botão **Limpar** + **lupa** de
+  busca no fluxo do orçamento OCR.
+
 ## 2026-08-14 — Multi-veículo até 3 (v0.12.0)
 
 - `veiculo` (objeto único, `veiculo_v1`) → **lista** `veiculos_v1` (`VeiculosNotifier`, máx `maxVeiculos=3`)

@@ -22,9 +22,17 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 > código)** · mapa de padrões (`ARQUITETURA.md`) · técnico/gotchas (`APRENDIZADOS`) · changelog do
 > usuário (`ATUALIZACOES`) · futuro (`IDEIAS`) · nuvem (`FIREBASE`).
 
-## ⭐ ESTADO ATUAL (2026-08-14) — ler primeiro pós-/clear
+## ⭐ ESTADO ATUAL (2026-08-15) — ler primeiro pós-/clear
 
-**v0.12.0 — NUVEM LIGADA + OCR** (`flutter analyze` limpo, 7 testes de consumo/previsão passando). Repositório GitHub
+**v0.13.0 — TEMAS + FONTE + IDIOMAS (EN/ES)** (`flutter analyze` limpo, 10 testes passando). Config →
+**Aparência** (4 temas: Âmbar/Azul/Expresso/Madeira; 4 tamanhos de fonte) e **Idioma** (pt/en/es).
+`AppColors` agora é dependente de tema (getters + `aplicarTema`; **categorias/danger/ok/warn seguem
+`const`**); i18n em `lib/l10n/strings.dart` (`AppStrings(idioma)` + `stringsProvider`), datas por extenso
+localizadas em `util/format.dart` (`localeDatas`). **Regra nova:** com tokens de cor como getters, NÃO
+use `const` em widget que referencia `AppColors.text/dim/surface/...` (só nas cores fixas). Detalhe em
+APRENDIZADOS. Base anterior:
+
+**v0.12.0 — NUVEM LIGADA + OCR** (7 testes de consumo/previsão). Repositório GitHub
 **criado e no ar** (`viniciostristao1/carlog_app`, privado) — o CI compila **só o APK** a cada push
 (AAB só no lançamento; ver APRENDIZADOS), assinado pela keystore de upload. **Firebase provisionado**
 (projeto `carlog-b4ef3`): `kFirebaseConfigured = true`, **login Google + sync Firestore ativos**,

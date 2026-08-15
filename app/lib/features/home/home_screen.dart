@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../models/abastecimento.dart';
-import '../../models/revisao.dart';
 import '../../models/veiculo.dart';
+import '../../services/prefs.dart';
 import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
 import '../../util/consumo.dart';
@@ -28,13 +27,16 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final veiculo = ref.watch(veiculoSelecionadoProvider);
+    final t = ref.watch(stringsProvider);
+    // Com fonte maior, dá mais altura aos botões p/ o rótulo não estourar.
+    final escala = ref.watch(fonteProvider).value?.fator ?? 1.0;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('CarLog'),
         actions: [
           IconButton(
-            tooltip: 'Configurações',
+            tooltip: t.configuracoes,
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => _abrir(context, const ConfigScreen()),
           ),
@@ -44,17 +46,17 @@ class HomeScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
           children: [
-            const _SeletorCarros(),
             _CabecalhoVeiculo(
               veiculo: veiculo,
               onEditar: () =>
                   _abrir(context, VeiculoFormScreen(veiculo: veiculo)),
             ),
-            const SizedBox(height: 24),
-            const Padding(
-              padding: EdgeInsets.only(left: 4, bottom: 4),
+            const _OutrosCarros(),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.only(left: 4, bottom: 4),
               child: Text(
-                'O que você quer registrar?',
+                t.oQueRegistrar,
                 style: TextStyle(
                   color: AppColors.dim,
                   fontSize: 13,
@@ -69,41 +71,41 @@ class HomeScreen extends ConsumerWidget {
               physics: const NeverScrollableScrollPhysics(),
               mainAxisSpacing: 20,
               crossAxisSpacing: 8,
-              childAspectRatio: 0.82,
+              childAspectRatio: (0.82 / escala).clamp(0.6, 0.82),
               children: [
                 BotaoRedondo(
                   icone: Icons.local_gas_station,
-                  rotulo: 'Abastecimento',
+                  rotulo: t.catAbastecimento,
                   cor: AppColors.catAbastecimento,
                   onTap: () => _abrir(context, const AbastecimentoScreen()),
                 ),
                 BotaoRedondo(
                   icone: Icons.speed,
-                  rotulo: 'Consumo / Média',
+                  rotulo: t.catConsumo,
                   cor: AppColors.catConsumo,
                   onTap: () => _abrir(context, const MediaScreen()),
                 ),
                 BotaoRedondo(
                   icone: Icons.build_circle_outlined,
-                  rotulo: 'Revisões',
+                  rotulo: t.catRevisoes,
                   cor: AppColors.catRevisoes,
                   onTap: () => _abrir(context, const RevisoesScreen()),
                 ),
                 BotaoRedondo(
                   icone: Icons.request_quote_outlined,
-                  rotulo: 'Minha FIPE',
+                  rotulo: t.catFipe,
                   cor: AppColors.catFipe,
                   onTap: () => _abrir(context, const FipeScreen()),
                 ),
                 BotaoRedondo(
                   icone: Icons.tire_repair,
-                  rotulo: 'Calibragem',
+                  rotulo: t.catCalibragem,
                   cor: AppColors.catCalibragem,
                   onTap: () => _abrir(context, const CalibragemScreen()),
                 ),
                 BotaoRedondo(
                   icone: Icons.event_available_outlined,
-                  rotulo: 'Lembretes',
+                  rotulo: t.catLembretes,
                   cor: AppColors.catLembretes,
                   onTap: () => _abrir(context, const LembretesScreen()),
                 ),
@@ -123,30 +125,31 @@ class _CabecalhoVeiculo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(stringsProvider);
     final v = veiculo;
     if (v == null) {
       return Card(
         child: InkWell(
           borderRadius: BorderRadius.circular(18),
           onTap: onEditar,
-          child: const Padding(
-            padding: EdgeInsets.all(20),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
             child: Row(
               children: [
                 Icon(Icons.directions_car_filled,
                     color: AppColors.accent, size: 34),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Cadastrar meu carro',
+                      Text(t.cadastrarMeuCarro,
                           style: TextStyle(
                               color: AppColors.text,
                               fontSize: 17,
                               fontWeight: FontWeight.w700)),
-                      SizedBox(height: 4),
-                      Text('Busque pela tabela FIPE (marca, modelo, ano)',
+                      const SizedBox(height: 4),
+                      Text(t.busquePelaFipe,
                           style:
                               TextStyle(color: AppColors.dim, fontSize: 13)),
                     ],
@@ -173,37 +176,42 @@ class _CabecalhoVeiculo extends ConsumerWidget {
     final ultimaCalib = calibragens.isEmpty
         ? null
         : (calibragens.map((c) => c.data).reduce((a, b) => a.isAfter(b) ? a : b));
+    final prev = preverRevisao(v, abastecimentos, revisoes);
+    // Fonte maior → tiles mais altos, para o valor/rótulo não estourarem.
+    final escala = ref.watch(fonteProvider).value?.fator ?? 1.0;
 
-    // subtítulo só quando há apelido (evita repetir marca/modelo do título)
-    final temApelido = v.apelido.trim().isNotEmpty;
-    final subInfo = [
-      if (v.marca.isNotEmpty || v.modelo.isNotEmpty)
-        '${v.marca} ${v.modelo}'.trim(),
+    // Título em duas linhas (marca em cima, modelo abaixo — cabe o modelo
+    // completo). O apelido e o resto (ano/combustível) descem para a linha extra.
+    final marca = v.marca.trim();
+    final modelo = v.modelo.trim();
+    final infoExtra = [
+      if (v.apelido.trim().isNotEmpty) v.apelido.trim(),
       if (v.ano != null) '${v.ano}',
-      v.combustivel.rotulo,
+      t.rotuloCombustivel(v.combustivel),
     ].where((s) => s.isNotEmpty).join(' · ');
 
     void abrir(Widget tela) => Navigator.of(context)
         .push(MaterialPageRoute(builder: (_) => tela));
 
     final stats = <_Stat>[
-      _Stat(Icons.speed, AppColors.accent, 'Odômetro',
+      _Stat(Icons.speed, AppColors.accent, t.statOdometro,
           odo != null ? km(odo) : '—',
           onTap: () => abrir(const AbastecimentoScreen())),
-      _Stat(Icons.calendar_month, AppColors.catConsumo, 'Km no mês',
+      _Stat(Icons.calendar_month, AppColors.catConsumo, t.statKmMes,
           kmMes > 0 ? km(kmMes) : '—',
           onTap: () => abrir(const MediaScreen())),
       _Stat(Icons.local_gas_station, AppColors.catAbastecimento,
-          'Combustível/mês', gastoMes > 0 ? moeda(gastoMes) : '—',
+          t.statCombustivelMes, gastoMes > 0 ? moeda(gastoMes) : '—',
           onTap: () => abrir(const AbastecimentoScreen())),
-      _Stat(Icons.request_quote_outlined, AppColors.catFipe, 'FIPE',
+      _Stat(Icons.request_quote_outlined, AppColors.catFipe, t.statFipe,
           v.fipeValor != null ? moeda(v.fipeValor!) : '—',
           onTap: () => abrir(const FipeScreen())),
-      _Stat(Icons.tire_repair, AppColors.catCalibragem, 'Calibragem',
+      _Stat(Icons.tire_repair, AppColors.catCalibragem, t.statCalibragem,
           ultimaCalib != null ? dataCurta(ultimaCalib) : '—',
           onTap: () => abrir(const CalibragemScreen())),
-      _Stat(Icons.build_circle_outlined, AppColors.catRevisoes, 'Prev. revisão',
-          _estimativaRevisao(v, abastecimentos, revisoes),
+      _Stat(Icons.build_circle_outlined, AppColors.catRevisoes, t.statPrevRevisao,
+          prev.vencida ? '' : _fmtPrevisao(prev),
+          alerta: prev.vencida,
           onTap: () => abrir(const RevisoesScreen())),
     ];
 
@@ -214,30 +222,59 @@ class _CabecalhoVeiculo extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(v.titulo,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                              color: AppColors.text,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700)),
-                      if (temApelido && subInfo.isNotEmpty)
-                        Text(subInfo,
-                            maxLines: 1,
+                      if (marca.isEmpty && modelo.isEmpty)
+                        Text(v.titulo,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                color: AppColors.dim, fontSize: 12.5)),
+                            style: TextStyle(
+                                color: AppColors.text,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700))
+                      else ...[
+                        if (marca.isNotEmpty)
+                          Text(marca,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  color: AppColors.dim,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.2)),
+                        if (modelo.isNotEmpty)
+                          Text(modelo,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  color: AppColors.text,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.1)),
+                      ],
+                      if (infoExtra.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(infoExtra,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  color: AppColors.dim, fontSize: 12.5)),
+                        ),
                     ],
                   ),
                 ),
-                if (v.placa.trim().isNotEmpty) _PlacaChip(placa: v.placa),
+                if (v.placa.trim().isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8, top: 2),
+                    child: _PlacaChip(placa: v.placa),
+                  ),
                 IconButton(
-                  icon: const Icon(Icons.edit_outlined,
+                  icon: Icon(Icons.edit_outlined,
                       size: 20, color: AppColors.dim),
                   onPressed: onEditar,
                 ),
@@ -250,7 +287,7 @@ class _CabecalhoVeiculo extends ConsumerWidget {
               physics: const NeverScrollableScrollPhysics(),
               mainAxisSpacing: 12,
               crossAxisSpacing: 10,
-              childAspectRatio: 1.35,
+              childAspectRatio: (1.35 / escala).clamp(1.0, 1.35),
               children: stats.map((s) => _StatTile(stat: s)).toList(),
             ),
           ],
@@ -259,13 +296,9 @@ class _CabecalhoVeiculo extends ConsumerWidget {
     );
   }
 
-  /// Estimativa da próxima revisão: a data mais próxima entre a projeção por km
-  /// (odômetro + ritmo de rodagem) e a por tempo (última revisão + meses). Cai
-  /// para o km-alvo se não houver data.
-  String _estimativaRevisao(
-      Veiculo v, List<Abastecimento> abastecimentos, List<Revisao> revisoes) {
-    final p = preverRevisao(v, abastecimentos, revisoes);
-    if (p.vencida) return 'Vencida';
+  /// Formata a previsão da próxima revisão (data, senão km-alvo). O caso
+  /// "vencida" é tratado à parte no tile — vira um símbolo de atenção.
+  String _fmtPrevisao(PrevisaoRevisao p) {
     if (p.data != null) return dataCurta(p.data!);
     if (p.alvoKm != null) return km(p.alvoKm!);
     return '—';
@@ -278,7 +311,12 @@ class _Stat {
   final String rotulo;
   final String valor;
   final VoidCallback? onTap;
-  const _Stat(this.icone, this.cor, this.rotulo, this.valor, {this.onTap});
+
+  /// Quando true, o tile mostra um símbolo de atenção centralizado no lugar do
+  /// valor (ex.: revisão vencida) em vez de escrever "Vencida".
+  final bool alerta;
+  const _Stat(this.icone, this.cor, this.rotulo, this.valor,
+      {this.onTap, this.alerta = false});
 }
 
 class _StatTile extends StatelessWidget {
@@ -287,33 +325,52 @@ class _StatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Revisão vencida: em vez de escrever "Vencida", mostra o símbolo de
+    // atenção centralizado (mais direto e cabe no tile).
     final conteudo = Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.surface2,
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(stat.icone, color: stat.cor, size: 16),
-          const SizedBox(height: 4),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(stat.valor,
-                style: const TextStyle(
-                    color: AppColors.text,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800)),
-          ),
-          Text(stat.rotulo,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: AppColors.dim2, fontSize: 10.5)),
-        ],
-      ),
+      child: stat.alerta
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.warning_amber_rounded,
+                    color: AppColors.warn, size: 24),
+                const SizedBox(height: 4),
+                Text(stat.rotulo,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style:
+                        TextStyle(color: AppColors.dim2, fontSize: 10.5)),
+              ],
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(stat.icone, color: stat.cor, size: 16),
+                const SizedBox(height: 4),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(stat.valor,
+                      style: TextStyle(
+                          color: AppColors.text,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800)),
+                ),
+                Text(stat.rotulo,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                        TextStyle(color: AppColors.dim2, fontSize: 10.5)),
+              ],
+            ),
     );
     if (stat.onTap == null) return conteudo;
     return Material(
@@ -343,7 +400,7 @@ class _PlacaChip extends StatelessWidget {
       ),
       child: Text(
         placa.toUpperCase(),
-        style: const TextStyle(
+        style: TextStyle(
           color: AppColors.text,
           fontSize: 13,
           fontWeight: FontWeight.w700,
@@ -354,74 +411,126 @@ class _PlacaChip extends StatelessWidget {
   }
 }
 
-/// Chips dos carros (até 3): toca para selecionar; "+ Carro" para adicionar.
-class _SeletorCarros extends ConsumerWidget {
-  const _SeletorCarros();
+/// Outros carros (os não-selecionados), logo abaixo do principal: cada um ocupa
+/// metade da largura. Tocar troca o carro ativo. O botão "Adicionar" aparece
+/// enquanto não bateu o limite (até 3 carros) e ocupa a metade que sobra.
+class _OutrosCarros extends ConsumerWidget {
+  const _OutrosCarros();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final veiculos = ref.watch(veiculosProvider).value ?? const [];
+    // Sem carro algum, o cartão "Cadastrar meu carro" já cobre — nada aqui.
     if (veiculos.isEmpty) return const SizedBox.shrink();
     final selId = ref.watch(veiculoSelecionadoProvider)?.id;
+    final t = ref.watch(stringsProvider);
+    final outros = veiculos.where((v) => v.id != selId).toList();
 
-    Widget pill({required Widget child, required VoidCallback onTap, bool sel = false}) {
-      return Padding(
-        padding: const EdgeInsets.only(right: 8),
-        child: GestureDetector(
-          onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: sel ? AppColors.accent.withValues(alpha: 0.18) : AppColors.surface,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: sel ? AppColors.accent : AppColors.line),
-            ),
-            child: child,
-          ),
+    final tiles = <Widget>[
+      ...outros.map((v) => _CarroTile(
+            titulo: v.titulo,
+            placa: v.placa,
+            onTap: () =>
+                ref.read(veiculoSelIdProvider.notifier).definir(v.id),
+          )),
+      if (veiculos.length < maxVeiculos)
+        _CarroTile.adicionar(
+          label: t.adicionarCarro,
+          onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const VeiculoFormScreen())),
         ),
-      );
-    }
+    ];
+    if (tiles.isEmpty) return const SizedBox.shrink();
 
+    // Row de Expanded: 1 tile ocupa a linha toda; 2 tiles, metade cada.
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: SizedBox(
-        height: 38,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          children: [
-            ...veiculos.map((v) {
-              final sel = v.id == selId;
-              return pill(
-                sel: sel,
-                onTap: () => ref.read(veiculoSelIdProvider.notifier).definir(v.id),
-                child: Row(children: [
-                  Icon(Icons.directions_car_filled,
-                      size: 15, color: sel ? AppColors.accent : AppColors.dim),
-                  const SizedBox(width: 6),
-                  Text(v.titulo,
-                      style: TextStyle(
-                          color: sel ? AppColors.text : AppColors.dim,
-                          fontSize: 13,
-                          fontWeight: sel ? FontWeight.w700 : FontWeight.w600)),
-                ]),
-              );
-            }),
-            if (veiculos.length < maxVeiculos)
-              pill(
-                onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const VeiculoFormScreen())),
-                child: const Row(children: [
-                  Icon(Icons.add, size: 16, color: AppColors.accent),
-                  SizedBox(width: 4),
-                  Text('Carro',
-                      style: TextStyle(
-                          color: AppColors.accent,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600)),
-                ]),
-              ),
+      padding: const EdgeInsets.only(top: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < tiles.length; i++) ...[
+            if (i > 0) const SizedBox(width: 10),
+            Expanded(child: tiles[i]),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _CarroTile extends StatelessWidget {
+  final String titulo;
+  final String placa;
+  final String label;
+  final bool ehAdicionar;
+  final VoidCallback onTap;
+  const _CarroTile({
+    required this.titulo,
+    required this.placa,
+    required this.onTap,
+  })  : ehAdicionar = false,
+        label = '';
+  const _CarroTile.adicionar({required this.onTap, required this.label})
+      : titulo = '',
+        placa = '',
+        ehAdicionar = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.surface,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+                color: ehAdicionar ? AppColors.accent : AppColors.line),
+          ),
+          child: ehAdicionar
+              ? Row(children: [
+                  Icon(Icons.add, size: 18, color: AppColors.accent),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            color: AppColors.accent,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600)),
+                  ),
+                ])
+              : Row(children: [
+                  Icon(Icons.directions_car_filled,
+                      size: 18, color: AppColors.dim),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(titulo,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                color: AppColors.text,
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w700)),
+                        if (placa.trim().isNotEmpty)
+                          Text(placa.toUpperCase(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  color: AppColors.dim2,
+                                  fontSize: 11,
+                                  letterSpacing: 0.8)),
+                      ],
+                    ),
+                  ),
+                ]),
         ),
       ),
     );

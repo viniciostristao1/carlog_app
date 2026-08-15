@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../l10n/strings.dart';
 import '../../models/veiculo.dart';
+import '../../services/prefs.dart';
 import '../../theme/app_colors.dart';
 import 'fipe_service.dart';
 
@@ -44,15 +47,15 @@ String _norm(String s) {
 /// Cascata reutilizável marca → modelo → ano → valor. Cada campo abre uma BUSCA
 /// (com lupa) para filtrar por digitação — sem rolar listas enormes. Chama
 /// [onSelecao] com a seleção quando um valor é consultado (ou null ao limpar).
-class FipeSeletor extends StatefulWidget {
+class FipeSeletor extends ConsumerStatefulWidget {
   final ValueChanged<FipeSelecao?> onSelecao;
   const FipeSeletor({super.key, required this.onSelecao});
 
   @override
-  State<FipeSeletor> createState() => _FipeSeletorState();
+  ConsumerState<FipeSeletor> createState() => _FipeSeletorState();
 }
 
-class _FipeSeletorState extends State<FipeSeletor> {
+class _FipeSeletorState extends ConsumerState<FipeSeletor> {
   final _svc = FipeService();
 
   List<FipeItem> _marcas = [];
@@ -84,8 +87,7 @@ class _FipeSeletorState extends State<FipeSeletor> {
       final m = await _svc.marcas();
       setState(() => _marcas = m);
     } catch (_) {
-      setState(() => _erro =
-          'Não foi possível consultar a FIPE agora. Verifique a internet.');
+      setState(() => _erro = ref.read(stringsProvider).fipeIndisponivel);
     } finally {
       setState(() => _carregandoMarcas = false);
     }
@@ -107,7 +109,7 @@ class _FipeSeletorState extends State<FipeSeletor> {
       final l = await _svc.modelos(m.codigo);
       setState(() => _modelos = l);
     } catch (_) {
-      setState(() => _erro = 'Falha ao carregar modelos.');
+      setState(() => _erro = ref.read(stringsProvider).falhaModelos);
     } finally {
       setState(() => _carregandoModelos = false);
     }
@@ -128,7 +130,7 @@ class _FipeSeletorState extends State<FipeSeletor> {
       final l = await _svc.anos(_marca!.codigo, m.codigo);
       setState(() => _anos = l);
     } catch (_) {
-      setState(() => _erro = 'Falha ao carregar anos.');
+      setState(() => _erro = ref.read(stringsProvider).falhaAnos);
     } finally {
       setState(() => _carregandoAnos = false);
     }
@@ -149,7 +151,7 @@ class _FipeSeletorState extends State<FipeSeletor> {
       widget.onSelecao(
           FipeSelecao(r, _marca!.codigo, _modelo!.codigo, a.codigo));
     } catch (_) {
-      setState(() => _erro = 'Falha ao consultar o valor.');
+      setState(() => _erro = ref.read(stringsProvider).falhaValor);
     } finally {
       setState(() => _carregandoValor = false);
     }
@@ -157,11 +159,12 @@ class _FipeSeletorState extends State<FipeSeletor> {
 
   @override
   Widget build(BuildContext context) {
+    final t = ref.watch(stringsProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _campo(
-          rotulo: 'Marca',
+          rotulo: t.marca,
           valor: _marca,
           itens: _marcas,
           carregando: _carregandoMarcas,
@@ -170,7 +173,7 @@ class _FipeSeletorState extends State<FipeSeletor> {
         ),
         const SizedBox(height: 12),
         _campo(
-          rotulo: 'Modelo',
+          rotulo: t.modelo,
           valor: _modelo,
           itens: _modelos,
           carregando: _carregandoModelos,
@@ -179,7 +182,7 @@ class _FipeSeletorState extends State<FipeSeletor> {
         ),
         const SizedBox(height: 12),
         _campo(
-          rotulo: 'Ano',
+          rotulo: t.ano,
           valor: _ano,
           itens: _anos,
           carregando: _carregandoAnos,
@@ -215,6 +218,7 @@ class _FipeSeletorState extends State<FipeSeletor> {
     required bool habilitado,
     required ValueChanged<FipeItem> onSel,
   }) {
+    final t = ref.watch(stringsProvider);
     final ativo = habilitado && !carregando && itens.isNotEmpty;
     return InkWell(
       onTap: ativo
@@ -226,7 +230,8 @@ class _FipeSeletorState extends State<FipeSeletor> {
                 shape: const RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.vertical(top: Radius.circular(20))),
-                builder: (_) => _BuscaSheet(titulo: rotulo, itens: itens),
+                builder: (_) =>
+                    _BuscaSheet(titulo: rotulo, itens: itens, t: t),
               );
               if (sel != null) onSel(sel);
             }
@@ -243,8 +248,8 @@ class _FipeSeletorState extends State<FipeSeletor> {
               child: Text(
                 valor?.nome ??
                     (carregando
-                        ? 'Carregando…'
-                        : (habilitado ? 'Toque para buscar' : '—')),
+                        ? t.carregando
+                        : (habilitado ? t.toqueParaBuscar : '—')),
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                     color: valor != null ? AppColors.text : AppColors.dim2),
@@ -268,7 +273,9 @@ class _FipeSeletorState extends State<FipeSeletor> {
 class _BuscaSheet extends StatefulWidget {
   final String titulo;
   final List<FipeItem> itens;
-  const _BuscaSheet({required this.titulo, required this.itens});
+  final AppStrings t;
+  const _BuscaSheet(
+      {required this.titulo, required this.itens, required this.t});
 
   @override
   State<_BuscaSheet> createState() => _BuscaSheetState();
@@ -316,11 +323,11 @@ class _BuscaSheetState extends State<_BuscaSheet> {
                 controller: _c,
                 autofocus: true,
                 decoration: InputDecoration(
-                  hintText: 'Buscar ${widget.titulo.toLowerCase()}…',
-                  prefixIcon: const Icon(Icons.search, color: AppColors.dim),
+                  hintText: widget.t.buscarX(widget.titulo),
+                  prefixIcon: Icon(Icons.search, color: AppColors.dim),
                   suffixIcon: _c.text.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(Icons.close, color: AppColors.dim),
+                          icon: Icon(Icons.close, color: AppColors.dim),
                           onPressed: () => _c.clear(),
                         )
                       : null,
@@ -329,14 +336,14 @@ class _BuscaSheetState extends State<_BuscaSheet> {
             ),
             Expanded(
               child: filtrados.isEmpty
-                  ? const Center(
-                      child: Text('Nada encontrado.',
+                  ? Center(
+                      child: Text(widget.t.nadaEncontrado,
                           style: TextStyle(color: AppColors.dim)))
                   : ListView.builder(
                       itemCount: filtrados.length,
                       itemBuilder: (_, i) => ListTile(
                         title: Text(filtrados[i].nome,
-                            style: const TextStyle(color: AppColors.text)),
+                            style: TextStyle(color: AppColors.text)),
                         onTap: () => Navigator.pop(context, filtrados[i]),
                       ),
                     ),
@@ -371,9 +378,9 @@ class _CartaoResultado extends StatelessWidget {
                   fontWeight: FontWeight.w800)),
           const SizedBox(height: 4),
           Text('${resultado.marca} ${resultado.modelo} · ${resultado.anoModelo}',
-              style: const TextStyle(color: AppColors.text, fontSize: 13.5)),
+              style: TextStyle(color: AppColors.text, fontSize: 13.5)),
           Text('FIPE ${resultado.codigoFipe} · ${resultado.mesReferencia}',
-              style: const TextStyle(color: AppColors.dim2, fontSize: 12)),
+              style: TextStyle(color: AppColors.dim2, fontSize: 12)),
         ],
       ),
     );

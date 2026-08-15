@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/veiculo.dart';
+import '../../services/prefs.dart';
 import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
 import '../../util/format.dart';
@@ -40,14 +41,16 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
     );
     await ref.read(veiculosProvider.notifier).salvar(v);
     if (mounted) {
+      final t = ref.read(stringsProvider);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(atual == null
-              ? 'Carro cadastrado pela FIPE. Adicione a placa no cartão do veículo.'
-              : 'Veículo atualizado pela FIPE.')));
+              ? t.carroCadastradoFipe
+              : t.veiculoAtualizadoFipe)));
     }
   }
 
   Future<void> _informarManual() async {
+    final t = ref.read(stringsProvider);
     final atual = ref.read(veiculoSelecionadoProvider);
     final ctrl = TextEditingController(
         text: atual?.fipeValor != null ? n2(atual!.fipeValor!) : '');
@@ -55,7 +58,7 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Informar valor manualmente'),
+        title: Text(t.informarValorManual),
         content: TextField(
           controller: ctrl,
           autofocus: true,
@@ -63,16 +66,16 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))
           ],
-          decoration: const InputDecoration(
-              labelText: 'Valor (R\$)', hintText: 'Ex.: 45000'),
+          decoration: InputDecoration(
+              labelText: t.valorRs, hintText: t.valorHint),
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar')),
+              child: Text(t.cancelar)),
           TextButton(
             onPressed: () => Navigator.pop(context, parseNumero(ctrl.text)),
-            child: const Text('Salvar'),
+            child: Text(t.salvar),
           ),
         ],
       ),
@@ -81,7 +84,7 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
       final base = atual ?? Veiculo(id: novoId(), apelido: '');
       await ref.read(veiculosProvider.notifier).salvar(base.copyWith(
             fipeValor: valor,
-            fipeMesRef: 'informado manualmente',
+            fipeMesRef: t.informadoManualmente,
             fipeConsultadoEm: DateTime.now(),
           ));
     }
@@ -89,23 +92,24 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = ref.watch(stringsProvider);
     final Veiculo? v = ref.watch(veiculoSelecionadoProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Minha FIPE')),
+      appBar: AppBar(title: Text(t.minhaFipe)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
         children: [
           if (v?.fipeValor != null) _CartaoValorSalvo(veiculo: v!),
           if (v?.fipeValor != null) const SizedBox(height: 16),
-          const Text('Consultar tabela FIPE',
+          Text(t.consultarFipe,
               style: TextStyle(
                   color: AppColors.text,
                   fontSize: 15,
                   fontWeight: FontWeight.w700)),
           const SizedBox(height: 4),
-          const Text(
-              'Selecione marca, modelo e ano — dá para cadastrar o carro por aqui.',
+          Text(
+              t.consultarFipeSub,
               style: TextStyle(color: AppColors.dim, fontSize: 13)),
           const SizedBox(height: 14),
           FipeSeletor(onSelecao: (s) => setState(() => _sel = s)),
@@ -119,7 +123,7 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
                     backgroundColor: AppColors.catFipe,
                     foregroundColor: const Color(0xFF160A2B)),
                 icon: const Icon(Icons.directions_car_filled_outlined),
-                label: const Text('Usar como meu carro'),
+                label: Text(t.usarComoMeuCarro),
               ),
             ),
           const SizedBox(height: 12),
@@ -130,7 +134,7 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
                 side: const BorderSide(color: AppColors.catFipe),
                 padding: const EdgeInsets.symmetric(vertical: 14)),
             icon: const Icon(Icons.edit_outlined),
-            label: const Text('Informar valor manualmente'),
+            label: Text(t.informarValorManual),
           ),
         ],
       ),
@@ -138,19 +142,20 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
   }
 }
 
-class _CartaoValorSalvo extends StatelessWidget {
+class _CartaoValorSalvo extends ConsumerWidget {
   final Veiculo veiculo;
   const _CartaoValorSalvo({required this.veiculo});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(stringsProvider);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Valor atual do veículo',
+            Text(t.valorAtualVeiculo,
                 style: TextStyle(color: AppColors.dim, fontSize: 13)),
             const SizedBox(height: 6),
             Text(moeda(veiculo.fipeValor!),
@@ -162,11 +167,11 @@ class _CartaoValorSalvo extends StatelessWidget {
             Text(
               [
                 if ((veiculo.fipeMesRef ?? '').isNotEmpty)
-                  'Ref.: ${veiculo.fipeMesRef}',
+                  t.refPrefixo(veiculo.fipeMesRef!),
                 if (veiculo.fipeConsultadoEm != null)
-                  'em ${dataCurta(veiculo.fipeConsultadoEm!)}',
+                  t.emData(dataCurta(veiculo.fipeConsultadoEm!)),
               ].join(' · '),
-              style: const TextStyle(color: AppColors.dim2, fontSize: 12),
+              style: TextStyle(color: AppColors.dim2, fontSize: 12),
             ),
           ],
         ),

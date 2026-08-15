@@ -23,6 +23,12 @@ const itensSugeridos = <ItemSugerido>[
   ItemSugerido('Discos de freio', 60000),
   ItemSugerido('Rodízio dos pneus', 10000),
   ItemSugerido('Alinhamento e balanceamento', 10000),
+  ItemSugerido('Geometria (alinhamento de direção)', 10000),
+  ItemSugerido('Balanceamento das rodas', 10000),
+  ItemSugerido('Cambagem', 0),
+  ItemSugerido('Bieleta (estabilizador)', 0),
+  ItemSugerido('Bucha da suspensão', 0),
+  ItemSugerido('Polia (tensor/alternador)', 0),
   ItemSugerido('Amortecedores dianteiros', 60000),
   ItemSugerido('Amortecedores traseiros', 60000),
   ItemSugerido('Bateria', 40000),
@@ -36,7 +42,8 @@ const itensSugeridos = <ItemSugerido>[
   ItemSugerido('Palhetas do limpador', 15000),
   ItemSugerido('Sonda lambda (sensor de oxigênio)', 80000),
   ItemSugerido('Vela de aquecimento (diesel)', 60000),
-  ItemSugerido('Rolamento de roda', 60000),
+  ItemSugerido('Rolamento de roda dianteira', 60000),
+  ItemSugerido('Rolamento de roda traseira', 60000),
 ];
 
 /// Sugestões que combinam com o texto digitado (sem acento/caixa), até [max].

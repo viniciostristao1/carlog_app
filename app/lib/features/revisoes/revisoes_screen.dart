@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/programacao.dart';
 import '../../models/revisao.dart';
 import '../../models/veiculo.dart';
+import '../../services/prefs.dart';
 import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
 import '../../util/consumo.dart';
@@ -43,15 +44,16 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
 
   @override
   Widget build(BuildContext context) {
+    final t = ref.watch(stringsProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Revisões'),
+        title: Text(t.revisoes),
         bottom: TabBar(
           controller: _tab,
           indicatorColor: AppColors.catRevisoes,
           labelColor: AppColors.catRevisoes,
           unselectedLabelColor: AppColors.dim,
-          tabs: const [Tab(text: 'Programar'), Tab(text: 'Histórico')],
+          tabs: [Tab(text: t.programar), Tab(text: t.historico)],
         ),
       ),
       floatingActionButton: _tab.index == 0
@@ -60,7 +62,7 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
               backgroundColor: AppColors.catRevisoes,
               foregroundColor: Colors.white,
               icon: const Icon(Icons.add),
-              label: const Text('Adicionar'),
+              label: Text(t.adicionar),
             )
           : FloatingActionButton.extended(
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(
@@ -68,7 +70,7 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
               backgroundColor: AppColors.catRevisoes,
               foregroundColor: Colors.white,
               icon: const Icon(Icons.add),
-              label: const Text('Registrar'),
+              label: Text(t.registrar),
             ),
       body: TabBarView(
         controller: _tab,
@@ -91,6 +93,7 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
   // ─────────────────────────── Programar ───────────────────────────
 
   Widget _programar() {
+    final t = ref.watch(stringsProvider);
     final abastecimentos = ref.watch(abastecimentosDoVeiculoProvider);
     final odo = ultimoOdometro(abastecimentos);
     final ritmo = ritmoKmPorDia(abastecimentos);
@@ -112,14 +115,12 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
         _CartaoProximaRevisao(),
         const SizedBox(height: 14),
         if (itens.isEmpty)
-          const Padding(
-            padding: EdgeInsets.only(top: 24),
+          Padding(
+            padding: const EdgeInsets.only(top: 24),
             child: EstadoVazio(
               icone: Icons.checklist,
-              titulo: 'Nada programado ainda',
-              subtitulo:
-                  'Toque em "Adicionar" para anotar o que verificar/trocar. Dá '
-                  'para definir o km e a frequência (ex.: óleo a cada 10.000 km).',
+              titulo: t.nadaProgramado,
+              subtitulo: t.nadaProgramadoSub,
             ),
           )
         else
@@ -149,7 +150,8 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
       final proximo = base + it.intervaloKm!;
       notifier.salvar(it.copyWith(kmAlvo: proximo, feito: false));
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Feito! Reagendado para ${km(proximo)}.')));
+          content:
+              Text(ref.read(stringsProvider).feitoReagendado(km(proximo)))));
     } else {
       notifier.salvar(it.copyWith(feito: !it.feito));
     }
@@ -158,6 +160,7 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
   // ─────────────────────────── Histórico ───────────────────────────
 
   Widget _historico() {
+    final t = ref.watch(stringsProvider);
     final todas = [...(ref.watch(revisoesDoVeiculoProvider))]
       ..sort((a, b) => b.data.compareTo(a.data));
     final termo = _busca.text.trim().toLowerCase();
@@ -171,11 +174,11 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
         TextField(
           controller: _busca,
           decoration: InputDecoration(
-            hintText: 'Buscar peça, serviço, oficina…',
-            prefixIcon: const Icon(Icons.search, color: AppColors.dim),
+            hintText: t.buscarPecaServico,
+            prefixIcon: Icon(Icons.search, color: AppColors.dim),
             suffixIcon: termo.isNotEmpty
                 ? IconButton(
-                    icon: const Icon(Icons.close, color: AppColors.dim),
+                    icon: Icon(Icons.close, color: AppColors.dim),
                     onPressed: () => _busca.clear(),
                   )
                 : null,
@@ -183,22 +186,20 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
         ),
         const SizedBox(height: 12),
         if (todas.isEmpty)
-          const Padding(
-            padding: EdgeInsets.only(top: 40),
+          Padding(
+            padding: const EdgeInsets.only(top: 40),
             child: EstadoVazio(
               icone: Icons.build_circle_outlined,
-              titulo: 'Sem revisões registradas',
-              subtitulo:
-                  'Registre o que já foi trocado. A lupa busca por peça, '
-                  'serviço ou oficina.',
+              titulo: t.semRevisoes,
+              subtitulo: t.semRevisoesSub,
             ),
           )
         else if (lista.isEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 30),
-            child: Text('Nada encontrado para "$termo".',
+            child: Text(t.nadaEncontradoPara(termo),
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.dim)),
+                style: TextStyle(color: AppColors.dim)),
           )
         else
           ...lista.map((r) => _CartaoRevisao(
@@ -216,6 +217,7 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
 class _CartaoProximaRevisao extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(stringsProvider);
     final Veiculo? v = ref.watch(veiculoSelecionadoProvider);
     final abastecimentos = ref.watch(abastecimentosDoVeiculoProvider);
     final revisoes = ref.watch(revisoesDoVeiculoProvider);
@@ -229,13 +231,12 @@ class _CartaoProximaRevisao extends ConsumerWidget {
         : preverRevisao(v, abastecimentos, revisoes);
 
     if (v == null || p.alvoKm == null) {
-      return wrap(const Row(children: [
+      return wrap(Row(children: [
         Icon(Icons.event_repeat, color: AppColors.catRevisoes),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Expanded(
           child: Text(
-            'Registre revisões e abastecimentos (com o km do painel) para o app '
-            'estimar a próxima revisão pela sua rodagem.',
+            t.registreParaEstimar,
             style: TextStyle(color: AppColors.dim, fontSize: 13),
           ),
         ),
@@ -256,8 +257,8 @@ class _CartaoProximaRevisao extends ConsumerWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-                vencida ? 'Sua revisão pode estar vencida' : 'Próxima revisão',
-                style: const TextStyle(
+                vencida ? t.revisaoPodeVencida : t.proximaRevisao,
+                style: TextStyle(
                     color: AppColors.text,
                     fontSize: 15,
                     fontWeight: FontWeight.w700)),
@@ -265,9 +266,9 @@ class _CartaoProximaRevisao extends ConsumerWidget {
         ]),
         const SizedBox(height: 12),
         Row(children: [
-          Expanded(child: _mini('Alvo', km(alvoKm))),
+          Expanded(child: _mini(t.alvo, km(alvoKm))),
           Expanded(
-              child: _mini(vencida ? 'estava prevista' : 'Previsão', previsao)),
+              child: _mini(vencida ? t.estavaPrevista : t.previsao, previsao)),
         ]),
         if (media12 != null) ...[
           const SizedBox(height: 12),
@@ -281,11 +282,11 @@ class _CartaoProximaRevisao extends ConsumerWidget {
               const Icon(Icons.trending_up, color: AppColors.catConsumo, size: 18),
               const SizedBox(width: 8),
               Expanded(
-                child: Text('Média nos últimos 12 meses',
-                    style: const TextStyle(color: AppColors.dim, fontSize: 12.5)),
+                child: Text(t.mediaUlt12,
+                    style: TextStyle(color: AppColors.dim, fontSize: 12.5)),
               ),
-              Text('${km(media12)}/mês',
-                  style: const TextStyle(
+              Text(t.porMes(km(media12)),
+                  style: TextStyle(
                       color: AppColors.text,
                       fontSize: 14,
                       fontWeight: FontWeight.w800)),
@@ -300,17 +301,17 @@ class _CartaoProximaRevisao extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(v,
-              style: const TextStyle(
+              style: TextStyle(
                   color: AppColors.text,
                   fontSize: 14,
                   fontWeight: FontWeight.w700)),
           const SizedBox(height: 2),
-          Text(r, style: const TextStyle(color: AppColors.dim2, fontSize: 11.5)),
+          Text(r, style: TextStyle(color: AppColors.dim2, fontSize: 11.5)),
         ],
       );
 }
 
-class _LinhaProgramado extends StatelessWidget {
+class _LinhaProgramado extends ConsumerWidget {
   final ItemProgramado item;
   final double? odometroAtual;
   final double? ritmoKmDia;
@@ -327,18 +328,19 @@ class _LinhaProgramado extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(stringsProvider);
     final partes = <String>[];
     Color corSub = AppColors.dim;
     if (item.kmAlvo != null) {
-      partes.add('para ${km(item.kmAlvo!)}');
+      partes.add(t.paraKm(km(item.kmAlvo!)));
       if (odometroAtual != null) {
         final faltam = item.kmAlvo! - odometroAtual!;
         if (faltam <= 0) {
-          partes.add('vencido');
+          partes.add(t.vencido);
           corSub = AppColors.warn;
         } else {
-          partes.add('faltam ${km(faltam)}');
+          partes.add(t.faltamKm(km(faltam)));
           final data = previsaoData(faltam, ritmoKmDia);
           if (data != null) partes.add('≈ ${dataCurta(data)}');
           if (faltam <= 500) corSub = AppColors.warn;
@@ -346,7 +348,7 @@ class _LinhaProgramado extends StatelessWidget {
       }
     }
     if (item.intervaloKm != null) {
-      partes.add('a cada ${km(item.intervaloKm!.toDouble())}');
+      partes.add(t.aCadaKmValor(km(item.intervaloKm!.toDouble())));
     }
     final sub = partes.join(' · ');
 
@@ -395,7 +397,7 @@ class _LinhaProgramado extends StatelessWidget {
                 ),
                 IconButton(
                   icon:
-                      const Icon(Icons.close, size: 18, color: AppColors.dim2),
+                      Icon(Icons.close, size: 18, color: AppColors.dim2),
                   onPressed: onExcluir,
                 ),
               ],
@@ -407,7 +409,7 @@ class _LinhaProgramado extends StatelessWidget {
   }
 }
 
-class _CartaoRevisao extends StatelessWidget {
+class _CartaoRevisao extends ConsumerWidget {
   final Revisao r;
   final VoidCallback onEditar;
   final VoidCallback onExcluir;
@@ -415,7 +417,8 @@ class _CartaoRevisao extends StatelessWidget {
       {required this.r, required this.onEditar, required this.onExcluir});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(stringsProvider);
     return Dismissible(
       key: ValueKey(r.id),
       direction: DismissDirection.endToStart,
@@ -447,8 +450,8 @@ class _CartaoRevisao extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          r.titulo.isNotEmpty ? r.titulo : 'Revisão',
-                          style: const TextStyle(
+                          r.titulo.isNotEmpty ? r.titulo : t.revisao,
+                          style: TextStyle(
                               color: AppColors.text,
                               fontSize: 15.5,
                               fontWeight: FontWeight.w700),
@@ -456,7 +459,7 @@ class _CartaoRevisao extends StatelessWidget {
                       ),
                       if (r.custo != null)
                         Text(moeda(r.custo!),
-                            style: const TextStyle(
+                            style: TextStyle(
                                 color: AppColors.text,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700)),
@@ -469,7 +472,7 @@ class _CartaoRevisao extends StatelessWidget {
                       if (r.odometro != null) km(r.odometro!),
                       if (r.local.isNotEmpty) r.local,
                     ].join(' · '),
-                    style: const TextStyle(color: AppColors.dim, fontSize: 12.5),
+                    style: TextStyle(color: AppColors.dim, fontSize: 12.5),
                   ),
                   if (r.itens.isNotEmpty) ...[
                     const SizedBox(height: 8),
@@ -486,7 +489,7 @@ class _CartaoRevisao extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(7),
                                 ),
                                 child: Text(it,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         color: AppColors.dim, fontSize: 11.5)),
                               ))
                           .toList(),
@@ -570,6 +573,7 @@ class _ItemSheetState extends ConsumerState<_ItemSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final t = ref.watch(stringsProvider);
     final desc = _desc.text.trim();
     final sug = sugestoesPara(desc).where((s) => s.nome != desc).toList();
 
@@ -581,8 +585,8 @@ class _ItemSheetState extends ConsumerState<_ItemSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.original == null ? 'Novo item' : 'Editar item',
-                style: const TextStyle(
+            Text(widget.original == null ? t.novoItem : t.editarItem,
+                style: TextStyle(
                     color: AppColors.text,
                     fontSize: 18,
                     fontWeight: FontWeight.w700)),
@@ -591,9 +595,9 @@ class _ItemSheetState extends ConsumerState<_ItemSheet> {
               controller: _desc,
               autofocus: widget.original == null,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                  labelText: 'O que verificar/trocar',
-                  hintText: 'Ex.: óleo, filtro de ar, velas…'),
+              decoration: InputDecoration(
+                  labelText: t.oQueVerificar,
+                  hintText: t.oQueVerificarHint),
             ),
             if (sug.isNotEmpty) ...[
               const SizedBox(height: 8),
@@ -606,7 +610,7 @@ class _ItemSheetState extends ConsumerState<_ItemSheet> {
                           backgroundColor: AppColors.surface2,
                           labelStyle: const TextStyle(
                               color: AppColors.catRevisoes, fontSize: 12.5),
-                          side: const BorderSide(color: AppColors.line),
+                          side: BorderSide(color: AppColors.line),
                           onPressed: () => _escolher(s),
                         ))
                     .toList(),
@@ -616,28 +620,27 @@ class _ItemSheetState extends ConsumerState<_ItemSheet> {
             Row(children: [
               Expanded(
                 child: TextField(
-                  controller: _kmAlvo,
+                  controller: _intervalo,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: const InputDecoration(
-                      labelText: 'Fazer no km', hintText: 'ex.: 60000'),
+                  decoration: InputDecoration(
+                      labelText: t.aCadaKm, hintText: 'ex.: 10000'),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: TextField(
-                  controller: _intervalo,
+                  controller: _kmAlvo,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: const InputDecoration(
-                      labelText: 'A cada (km)', hintText: 'ex.: 10000'),
+                  decoration: InputDecoration(
+                      labelText: t.fazerNoKm, hintText: 'ex.: 60000'),
                 ),
               ),
             ]),
             const SizedBox(height: 8),
-            const Text(
-              'Ambos opcionais. Com o km, o app mostra quanto falta e a data '
-              'provável (pelo seu ritmo de rodagem).',
+            Text(
+              t.ambosOpcionais,
               style: TextStyle(color: AppColors.dim2, fontSize: 12),
             ),
             const SizedBox(height: 18),
@@ -646,7 +649,7 @@ class _ItemSheetState extends ConsumerState<_ItemSheet> {
               style: FilledButton.styleFrom(
                   backgroundColor: AppColors.catRevisoes,
                   foregroundColor: Colors.white),
-              child: const Text('Salvar'),
+              child: Text(t.salvar),
             ),
           ],
         ),

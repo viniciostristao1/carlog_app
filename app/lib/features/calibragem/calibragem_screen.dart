@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/calibragem.dart';
 import '../../models/veiculo.dart';
+import '../../services/prefs.dart';
 import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
 import '../../util/format.dart';
@@ -14,19 +15,20 @@ class CalibragemScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(stringsProvider);
     final Veiculo? v = ref.watch(veiculoSelecionadoProvider);
     final log = [...(ref.watch(calibragemDoVeiculoProvider))]
       ..sort((a, b) => b.data.compareTo(a.data));
     final ultima = log.isNotEmpty ? log.first : null;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Calibragem')),
+      appBar: AppBar(title: Text(t.calibragem)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _abrirSheet(context, _RegistrarSheet(veiculo: v)),
         backgroundColor: AppColors.catCalibragem,
         foregroundColor: const Color(0xFF04221E),
         icon: const Icon(Icons.add),
-        label: const Text('Registrar'),
+        label: Text(t.registrar),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
@@ -41,7 +43,7 @@ class CalibragemScreen extends ConsumerWidget {
           _CartaoUltima(ultima: ultima),
           const SizedBox(height: 20),
           if (log.isNotEmpty) ...[
-            const Text('Histórico',
+            Text(t.historico,
                 style: TextStyle(
                     color: AppColors.text,
                     fontSize: 15,
@@ -70,24 +72,24 @@ class CalibragemScreen extends ConsumerWidget {
   }
 }
 
-class _CartaoPressao extends StatelessWidget {
+class _CartaoPressao extends ConsumerWidget {
   final Veiculo? veiculo;
   final VoidCallback? onEditar;
   const _CartaoPressao({required this.veiculo, required this.onEditar});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(stringsProvider);
     if (veiculo == null) {
-      return const Card(
+      return Card(
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Row(children: [
             Icon(Icons.info_outline, color: AppColors.catCalibragem),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Cadastre o carro (tela inicial) para definir a calibragem '
-                'recomendada aqui.',
+                t.cadastreCarroCalibragem,
                 style: TextStyle(color: AppColors.dim, fontSize: 13),
               ),
             ),
@@ -99,21 +101,21 @@ class _CartaoPressao extends StatelessWidget {
         veiculo!.pressaoTraseira == null;
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.fromLTRB(18, 10, 18, 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                const Expanded(
-                  child: Text('Calibragem recomendada',
+                Expanded(
+                  child: Text(t.calibragemRecomendada,
                       style: TextStyle(color: AppColors.dim, fontSize: 13)),
                 ),
                 TextButton.icon(
                   onPressed: onEditar,
                   icon: Icon(semPressao ? Icons.add : Icons.edit_outlined,
                       size: 18),
-                  label: Text(semPressao ? 'Definir' : 'Editar'),
+                  label: Text(semPressao ? t.definir : t.editar),
                   style:
                       TextButton.styleFrom(foregroundColor: AppColors.catCalibragem),
                 ),
@@ -121,14 +123,14 @@ class _CartaoPressao extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             if (semPressao)
-              const Text('Toque em "Definir" e ajuste com − / +.',
+              Text(t.toqueDefinir,
                   style: TextStyle(color: AppColors.dim2, fontSize: 12.5))
             else
               Row(
                 children: [
-                  Expanded(child: _pneu('Dianteiro', veiculo!.pressaoDianteira)),
+                  Expanded(child: _pneu(t.dianteiro, veiculo!.pressaoDianteira)),
                   Container(width: 1, height: 46, color: AppColors.line),
-                  Expanded(child: _pneu('Traseiro', veiculo!.pressaoTraseira)),
+                  Expanded(child: _pneu(t.traseiro, veiculo!.pressaoTraseira)),
                 ],
               ),
           ],
@@ -142,22 +144,23 @@ class _CartaoPressao extends StatelessWidget {
           Text(psi != null ? n1(psi) : '—',
               style: const TextStyle(
                   color: AppColors.catCalibragem,
-                  fontSize: 28,
+                  fontSize: 24,
                   fontWeight: FontWeight.w800)),
-          const Text('psi',
+          Text('psi',
               style: TextStyle(color: AppColors.dim, fontSize: 12)),
-          const SizedBox(height: 4),
-          Text(r, style: const TextStyle(color: AppColors.dim2, fontSize: 12)),
+          const SizedBox(height: 2),
+          Text(r, style: TextStyle(color: AppColors.dim2, fontSize: 12)),
         ],
       );
 }
 
-class _CartaoUltima extends StatelessWidget {
+class _CartaoUltima extends ConsumerWidget {
   final Calibragem? ultima;
   const _CartaoUltima({required this.ultima});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(stringsProvider);
     final u = ultima;
     final dias = u != null ? DateTime.now().difference(u.data).inDays : null;
     final alerta = dias != null && dias >= 30;
@@ -173,22 +176,22 @@ class _CartaoUltima extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Última calibragem',
+                  Text(t.ultimaCalibragem,
                       style: TextStyle(color: AppColors.dim, fontSize: 13)),
                   const SizedBox(height: 2),
                   Text(
                     u != null
-                        ? '${dataLonga(u.data)} (${desdeAte(u.data)})'
-                        : 'Ainda não registrada',
-                    style: const TextStyle(
+                        ? '${dataLonga(u.data)} (${t.desdeAte(u.data)})'
+                        : t.aindaNaoRegistrada,
+                    style: TextStyle(
                         color: AppColors.text,
                         fontSize: 15,
                         fontWeight: FontWeight.w700),
                   ),
                   if (alerta) ...[
                     const SizedBox(height: 2),
-                    const Text('Já faz um tempo — vale calibrar.',
-                        style: TextStyle(color: AppColors.warn, fontSize: 12)),
+                    Text(t.valeCalibrar,
+                        style: const TextStyle(color: AppColors.warn, fontSize: 12)),
                   ],
                 ],
               ),
@@ -227,7 +230,7 @@ class _LinhaCalibragem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(dataLonga(c.data),
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.text,
                         fontSize: 14,
                         fontWeight: FontWeight.w600)),
@@ -236,13 +239,13 @@ class _LinhaCalibragem extends StatelessWidget {
                     [if (pressoes.isNotEmpty) '$pressoes psi', c.observacao]
                         .where((s) => s.isNotEmpty)
                         .join(' · '),
-                    style: const TextStyle(color: AppColors.dim, fontSize: 12.5),
+                    style: TextStyle(color: AppColors.dim, fontSize: 12.5),
                   ),
               ],
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.close, size: 18, color: AppColors.dim2),
+            icon: Icon(Icons.close, size: 18, color: AppColors.dim2),
             onPressed: onExcluir,
           ),
         ],
@@ -282,6 +285,7 @@ class _EditarPressaoSheetState extends ConsumerState<_EditarPressaoSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final t = ref.watch(stringsProvider);
     return Padding(
       padding: EdgeInsets.fromLTRB(
           20, 18, 20, MediaQuery.of(context).viewInsets.bottom + 20),
@@ -289,7 +293,7 @@ class _EditarPressaoSheetState extends ConsumerState<_EditarPressaoSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Calibragem recomendada',
+          Text(t.calibragemRecomendada,
               style: TextStyle(
                   color: AppColors.text,
                   fontSize: 18,
@@ -298,7 +302,7 @@ class _EditarPressaoSheetState extends ConsumerState<_EditarPressaoSheet> {
           Row(children: [
             Expanded(
               child: StepperNum(
-                label: 'Dianteiro',
+                label: t.dianteiro,
                 valor: _dianteira,
                 sufixo: 'psi',
                 cor: AppColors.catCalibragem,
@@ -308,7 +312,7 @@ class _EditarPressaoSheetState extends ConsumerState<_EditarPressaoSheet> {
             const SizedBox(width: 12),
             Expanded(
               child: StepperNum(
-                label: 'Traseiro',
+                label: t.traseiro,
                 valor: _traseira,
                 sufixo: 'psi',
                 cor: AppColors.catCalibragem,
@@ -322,7 +326,7 @@ class _EditarPressaoSheetState extends ConsumerState<_EditarPressaoSheet> {
             style: FilledButton.styleFrom(
                 backgroundColor: AppColors.catCalibragem,
                 foregroundColor: const Color(0xFF04221E)),
-            child: const Text('Salvar'),
+            child: Text(t.salvar),
           ),
         ],
       ),
@@ -382,6 +386,7 @@ class _RegistrarSheetState extends ConsumerState<_RegistrarSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final t = ref.watch(stringsProvider);
     return Padding(
       padding: EdgeInsets.fromLTRB(
           20, 18, 20, MediaQuery.of(context).viewInsets.bottom + 20),
@@ -389,7 +394,7 @@ class _RegistrarSheetState extends ConsumerState<_RegistrarSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Registrar calibragem',
+          Text(t.registrarCalibragem,
               style: TextStyle(
                   color: AppColors.text,
                   fontSize: 18,
@@ -407,10 +412,10 @@ class _RegistrarSheetState extends ConsumerState<_RegistrarSheet> {
                 border: Border.all(color: AppColors.line),
               ),
               child: Row(children: [
-                const Icon(Icons.event, color: AppColors.dim, size: 20),
+                Icon(Icons.event, color: AppColors.dim, size: 20),
                 const SizedBox(width: 12),
                 Text(dataLonga(_data),
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.text, fontWeight: FontWeight.w600)),
               ]),
             ),
@@ -419,7 +424,7 @@ class _RegistrarSheetState extends ConsumerState<_RegistrarSheet> {
           Row(children: [
             Expanded(
               child: StepperNum(
-                label: 'Dianteiro',
+                label: t.dianteiro,
                 valor: _dianteira,
                 sufixo: 'psi',
                 cor: AppColors.catCalibragem,
@@ -429,7 +434,7 @@ class _RegistrarSheetState extends ConsumerState<_RegistrarSheet> {
             const SizedBox(width: 12),
             Expanded(
               child: StepperNum(
-                label: 'Traseiro',
+                label: t.traseiro,
                 valor: _traseira,
                 sufixo: 'psi',
                 cor: AppColors.catCalibragem,
@@ -441,7 +446,7 @@ class _RegistrarSheetState extends ConsumerState<_RegistrarSheet> {
           TextField(
             controller: _obs,
             textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(labelText: 'Observação (opcional)'),
+            decoration: InputDecoration(labelText: t.observacaoOpcional),
           ),
           const SizedBox(height: 18),
           FilledButton(
@@ -449,7 +454,7 @@ class _RegistrarSheetState extends ConsumerState<_RegistrarSheet> {
             style: FilledButton.styleFrom(
                 backgroundColor: AppColors.catCalibragem,
                 foregroundColor: const Color(0xFF04221E)),
-            child: const Text('Salvar'),
+            child: Text(t.salvar),
           ),
         ],
       ),

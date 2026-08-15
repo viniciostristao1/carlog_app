@@ -2,26 +2,34 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
-/// Tema escuro do CarLog. Cantos arredondados, campos preenchidos, tipografia
-/// limpa — visual de "painel" moderno.
-ThemeData buildAppTheme() {
-  const scheme = ColorScheme.dark(
+/// Tema do CarLog (ponto único de verdade visual). Aplica a paleta do [tema]
+/// escolhido — inclusive o brilho (Madeira é claro; os demais, escuros).
+/// Cantos arredondados, campos preenchidos, visual de "painel" moderno.
+ThemeData buildAppTheme(TemaApp tema) {
+  // Define a paleta atual ANTES de ler os tokens (fundo/superfície/texto).
+  AppColors.aplicarTema(tema);
+  final scheme = ColorScheme(
+    brightness: AppColors.brilho,
     primary: AppColors.accent,
     onPrimary: AppColors.onAccent,
     secondary: AppColors.accent,
+    onSecondary: AppColors.onAccent,
     surface: AppColors.surface,
     onSurface: AppColors.text,
     error: AppColors.danger,
+    onError: Colors.white,
   );
 
   return ThemeData(
     useMaterial3: true,
+    brightness: AppColors.brilho,
     colorScheme: scheme,
     scaffoldBackgroundColor: AppColors.bg,
     canvasColor: AppColors.bg,
     fontFamily: null,
     splashFactory: InkRipple.splashFactory,
-    appBarTheme: const AppBarTheme(
+    iconTheme: IconThemeData(color: AppColors.text),
+    appBarTheme: AppBarTheme(
       backgroundColor: AppColors.bg,
       foregroundColor: AppColors.text,
       elevation: 0,
@@ -38,12 +46,12 @@ ThemeData buildAppTheme() {
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
     ),
-    dividerTheme: const DividerThemeData(color: AppColors.line, thickness: 1),
+    dividerTheme: DividerThemeData(color: AppColors.line, thickness: 1),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: AppColors.surface2,
-      hintStyle: const TextStyle(color: AppColors.dim2),
-      labelStyle: const TextStyle(color: AppColors.dim),
+      hintStyle: TextStyle(color: AppColors.dim2),
+      labelStyle: TextStyle(color: AppColors.dim),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
@@ -51,11 +59,11 @@ ThemeData buildAppTheme() {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: AppColors.line),
+        borderSide: BorderSide(color: AppColors.line),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
+        borderSide: BorderSide(color: AppColors.accent, width: 1.5),
       ),
     ),
     filledButtonTheme: FilledButtonThemeData(
@@ -70,11 +78,11 @@ ThemeData buildAppTheme() {
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(foregroundColor: AppColors.accent),
     ),
-    snackBarTheme: const SnackBarThemeData(
+    snackBarTheme: SnackBarThemeData(
       backgroundColor: AppColors.surface2,
       contentTextStyle: TextStyle(color: AppColors.text),
       behavior: SnackBarBehavior.floating,
     ),
-    listTileTheme: const ListTileThemeData(iconColor: AppColors.dim),
+    listTileTheme: ListTileThemeData(iconColor: AppColors.dim),
   );
 }

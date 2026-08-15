@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/media_manual.dart';
+import '../../services/prefs.dart';
 import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
 import '../../util/consumo.dart';
@@ -13,6 +14,7 @@ class MediaScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(stringsProvider);
     final abastecimentos = ref.watch(abastecimentosDoVeiculoProvider);
     final resumo = calcularConsumo(abastecimentos);
     final medias = ref.watch(mediasDoVeiculoProvider);
@@ -23,13 +25,13 @@ class MediaScreen extends ConsumerWidget {
         agora.month == 1 ? 12 : agora.month - 1);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Consumo / Média')),
+      appBar: AppBar(title: Text(t.consumoMedia)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _abrirCalculadora(context, ref),
         backgroundColor: AppColors.catConsumo,
         foregroundColor: const Color(0xFF04231A),
         icon: const Icon(Icons.calculate_outlined),
-        label: const Text('Calcular média'),
+        label: Text(t.calcularMedia),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
@@ -38,7 +40,7 @@ class MediaScreen extends ConsumerWidget {
           const SizedBox(height: 14),
           _CartaoKmMes(kmMes: kmMes, kmMesAnterior: kmMesAnt),
           const SizedBox(height: 20),
-          _tituloSecao('Média avulsa (cidade × rodovia)'),
+          _tituloSecao(t.mediaAvulsa),
           const SizedBox(height: 6),
           _ResumoManual(medias: medias),
           const SizedBox(height: 10),
@@ -50,9 +52,9 @@ class MediaScreen extends ConsumerWidget {
                 )),
           if (resumo.trechos.isNotEmpty) ...[
             const SizedBox(height: 16),
-            _tituloSecao('Trechos (tanque cheio → tanque cheio)'),
+            _tituloSecao(t.trechos),
             const SizedBox(height: 6),
-            ...resumo.trechos.map((t) => _CartaoTrecho(t: t)),
+            ...resumo.trechos.map((tr) => _CartaoTrecho(t: tr)),
           ],
         ],
       ),
@@ -63,7 +65,7 @@ class MediaScreen extends ConsumerWidget {
       [...m]..sort((a, b) => b.data.compareTo(a.data));
 
   Widget _tituloSecao(String t) => Text(t,
-      style: const TextStyle(
+      style: TextStyle(
           color: AppColors.text, fontSize: 15, fontWeight: FontWeight.w700));
 
   Future<void> _abrirCalculadora(BuildContext context, WidgetRef ref) async {
@@ -78,12 +80,13 @@ class MediaScreen extends ConsumerWidget {
   }
 }
 
-class _CartaoMediaGeral extends StatelessWidget {
+class _CartaoMediaGeral extends ConsumerWidget {
   final ResumoConsumo resumo;
   const _CartaoMediaGeral({required this.resumo});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(stringsProvider);
     if (!resumo.temMedia) {
       return Card(
         child: Padding(
@@ -92,10 +95,9 @@ class _CartaoMediaGeral extends StatelessWidget {
             children: [
               const Icon(Icons.speed, color: AppColors.catConsumo, size: 30),
               const SizedBox(width: 14),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Registre pelo menos dois abastecimentos de tanque cheio para '
-                  'ver sua média automática.',
+                  t.semMediaAinda,
                   style: TextStyle(color: AppColors.dim, fontSize: 13.5),
                 ),
               ),
@@ -110,7 +112,7 @@ class _CartaoMediaGeral extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Média geral',
+            Text(t.mediaGeral,
                 style: TextStyle(color: AppColors.dim, fontSize: 13)),
             const SizedBox(height: 6),
             Row(
@@ -120,10 +122,10 @@ class _CartaoMediaGeral extends StatelessWidget {
                 Text(n1(resumo.mediaGeral!),
                     style: const TextStyle(
                         color: AppColors.catConsumo,
-                        fontSize: 40,
+                        fontSize: 32,
                         fontWeight: FontWeight.w800)),
                 const SizedBox(width: 6),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(bottom: 6),
                   child: Text('km/L',
                       style: TextStyle(
@@ -137,12 +139,12 @@ class _CartaoMediaGeral extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                    child: _mini('Melhor', kmL(resumo.melhor!),
+                    child: _mini(t.melhor, kmL(resumo.melhor!),
                         AppColors.ok)),
                 Expanded(
-                    child: _mini('Pior', kmL(resumo.pior!), AppColors.warn)),
+                    child: _mini(t.pior, kmL(resumo.pior!), AppColors.warn)),
                 Expanded(
-                    child: _mini('Total gasto', moeda(resumo.totalGasto),
+                    child: _mini(t.totalGasto, moeda(resumo.totalGasto),
                         AppColors.text)),
               ],
             ),
@@ -159,18 +161,19 @@ class _CartaoMediaGeral extends StatelessWidget {
               style: TextStyle(
                   color: cor, fontSize: 14.5, fontWeight: FontWeight.w700)),
           const SizedBox(height: 2),
-          Text(r, style: const TextStyle(color: AppColors.dim2, fontSize: 11.5)),
+          Text(r, style: TextStyle(color: AppColors.dim2, fontSize: 11.5)),
         ],
       );
 }
 
-class _CartaoKmMes extends StatelessWidget {
+class _CartaoKmMes extends ConsumerWidget {
   final double kmMes;
   final double kmMesAnterior;
   const _CartaoKmMes({required this.kmMes, required this.kmMesAnterior});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(stringsProvider);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -182,11 +185,11 @@ class _CartaoKmMes extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Km rodados este mês',
+                  Text(t.kmRodadosMes,
                       style: TextStyle(color: AppColors.dim, fontSize: 13)),
                   const SizedBox(height: 2),
                   Text(kmMes > 0 ? km(kmMes) : '—',
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: AppColors.text,
                           fontSize: 22,
                           fontWeight: FontWeight.w800)),
@@ -197,11 +200,11 @@ class _CartaoKmMes extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  const Text('mês anterior',
+                  Text(t.mesAnterior,
                       style: TextStyle(color: AppColors.dim2, fontSize: 11.5)),
                   const SizedBox(height: 2),
                   Text(km(kmMesAnterior),
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: AppColors.dim,
                           fontSize: 14,
                           fontWeight: FontWeight.w600)),
@@ -214,12 +217,12 @@ class _CartaoKmMes extends StatelessWidget {
   }
 }
 
-class _ResumoManual extends StatelessWidget {
+class _ResumoManual extends ConsumerWidget {
   final List<MediaManual> medias;
   const _ResumoManual({required this.medias});
 
-  double? _mediaDe(TipoTrecho t) {
-    final ms = medias.where((m) => m.tipo == t && m.litros > 0);
+  double? _mediaDe(TipoTrecho tipo) {
+    final ms = medias.where((m) => m.tipo == tipo && m.litros > 0);
     if (ms.isEmpty) return null;
     final km = ms.fold<double>(0, (s, m) => s + m.km);
     final l = ms.fold<double>(0, (s, m) => s + m.litros);
@@ -227,14 +230,14 @@ class _ResumoManual extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(stringsProvider);
     if (medias.isEmpty) {
-      return const Card(
+      return Card(
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Text(
-            'Use "Calcular média" para medir um trecho: informe km e litros e '
-            'marque se foi cidade ou rodovia.',
+            t.usarCalcularMedia,
             style: TextStyle(color: AppColors.dim, fontSize: 13.5),
           ),
         ),
@@ -245,20 +248,20 @@ class _ResumoManual extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            for (final t in TipoTrecho.values) ...[
+            for (final tipo in TipoTrecho.values) ...[
               Expanded(
                 child: Column(
                   children: [
                     Text(
-                      _mediaDe(t) != null ? kmL(_mediaDe(t)!) : '—',
+                      _mediaDe(tipo) != null ? kmL(_mediaDe(tipo)!) : '—',
                       style: const TextStyle(
                           color: AppColors.catConsumo,
                           fontSize: 15,
                           fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 2),
-                    Text(t.rotulo,
-                        style: const TextStyle(
+                    Text(t.rotuloTipoTrecho(tipo),
+                        style: TextStyle(
                             color: AppColors.dim2, fontSize: 11.5)),
                   ],
                 ),
@@ -271,13 +274,14 @@ class _ResumoManual extends StatelessWidget {
   }
 }
 
-class _CartaoManual extends StatelessWidget {
+class _CartaoManual extends ConsumerWidget {
   final MediaManual m;
   final VoidCallback onExcluir;
   const _CartaoManual({required this.m, required this.onExcluir});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(stringsProvider);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -293,7 +297,7 @@ class _CartaoManual extends StatelessWidget {
               color: AppColors.catConsumo.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(7),
             ),
-            child: Text(m.tipo.rotulo,
+            child: Text(t.rotuloTipoTrecho(m.tipo),
                 style: const TextStyle(
                     color: AppColors.catConsumo,
                     fontSize: 11.5,
@@ -302,15 +306,15 @@ class _CartaoManual extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text('${n0(m.km)} km · ${n1(m.litros)} L · ${dataCurta(m.data)}',
-                style: const TextStyle(color: AppColors.dim, fontSize: 12.5)),
+                style: TextStyle(color: AppColors.dim, fontSize: 12.5)),
           ),
           Text(kmL(m.kmPorLitro),
-              style: const TextStyle(
+              style: TextStyle(
                   color: AppColors.text,
                   fontSize: 14,
                   fontWeight: FontWeight.w700)),
           IconButton(
-            icon: const Icon(Icons.close, size: 18, color: AppColors.dim2),
+            icon: Icon(Icons.close, size: 18, color: AppColors.dim2),
             onPressed: onExcluir,
           ),
         ],
@@ -339,14 +343,14 @@ class _CartaoTrecho extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('${n0(t.distancia)} km · ${n1(t.litros)} L',
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppColors.text,
                         fontSize: 14,
                         fontWeight: FontWeight.w600)),
                 const SizedBox(height: 2),
                 Text('${dataCurta(t.dataInicio)} → ${dataCurta(t.dataFim)}',
                     style:
-                        const TextStyle(color: AppColors.dim2, fontSize: 12)),
+                        TextStyle(color: AppColors.dim2, fontSize: 12)),
               ],
             ),
           ),
@@ -413,6 +417,7 @@ class _CalculadoraSheetState extends ConsumerState<_CalculadoraSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final t = ref.watch(stringsProvider);
     final r = _resultado;
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -421,7 +426,7 @@ class _CalculadoraSheetState extends ConsumerState<_CalculadoraSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Calcular média',
+          Text(t.calcularMedia,
               style: TextStyle(
                   color: AppColors.text,
                   fontSize: 18,
@@ -433,7 +438,7 @@ class _CalculadoraSheetState extends ConsumerState<_CalculadoraSheet> {
                 controller: _km,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Km percorridos'),
+                decoration: InputDecoration(labelText: t.kmPercorridos),
               ),
             ),
             const SizedBox(width: 12),
@@ -442,19 +447,19 @@ class _CalculadoraSheetState extends ConsumerState<_CalculadoraSheet> {
                 controller: _litros,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Litros gastos'),
+                decoration: InputDecoration(labelText: t.litrosGastos),
               ),
             ),
           ]),
           const SizedBox(height: 14),
           Wrap(
             spacing: 8,
-            children: TipoTrecho.values.map((t) {
-              final sel = t == _tipo;
+            children: TipoTrecho.values.map((tipo) {
+              final sel = tipo == _tipo;
               return ChoiceChip(
-                label: Text(t.rotulo),
+                label: Text(t.rotuloTipoTrecho(tipo)),
                 selected: sel,
-                onSelected: (_) => setState(() => _tipo = t),
+                onSelected: (_) => setState(() => _tipo = tipo),
                 selectedColor: AppColors.catConsumo.withValues(alpha: 0.25),
                 backgroundColor: AppColors.surface2,
                 labelStyle: TextStyle(
@@ -481,7 +486,7 @@ class _CalculadoraSheetState extends ConsumerState<_CalculadoraSheet> {
             style: FilledButton.styleFrom(
                 backgroundColor: AppColors.catConsumo,
                 foregroundColor: const Color(0xFF04231A)),
-            child: const Text('Salvar medição'),
+            child: Text(t.salvarMedicao),
           ),
         ],
       ),

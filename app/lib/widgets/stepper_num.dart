@@ -10,7 +10,7 @@ class StepperNum extends StatelessWidget {
   final double min;
   final double max;
   final String sufixo;
-  final Color cor;
+  final Color? cor;
   final ValueChanged<double> onChanged;
 
   const StepperNum({
@@ -22,7 +22,7 @@ class StepperNum extends StatelessWidget {
     this.min = 0,
     this.max = 60,
     this.sufixo = '',
-    this.cor = AppColors.accent,
+    this.cor,
   });
 
   void _mudar(double delta) {
@@ -41,7 +41,7 @@ class StepperNum extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
-            style: const TextStyle(color: AppColors.dim, fontSize: 12.5)),
+            style: TextStyle(color: AppColors.dim, fontSize: 12.5)),
         const SizedBox(height: 6),
         Container(
           decoration: BoxDecoration(
@@ -58,7 +58,7 @@ class StepperNum extends StatelessWidget {
                   sufixo.isEmpty ? texto : '$texto $sufixo',
                   textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: AppColors.text,
                       fontSize: 18,
                       fontWeight: FontWeight.w800),
@@ -78,7 +78,7 @@ class StepperNum extends StatelessWidget {
       borderRadius: BorderRadius.circular(14),
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Icon(icone, color: cor, size: 22),
+        child: Icon(icone, color: cor ?? AppColors.accent, size: 22),
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/veiculo.dart';
+import '../../services/prefs.dart';
 import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
 import '../../util/format.dart';
@@ -120,17 +121,16 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Excluir este carro?'),
-        content: const Text(
-            'O carro sai da lista. Os lançamentos dele deixam de aparecer.'),
+        title: Text(ref.read(stringsProvider).excluirEsteCarro),
+        content: Text(ref.read(stringsProvider).excluirCarroSub),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar')),
+              child: Text(ref.read(stringsProvider).cancelar)),
           TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Excluir',
-                  style: TextStyle(color: AppColors.danger))),
+              child: Text(ref.read(stringsProvider).excluir,
+                  style: const TextStyle(color: AppColors.danger))),
         ],
       ),
     );
@@ -142,15 +142,16 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = ref.watch(stringsProvider);
     final temIdentidade = _marca.isNotEmpty || _modelo.isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.veiculo == null ? 'Cadastrar carro' : 'Meu carro'),
+        title: Text(widget.veiculo == null ? t.cadastrarCarro : t.meuCarro),
         actions: [
           if (widget.veiculo != null)
             IconButton(
-              tooltip: 'Excluir carro',
+              tooltip: t.excluirCarro,
               icon: const Icon(Icons.delete_outline, color: AppColors.danger),
               onPressed: _excluir,
             ),
@@ -169,24 +170,24 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
             onBuscar: _buscarFipe,
           ),
           const SizedBox(height: 18),
-          _campo(_apelido, 'Apelido (opcional)',
-              hint: 'Ex.: Meu Onix', capitalize: true),
-          _campo(_placa, 'Placa (opcional)', upper: true),
-          _campo(_tanque, 'Tanque (litros, opcional)',
+          _campo(_apelido, t.apelidoOpc,
+              hint: t.apelidoHint, capitalize: true),
+          _campo(_placa, t.placaOpc, upper: true),
+          _campo(_tanque, t.tanqueOpc,
               teclado: const TextInputType.numberWithOptions(decimal: true)),
           const SizedBox(height: 8),
-          _secao('Intervalo de revisão'),
+          _secao(t.intervaloRevisao),
           Row(children: [
             Expanded(
-                child: _campo(_revKm, 'A cada (km)',
+                child: _campo(_revKm, t.aCadaKm,
                     teclado: TextInputType.number, soDigitos: true)),
             const SizedBox(width: 12),
             Expanded(
-                child: _campo(_revMeses, 'ou (meses)',
+                child: _campo(_revMeses, t.ouMeses,
                     teclado: TextInputType.number, soDigitos: true)),
           ]),
           const SizedBox(height: 24),
-          FilledButton(onPressed: _salvar, child: const Text('Salvar')),
+          FilledButton(onPressed: _salvar, child: Text(t.salvar)),
         ],
       ),
     );
@@ -195,7 +196,7 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
   Widget _secao(String t) => Padding(
         padding: const EdgeInsets.only(top: 8, bottom: 10, left: 4),
         child: Text(t,
-            style: const TextStyle(
+            style: TextStyle(
                 color: AppColors.text,
                 fontSize: 14,
                 fontWeight: FontWeight.w700)),
@@ -229,7 +230,7 @@ class _VeiculoFormScreenState extends ConsumerState<VeiculoFormScreen> {
   }
 }
 
-class _CartaoIdentidade extends StatelessWidget {
+class _CartaoIdentidade extends ConsumerWidget {
   final String marca;
   final String modelo;
   final int? ano;
@@ -248,7 +249,8 @@ class _CartaoIdentidade extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(stringsProvider);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -268,7 +270,7 @@ class _CartaoIdentidade extends StatelessWidget {
                             Text('$marca $modelo'.trim(),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
+                                style: TextStyle(
                                     color: AppColors.text,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700)),
@@ -276,16 +278,16 @@ class _CartaoIdentidade extends StatelessWidget {
                             Text(
                               [
                                 if (ano != null) '$ano',
-                                combustivel.rotulo,
+                                t.rotuloCombustivel(combustivel),
                                 if (fipeValor != null) moeda(fipeValor!),
                               ].join(' · '),
-                              style: const TextStyle(
+                              style: TextStyle(
                                   color: AppColors.dim, fontSize: 12.5),
                             ),
                           ],
                         )
-                      : const Text(
-                          'Busque seu carro na tabela FIPE (marca, modelo, ano).',
+                      : Text(
+                          t.busqueSeuCarroFipe,
                           style:
                               TextStyle(color: AppColors.dim, fontSize: 13.5),
                         ),
@@ -301,7 +303,7 @@ class _CartaoIdentidade extends StatelessWidget {
                     backgroundColor: AppColors.catFipe,
                     foregroundColor: const Color(0xFF160A2B)),
                 icon: const Icon(Icons.search),
-                label: const Text('Pesquisar carro'),
+                label: Text(t.pesquisarCarro),
               ),
             ),
           ],

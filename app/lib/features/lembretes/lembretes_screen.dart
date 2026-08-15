@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/lembrete.dart';
+import '../../services/prefs.dart';
 import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
 import '../../util/format.dart';
@@ -13,6 +14,7 @@ class LembretesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(stringsProvider);
     final lista = [...(ref.watch(lembretesDoVeiculoProvider))]
       ..sort((a, b) {
         if (a.pago != b.pago) return a.pago ? 1 : -1;
@@ -20,21 +22,19 @@ class LembretesScreen extends ConsumerWidget {
       });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Lembretes')),
+      appBar: AppBar(title: Text(t.lembretes)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _abrirForm(context, ref),
         backgroundColor: AppColors.catLembretes,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
-        label: const Text('Novo'),
+        label: Text(t.novo),
       ),
       body: lista.isEmpty
-          ? const EstadoVazio(
+          ? EstadoVazio(
               icone: Icons.event_available_outlined,
-              titulo: 'Sem lembretes',
-              subtitulo:
-                  'Cadastre vencimentos de IPVA, seguro, licenciamento e afins. '
-                  'O app mostra quantos dias faltam.',
+              titulo: t.semLembretes,
+              subtitulo: t.semLembretesSub,
             )
           : ListView(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
@@ -83,7 +83,7 @@ class LembretesScreen extends ConsumerWidget {
   }
 }
 
-class _CartaoLembrete extends StatelessWidget {
+class _CartaoLembrete extends ConsumerWidget {
   final Lembrete l;
   final VoidCallback onEditar;
   final VoidCallback onPago;
@@ -102,7 +102,8 @@ class _CartaoLembrete extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(stringsProvider);
     final dias = DateTime(l.vencimento.year, l.vencimento.month, l.vencimento.day)
         .difference(DateTime.now())
         .inDays;
@@ -141,7 +142,7 @@ class _CartaoLembrete extends StatelessWidget {
                       color: AppColors.catLembretes.withValues(alpha: 0.14),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Text(l.tipo.rotulo,
+                    child: Text(t.rotuloTipoLembrete(l.tipo),
                         style: const TextStyle(
                             color: AppColors.catLembretes,
                             fontSize: 11.5,
@@ -153,7 +154,7 @@ class _CartaoLembrete extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          l.titulo.isNotEmpty ? l.titulo : l.tipo.rotulo,
+                          l.titulo.isNotEmpty ? l.titulo : t.rotuloTipoLembrete(l.tipo),
                           style: TextStyle(
                             color: l.pago ? AppColors.dim : AppColors.text,
                             fontSize: 15,
@@ -165,8 +166,8 @@ class _CartaoLembrete extends StatelessWidget {
                         const SizedBox(height: 3),
                         Text(
                           l.pago
-                              ? 'Pago'
-                              : '${dataCurta(l.vencimento)} · ${desdeAte(l.vencimento)}',
+                              ? t.pago
+                              : '${dataCurta(l.vencimento)} · ${t.desdeAte(l.vencimento)}',
                           style: TextStyle(color: cor, fontSize: 12.5),
                         ),
                       ],
@@ -176,15 +177,15 @@ class _CartaoLembrete extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(right: 4),
                       child: Text(moeda(l.valor!),
-                          style: const TextStyle(
+                          style: TextStyle(
                               color: AppColors.text,
                               fontSize: 14,
                               fontWeight: FontWeight.w700)),
                     ),
                   IconButton(
                     tooltip: l.recorrencia == Recorrencia.nenhuma
-                        ? 'Marcar pago'
-                        : 'Pago — próximo período',
+                        ? t.marcarPago
+                        : t.pagoProximoPeriodo,
                     icon: Icon(
                       l.pago
                           ? Icons.check_circle
@@ -265,6 +266,7 @@ class _LembreteFormSheetState extends ConsumerState<_LembreteFormSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final t = ref.watch(stringsProvider);
     return Padding(
       padding: EdgeInsets.fromLTRB(
           20, 18, 20, MediaQuery.of(context).viewInsets.bottom + 20),
@@ -273,8 +275,8 @@ class _LembreteFormSheetState extends ConsumerState<_LembreteFormSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.original == null ? 'Novo lembrete' : 'Lembrete',
-                style: const TextStyle(
+            Text(widget.original == null ? t.novoLembrete : t.lembrete,
+                style: TextStyle(
                     color: AppColors.text,
                     fontSize: 18,
                     fontWeight: FontWeight.w700)),
@@ -282,12 +284,12 @@ class _LembreteFormSheetState extends ConsumerState<_LembreteFormSheet> {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: TipoLembrete.values.map((t) {
-                final sel = t == _tipo;
+              children: TipoLembrete.values.map((tipo) {
+                final sel = tipo == _tipo;
                 return ChoiceChip(
-                  label: Text(t.rotulo),
+                  label: Text(t.rotuloTipoLembrete(tipo)),
                   selected: sel,
-                  onSelected: (_) => setState(() => _tipo = t),
+                  onSelected: (_) => setState(() => _tipo = tipo),
                   selectedColor: AppColors.catLembretes.withValues(alpha: 0.25),
                   backgroundColor: AppColors.surface2,
                   labelStyle: TextStyle(
@@ -302,9 +304,9 @@ class _LembreteFormSheetState extends ConsumerState<_LembreteFormSheet> {
             TextField(
               controller: _titulo,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                  labelText: 'Título (opcional)',
-                  hintText: 'Ex.: IPVA 2026 — cota única'),
+              decoration: InputDecoration(
+                  labelText: t.tituloOpc,
+                  hintText: t.tituloLembreteHint),
             ),
             const SizedBox(height: 12),
             InkWell(
@@ -319,10 +321,10 @@ class _LembreteFormSheetState extends ConsumerState<_LembreteFormSheet> {
                   border: Border.all(color: AppColors.line),
                 ),
                 child: Row(children: [
-                  const Icon(Icons.event, color: AppColors.dim, size: 20),
+                  Icon(Icons.event, color: AppColors.dim, size: 20),
                   const SizedBox(width: 12),
-                  Text('Vence em ${dataLonga(_vencimento)}',
-                      style: const TextStyle(
+                  Text(t.venceEm(dataLonga(_vencimento)),
+                      style: TextStyle(
                           color: AppColors.text, fontWeight: FontWeight.w600)),
                 ]),
               ),
@@ -333,10 +335,10 @@ class _LembreteFormSheetState extends ConsumerState<_LembreteFormSheet> {
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
               decoration:
-                  const InputDecoration(labelText: 'Valor (R\$, opcional)'),
+                  InputDecoration(labelText: t.valorRsOpc),
             ),
             const SizedBox(height: 14),
-            const Text('Repetição',
+            Text(t.repeticao,
                 style: TextStyle(
                     color: AppColors.dim,
                     fontSize: 13,
@@ -344,12 +346,12 @@ class _LembreteFormSheetState extends ConsumerState<_LembreteFormSheet> {
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
-              children: Recorrencia.values.map((r) {
-                final sel = r == _recorrencia;
+              children: Recorrencia.values.map((rec) {
+                final sel = rec == _recorrencia;
                 return ChoiceChip(
-                  label: Text(r.rotulo),
+                  label: Text(t.rotuloRecorrencia(rec)),
                   selected: sel,
-                  onSelected: (_) => setState(() => _recorrencia = r),
+                  onSelected: (_) => setState(() => _recorrencia = rec),
                   selectedColor: AppColors.accent.withValues(alpha: 0.22),
                   backgroundColor: AppColors.surface2,
                   labelStyle: TextStyle(
@@ -366,7 +368,7 @@ class _LembreteFormSheetState extends ConsumerState<_LembreteFormSheet> {
               style: FilledButton.styleFrom(
                   backgroundColor: AppColors.catLembretes,
                   foregroundColor: Colors.white),
-              child: const Text('Salvar'),
+              child: Text(t.salvar),
             ),
           ],
         ),

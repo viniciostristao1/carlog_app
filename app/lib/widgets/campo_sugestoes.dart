@@ -11,7 +11,7 @@ class CampoSugestoes extends StatefulWidget {
   final String label;
   final String? hint;
   final List<String> sugestoes;
-  final Color cor;
+  final Color? cor;
   final int max;
 
   const CampoSugestoes({
@@ -20,7 +20,7 @@ class CampoSugestoes extends StatefulWidget {
     required this.label,
     required this.sugestoes,
     this.hint,
-    this.cor = AppColors.accent,
+    this.cor,
     this.max = 6,
   });
 
@@ -79,8 +79,9 @@ class _CampoSugestoesState extends State<CampoSugestoes> {
                 .map((s) => ActionChip(
                       label: Text(s),
                       backgroundColor: AppColors.surface2,
-                      labelStyle: TextStyle(color: widget.cor, fontSize: 12.5),
-                      side: const BorderSide(color: AppColors.line),
+                      labelStyle: TextStyle(
+                          color: widget.cor ?? AppColors.accent, fontSize: 12.5),
+                      side: BorderSide(color: AppColors.line),
                       onPressed: () {
                         widget.controller.text = s;
                         widget.controller.selection = TextSelection.collapsed(

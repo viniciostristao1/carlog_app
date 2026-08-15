@@ -44,7 +44,7 @@ class BotaoRedondo extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.text,
                 fontSize: 12.5,
                 fontWeight: FontWeight.w600,

@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../l10n/strings.dart';
 import '../../models/revisao.dart';
 import '../../services/ocr_service.dart';
+import '../../services/prefs.dart';
 import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
 import '../../util/format.dart';
@@ -44,6 +46,7 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
     _data = o?.data ?? DateTime.now();
     _itens = [...(o?.itens ?? const [])];
     _itemCtrl.addListener(() => setState(() {}));
+    _texto.addListener(() => setState(() {})); // mostra/oculta o botão "Limpar"
   }
 
   /// Oficinas já usadas, mais recentes primeiro (sugestão ao preencher).
@@ -116,14 +119,14 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
             ListTile(
               leading: const Icon(Icons.photo_camera_outlined,
                   color: AppColors.catRevisoes),
-              title: const Text('Tirar foto do orçamento',
+              title: Text(ref.read(stringsProvider).tirarFoto,
                   style: TextStyle(color: AppColors.text)),
               onTap: () => Navigator.pop(context, ImageSource.camera),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_outlined,
                   color: AppColors.catRevisoes),
-              title: const Text('Escolher da galeria',
+              title: Text(ref.read(stringsProvider).escolherGaleria,
                   style: TextStyle(color: AppColors.text)),
               onTap: () => Navigator.pop(context, ImageSource.gallery),
             ),
@@ -140,8 +143,8 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
       res = await OcrService().lerDe(source);
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Não foi possível ler a imagem.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(ref.read(stringsProvider).naoLeuImagem)));
       }
     } finally {
       if (mounted) setState(() => _ocrLoading = false);
@@ -149,8 +152,8 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
     if (res == null) return;
     if (res.itens.isEmpty) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Nenhum texto reconhecido na foto.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(ref.read(stringsProvider).nenhumTextoFoto)));
       }
       return;
     }
@@ -162,7 +165,8 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (_) => _OcrReviewSheet(resultado: res!),
+      builder: (_) =>
+          _OcrReviewSheet(resultado: res!, t: ref.read(stringsProvider)),
     );
 
     final ocr = res;
@@ -186,18 +190,18 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Excluir revisão?'),
+        title: Text(ref.read(stringsProvider).excluirRevisao),
         content: Text(widget.original?.titulo.isNotEmpty == true
             ? widget.original!.titulo
             : dataLonga(_data)),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar')),
+              child: Text(ref.read(stringsProvider).cancelar)),
           TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Excluir',
-                  style: TextStyle(color: AppColors.danger))),
+              child: Text(ref.read(stringsProvider).excluir,
+                  style: const TextStyle(color: AppColors.danger))),
         ],
       ),
     );
@@ -209,8 +213,8 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
 
   Future<void> _salvar() async {
     if (_titulo.text.trim().isEmpty && _itens.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Dê um título ou adicione ao menos um item.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(ref.read(stringsProvider).deTituloOuItem)));
       return;
     }
     final r = Revisao(
@@ -231,13 +235,14 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = ref.watch(stringsProvider);
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.original == null ? 'Nova revisão' : 'Revisão'),
+        title: Text(widget.original == null ? t.novaRevisao : t.revisao),
         actions: [
           if (widget.original != null)
             IconButton(
-              tooltip: 'Excluir',
+              tooltip: t.excluir,
               icon: const Icon(Icons.delete_outline, color: AppColors.danger),
               onPressed: _excluir,
             ),
@@ -246,28 +251,28 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
-          _campo(_titulo, 'Título', hint: 'Ex.: Revisão dos 40 mil'),
-          _linhaData(),
+          _campo(_titulo, t.titulo, hint: t.tituloRevisaoHint),
+          _linhaData(t),
           const SizedBox(height: 12),
           Row(children: [
             Expanded(
-                child: _campo(_odometro, 'Odômetro (km)',
+                child: _campo(_odometro, t.odometroKm,
                     teclado: TextInputType.number, soDigitos: true)),
             const SizedBox(width: 12),
             Expanded(
-                child: _campo(_custo, 'Custo (R\$)',
+                child: _campo(_custo, t.custoRs,
                     teclado:
                         const TextInputType.numberWithOptions(decimal: true))),
           ]),
           CampoSugestoes(
             controller: _local,
-            label: 'Oficina / concessionária',
-            hint: 'Ex.: Auto Center do João',
+            label: t.oficinaConcessionaria,
+            hint: t.oficinaHint,
             cor: AppColors.catRevisoes,
             sugestoes: _oficinasAnteriores(),
           ),
           const SizedBox(height: 4),
-          const Text('Peças / serviços trocados',
+          Text(t.pecasServicos,
               style: TextStyle(
                   color: AppColors.text,
                   fontSize: 14,
@@ -279,8 +284,8 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
                 controller: _itemCtrl,
                 textCapitalization: TextCapitalization.sentences,
                 onSubmitted: (_) => _addItem(),
-                decoration: const InputDecoration(
-                    hintText: 'Ex.: Óleo, filtro de ar, pastilha…'),
+                decoration: InputDecoration(
+                    hintText: t.pecaHint),
               ),
             ),
             const SizedBox(width: 8),
@@ -305,7 +310,7 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
                         backgroundColor: AppColors.surface2,
                         labelStyle: const TextStyle(
                             color: AppColors.catRevisoes, fontSize: 12.5),
-                        side: const BorderSide(color: AppColors.line),
+                        side: BorderSide(color: AppColors.line),
                         onPressed: () => setState(() {
                           _itens.add(n);
                           _itemCtrl.clear();
@@ -323,7 +328,7 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
                   .map((it) => Chip(
                         label: Text(it),
                         backgroundColor: AppColors.surface2,
-                        labelStyle: const TextStyle(color: AppColors.text),
+                        labelStyle: TextStyle(color: AppColors.text),
                         deleteIconColor: AppColors.dim,
                         onDeleted: () => setState(() => _itens.remove(it)),
                       ))
@@ -333,12 +338,19 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
           const SizedBox(height: 16),
           Row(
             children: [
-              const Text('Texto do orçamento',
+              Text(t.textoOrcamento,
                   style: TextStyle(
                       color: AppColors.text,
                       fontSize: 14,
                       fontWeight: FontWeight.w700)),
               const Spacer(),
+              if (_texto.text.trim().isNotEmpty)
+                TextButton.icon(
+                  onPressed: () => _texto.clear(),
+                  icon: const Icon(Icons.delete_sweep_outlined, size: 18),
+                  label: Text(t.limpar),
+                  style: TextButton.styleFrom(foregroundColor: AppColors.dim),
+                ),
               TextButton.icon(
                 onPressed: _ocrLoading ? null : _lerFoto,
                 icon: _ocrLoading
@@ -347,7 +359,7 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
                         height: 16,
                         child: CircularProgressIndicator(strokeWidth: 2))
                     : const Icon(Icons.photo_camera_outlined, size: 18),
-                label: Text(_ocrLoading ? 'Lendo…' : 'Ler foto'),
+                label: Text(_ocrLoading ? t.lendo : t.lerFoto),
               ),
             ],
           ),
@@ -356,18 +368,17 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
             controller: _texto,
             maxLines: 4,
             textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(
-                hintText:
-                    'Cole aqui o texto do orçamento — fica buscável pela lupa.'),
+            decoration: InputDecoration(
+                hintText: t.coleOrcamento),
           ),
           const SizedBox(height: 24),
-          FilledButton(onPressed: _salvar, child: const Text('Salvar')),
+          FilledButton(onPressed: _salvar, child: Text(t.salvar)),
         ],
       ),
     );
   }
 
-  Widget _linhaData() {
+  Widget _linhaData(AppStrings t) {
     return InkWell(
       onTap: _escolherData,
       borderRadius: BorderRadius.circular(14),
@@ -380,13 +391,13 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.event, color: AppColors.dim, size: 20),
+            Icon(Icons.event, color: AppColors.dim, size: 20),
             const SizedBox(width: 12),
             Text(dataLonga(_data),
-                style: const TextStyle(
+                style: TextStyle(
                     color: AppColors.text, fontWeight: FontWeight.w600)),
             const Spacer(),
-            const Text('alterar',
+            Text(t.alterar,
                 style: TextStyle(color: AppColors.accent, fontSize: 13)),
           ],
         ),
@@ -419,7 +430,8 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
 /// escolher o que importar como itens. O texto completo é salvo à parte (buscável).
 class _OcrReviewSheet extends StatefulWidget {
   final OcrResultado resultado;
-  const _OcrReviewSheet({required this.resultado});
+  final AppStrings t;
+  const _OcrReviewSheet({required this.resultado, required this.t});
 
   @override
   State<_OcrReviewSheet> createState() => _OcrReviewSheetState();
@@ -427,6 +439,7 @@ class _OcrReviewSheet extends StatefulWidget {
 
 class _OcrReviewSheetState extends State<_OcrReviewSheet> {
   late final List<bool> _sel;
+  final _busca = TextEditingController();
 
   @override
   void initState() {
@@ -436,12 +449,28 @@ class _OcrReviewSheetState extends State<_OcrReviewSheet> {
     _sel = widget.resultado.itens
         .map((it) => it.descricao.length <= 48)
         .toList();
+    _busca.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _busca.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = widget.t;
     final itens = widget.resultado.itens;
     final marcados = _sel.where((s) => s).length;
+
+    // Índices dos itens que combinam com a busca (lupa) — a seleção continua
+    // guardada pelo índice original, então filtrar não perde o que foi marcado.
+    final termo = semAcento(_busca.text.trim());
+    final visiveis = <int>[
+      for (var i = 0; i < itens.length; i++)
+        if (termo.isEmpty || semAcento(itens[i].descricao).contains(termo)) i,
+    ];
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -450,56 +479,80 @@ class _OcrReviewSheetState extends State<_OcrReviewSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('O que importar do orçamento',
+          Text(t.oQueImportar,
               style: TextStyle(
                   color: AppColors.text,
                   fontSize: 18,
                   fontWeight: FontWeight.w700)),
           const SizedBox(height: 4),
-          const Text(
-            'Marque as linhas que são peças/serviços. O texto completo será '
-            'salvo e fica buscável pela lupa.',
+          Text(
+            t.oQueImportarSub,
             style: TextStyle(color: AppColors.dim, fontSize: 12.5),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _busca,
+            decoration: InputDecoration(
+              isDense: true,
+              hintText: t.buscarItemOrcamento,
+              prefixIcon: Icon(Icons.search, color: AppColors.dim),
+              suffixIcon: _busca.text.isNotEmpty
+                  ? IconButton(
+                      icon: Icon(Icons.close, color: AppColors.dim),
+                      onPressed: () => _busca.clear(),
+                    )
+                  : null,
+            ),
           ),
           const SizedBox(height: 8),
           Flexible(
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: itens.length,
-              itemBuilder: (_, i) {
-                final it = itens[i];
-                return CheckboxListTile(
-                  value: _sel[i],
-                  onChanged: (v) => setState(() => _sel[i] = v ?? false),
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                  activeColor: AppColors.catRevisoes,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  title: Text(it.descricao,
-                      style: const TextStyle(
-                          color: AppColors.text, fontSize: 14)),
-                  secondary: it.valor != null
-                      ? Text('R\$ ${n2(it.valor!)}',
-                          style: const TextStyle(
-                              color: AppColors.dim,
-                              fontWeight: FontWeight.w600))
-                      : null,
-                );
-              },
-            ),
+            child: visiveis.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Text(t.nenhumItemEncontrado,
+                        style: TextStyle(color: AppColors.dim)),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: visiveis.length,
+                    itemBuilder: (_, k) {
+                      final i = visiveis[k];
+                      final it = itens[i];
+                      return CheckboxListTile(
+                        value: _sel[i],
+                        onChanged: (v) => setState(() => _sel[i] = v ?? false),
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                        activeColor: AppColors.catRevisoes,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: Text(it.descricao,
+                            style: TextStyle(
+                                color: AppColors.text, fontSize: 14)),
+                        secondary: it.valor != null
+                            ? Text('R\$ ${n2(it.valor!)}',
+                                style: TextStyle(
+                                    color: AppColors.dim,
+                                    fontWeight: FontWeight.w600))
+                            : null,
+                      );
+                    },
+                  ),
           ),
           const SizedBox(height: 8),
           Row(
             children: [
               TextButton(
-                onPressed: () => setState(() {
-                  final todos = marcados < itens.length;
-                  for (var i = 0; i < _sel.length; i++) {
-                    _sel[i] = todos;
-                  }
-                }),
+                // Marca/desmarca apenas os itens visíveis (respeita a busca).
+                onPressed: visiveis.isEmpty
+                    ? null
+                    : () => setState(() {
+                          final marcar = visiveis.any((i) => !_sel[i]);
+                          for (final i in visiveis) {
+                            _sel[i] = marcar;
+                          }
+                        }),
                 child: Text(
-                    marcados < itens.length ? 'Marcar todos' : 'Desmarcar todos'),
+                    visiveis.any((i) => !_sel[i]) ? t.marcarTodos : t.desmarcarTodos),
               ),
               const Spacer(),
               FilledButton(
@@ -513,7 +566,7 @@ class _OcrReviewSheetState extends State<_OcrReviewSheet> {
                 style: FilledButton.styleFrom(
                     backgroundColor: AppColors.catRevisoes,
                     foregroundColor: Colors.white),
-                child: Text('Importar ($marcados)'),
+                child: Text(t.importarN(marcados)),
               ),
             ],
           ),

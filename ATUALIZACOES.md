@@ -2,6 +2,15 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-15 — v0.13.0.** **Temas, tamanho de fonte e idiomas.** (1) 4 **temas** (Âmbar, Azul, Expresso,
+  Madeira) e **4 tamanhos de fonte** nas Configurações → Aparência. (2) **Inglês e Espanhol** (Config →
+  Idioma). (3) Home: os **outros carros** viraram cartões meia-largura abaixo do principal; o carro
+  principal mostra **marca em cima e modelo embaixo** (lê o modelo completo); revisão vencida vira um
+  **⚠ centralizado**. (4) Revisões: mais itens sugeridos (geometria, balanceamento, cambagem, bieleta,
+  bucha, polia, rolamento diant./tras.); em Programar, "a cada km" vem antes de "fazer no km". (5)
+  Orçamento: botão **Limpar** e uma **lupa** para achar itens importados por foto. (6) Ajustes finos de
+  layout (caixa de calibragem menor, fonte da média geral).
+
 - **2026-08-14 — v0.12.0.** **Até 3 carros!** Na tela inicial, os chips no topo trocam de carro; toque em
   **"+ Carro"** para adicionar. Cada carro tem os **seus** abastecimentos, revisões, lembretes,
   calibragem e estatísticas (odômetro, km/mês, FIPE, previsão) — o carro selecionado é o que aparece.
