@@ -2,6 +2,11 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-16 — v0.13.3.** **Mais contraste no tema bege.** Os **ícones** coloridos (calendário da
+  média, tanque do abastecimento, ícones de revisão/FIPE/lembrete, "feito" verde, etc.) e alguns textos
+  que ainda ficavam apagados no fundo claro agora escurecem para dar contraste — completa o ajuste da
+  v0.13.2. Botões redondos e temas escuros seguem intactos.
+
 - **2026-08-16 — v0.13.2.** **Legibilidade no tema Madeira (bege) + calibragem menor.** (1) Caixa da
   **calibragem recomendada** ficou mais baixa (fonte e espaçamento reduzidos). (2) No tema bege, os
   números coloridos (verde da média, teal da calibragem, roxo da FIPE, etc.) agora **escurecem** para dar

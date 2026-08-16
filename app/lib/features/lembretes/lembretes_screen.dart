@@ -143,8 +143,8 @@ class _CartaoLembrete extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(t.rotuloTipoLembrete(l.tipo),
-                        style: const TextStyle(
-                            color: AppColors.catLembretes,
+                        style: TextStyle(
+                            color: AppColors.leg(AppColors.catLembretes),
                             fontSize: 11.5,
                             fontWeight: FontWeight.w700)),
                   ),
@@ -190,7 +190,7 @@ class _CartaoLembrete extends ConsumerWidget {
                       l.pago
                           ? Icons.check_circle
                           : Icons.check_circle_outline,
-                      color: l.pago ? AppColors.ok : AppColors.dim,
+                      color: l.pago ? AppColors.leg(AppColors.ok) : AppColors.dim,
                     ),
                     onPressed: onPago,
                   ),

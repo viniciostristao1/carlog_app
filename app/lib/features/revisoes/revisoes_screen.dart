@@ -50,8 +50,8 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
         title: Text(t.revisoes),
         bottom: TabBar(
           controller: _tab,
-          indicatorColor: AppColors.catRevisoes,
-          labelColor: AppColors.catRevisoes,
+          indicatorColor: AppColors.leg(AppColors.catRevisoes),
+          labelColor: AppColors.leg(AppColors.catRevisoes),
           unselectedLabelColor: AppColors.dim,
           tabs: [Tab(text: t.programar), Tab(text: t.historico)],
         ),
@@ -232,7 +232,7 @@ class _CartaoProximaRevisao extends ConsumerWidget {
 
     if (v == null || p.alvoKm == null) {
       return wrap(Row(children: [
-        Icon(Icons.event_repeat, color: AppColors.catRevisoes),
+        Icon(Icons.event_repeat, color: AppColors.leg(AppColors.catRevisoes)),
         const SizedBox(width: 12),
         Expanded(
           child: Text(
@@ -253,7 +253,8 @@ class _CartaoProximaRevisao extends ConsumerWidget {
       children: [
         Row(children: [
           Icon(vencida ? Icons.warning_amber_rounded : Icons.event_repeat,
-              color: vencida ? AppColors.warn : AppColors.catRevisoes),
+              color: AppColors.leg(
+                  vencida ? AppColors.warn : AppColors.catRevisoes)),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -279,7 +280,8 @@ class _CartaoProximaRevisao extends ConsumerWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(children: [
-              const Icon(Icons.trending_up, color: AppColors.catConsumo, size: 18),
+              Icon(Icons.trending_up,
+                  color: AppColors.leg(AppColors.catConsumo), size: 18),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(t.mediaUlt12,
@@ -369,7 +371,7 @@ class _LinhaProgramado extends ConsumerWidget {
                     item.feito
                         ? Icons.check_circle
                         : Icons.radio_button_unchecked,
-                    color: item.feito ? AppColors.ok : AppColors.dim,
+                    color: item.feito ? AppColors.leg(AppColors.ok) : AppColors.dim,
                   ),
                   onPressed: onToggle,
                 ),
@@ -608,8 +610,9 @@ class _ItemSheetState extends ConsumerState<_ItemSheet> {
                     .map((s) => ActionChip(
                           label: Text(s.nome),
                           backgroundColor: AppColors.surface2,
-                          labelStyle: const TextStyle(
-                              color: AppColors.catRevisoes, fontSize: 12.5),
+                          labelStyle: TextStyle(
+                              color: AppColors.leg(AppColors.catRevisoes),
+                              fontSize: 12.5),
                           side: BorderSide(color: AppColors.line),
                           onPressed: () => _escolher(s),
                         ))

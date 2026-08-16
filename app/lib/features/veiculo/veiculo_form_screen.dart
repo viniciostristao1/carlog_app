@@ -259,8 +259,8 @@ class _CartaoIdentidade extends ConsumerWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.directions_car_filled,
-                    color: AppColors.catFipe),
+                Icon(Icons.directions_car_filled,
+                    color: AppColors.leg(AppColors.catFipe)),
                 const SizedBox(width: 10),
                 Expanded(
                   child: temIdentidade

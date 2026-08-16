@@ -93,7 +93,8 @@ class _CartaoMediaGeral extends ConsumerWidget {
           padding: const EdgeInsets.all(20),
           child: Row(
             children: [
-              const Icon(Icons.speed, color: AppColors.catConsumo, size: 30),
+              Icon(Icons.speed,
+                  color: AppColors.leg(AppColors.catConsumo), size: 30),
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
@@ -180,7 +181,8 @@ class _CartaoKmMes extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            const Icon(Icons.calendar_month, color: AppColors.catConsumo),
+            Icon(Icons.calendar_month,
+                color: AppColors.leg(AppColors.catConsumo)),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -464,7 +466,7 @@ class _CalculadoraSheetState extends ConsumerState<_CalculadoraSheet> {
                 selectedColor: AppColors.catConsumo.withValues(alpha: 0.25),
                 backgroundColor: AppColors.surface2,
                 labelStyle: TextStyle(
-                    color: sel ? AppColors.catConsumo : AppColors.dim,
+                    color: sel ? AppColors.leg(AppColors.catConsumo) : AppColors.dim,
                     fontWeight: FontWeight.w600),
                 side: BorderSide(
                     color: sel ? AppColors.catConsumo : AppColors.line),

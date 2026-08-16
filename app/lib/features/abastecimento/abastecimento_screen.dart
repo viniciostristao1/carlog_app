@@ -173,7 +173,7 @@ class _CartaoAbastecimento extends ConsumerWidget {
                       a.tanqueCheio
                           ? Icons.local_gas_station
                           : Icons.local_gas_station_outlined,
-                      color: AppColors.catAbastecimento,
+                      color: AppColors.leg(AppColors.catAbastecimento),
                       size: 22,
                     ),
                   ),

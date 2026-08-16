@@ -130,8 +130,8 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
           OutlinedButton.icon(
             onPressed: _informarManual,
             style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.catFipe,
-                side: const BorderSide(color: AppColors.catFipe),
+                foregroundColor: AppColors.leg(AppColors.catFipe),
+                side: BorderSide(color: AppColors.leg(AppColors.catFipe)),
                 padding: const EdgeInsets.symmetric(vertical: 14)),
             icon: const Icon(Icons.edit_outlined),
             label: Text(t.informarValorManual),

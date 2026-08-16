@@ -203,7 +203,7 @@ class _AbastecimentoFormScreenState
             controller: _posto,
             label: t.postoOpc,
             hint: t.postoHint,
-            cor: AppColors.catAbastecimento,
+            cor: AppColors.leg(AppColors.catAbastecimento),
             sugestoes: _postosAnteriores(),
           ),
           _campo(_obs, t.observacaoOpc, capitalize: true),

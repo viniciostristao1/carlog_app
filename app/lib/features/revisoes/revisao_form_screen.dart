@@ -117,15 +117,15 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
           children: [
             const SizedBox(height: 8),
             ListTile(
-              leading: const Icon(Icons.photo_camera_outlined,
-                  color: AppColors.catRevisoes),
+              leading: Icon(Icons.photo_camera_outlined,
+                  color: AppColors.leg(AppColors.catRevisoes)),
               title: Text(ref.read(stringsProvider).tirarFoto,
                   style: TextStyle(color: AppColors.text)),
               onTap: () => Navigator.pop(context, ImageSource.camera),
             ),
             ListTile(
-              leading: const Icon(Icons.photo_library_outlined,
-                  color: AppColors.catRevisoes),
+              leading: Icon(Icons.photo_library_outlined,
+                  color: AppColors.leg(AppColors.catRevisoes)),
               title: Text(ref.read(stringsProvider).escolherGaleria,
                   style: TextStyle(color: AppColors.text)),
               onTap: () => Navigator.pop(context, ImageSource.gallery),
@@ -268,7 +268,7 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
             controller: _local,
             label: t.oficinaConcessionaria,
             hint: t.oficinaHint,
-            cor: AppColors.catRevisoes,
+            cor: AppColors.leg(AppColors.catRevisoes),
             sugestoes: _oficinasAnteriores(),
           ),
           const SizedBox(height: 4),
@@ -304,12 +304,14 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
               runSpacing: 8,
               children: _sugestoesItens()
                   .map((n) => ActionChip(
-                        avatar: const Icon(Icons.add,
-                            size: 16, color: AppColors.catRevisoes),
+                        avatar: Icon(Icons.add,
+                            size: 16,
+                            color: AppColors.leg(AppColors.catRevisoes)),
                         label: Text(n),
                         backgroundColor: AppColors.surface2,
-                        labelStyle: const TextStyle(
-                            color: AppColors.catRevisoes, fontSize: 12.5),
+                        labelStyle: TextStyle(
+                            color: AppColors.leg(AppColors.catRevisoes),
+                            fontSize: 12.5),
                         side: BorderSide(color: AppColors.line),
                         onPressed: () => setState(() {
                           _itens.add(n);
