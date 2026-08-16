@@ -159,8 +159,8 @@ class _CartaoValorSalvo extends ConsumerWidget {
                 style: TextStyle(color: AppColors.dim, fontSize: 13)),
             const SizedBox(height: 6),
             Text(moeda(veiculo.fipeValor!),
-                style: const TextStyle(
-                    color: AppColors.catFipe,
+                style: TextStyle(
+                    color: AppColors.leg(AppColors.catFipe),
                     fontSize: 30,
                     fontWeight: FontWeight.w800)),
             const SizedBox(height: 6),

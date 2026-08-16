@@ -49,6 +49,19 @@ abstract final class AppColors {
   static Color get onAccent => _pal.onAccent;
   static Brightness get brilho => _pal.brilho;
 
+  /// Versão LEGÍVEL de uma cor de destaque sobre a superfície atual. Nos temas
+  /// escuros devolve a própria cor (os pasteis claros vão bem no escuro); no
+  /// tema claro (Madeira) escurece o hue para ter contraste no bege — usar em
+  /// TEXTO/números coloridos (ex.: média, calibragem), NÃO nos botões redondos.
+  static Color leg(Color c) {
+    if (brilho == Brightness.dark) return c;
+    final h = HSLColor.fromColor(c);
+    return h
+        .withLightness((h.lightness * 0.42).clamp(0.0, 0.40))
+        .withSaturation(h.saturation < 0.5 ? 0.55 : h.saturation)
+        .toColor();
+  }
+
   // ---- helpers p/ preview do seletor de tema ----
   static Color accentDoTema(TemaApp t) => _palDe(t).accent;
   static Color onAccentDoTema(TemaApp t) => _palDe(t).onAccent;

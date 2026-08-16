@@ -294,8 +294,8 @@ class _AbastecimentoFormScreenState
               style: TextStyle(color: AppColors.dim, fontSize: 14)),
           const Spacer(),
           Text(moeda(valor),
-              style: const TextStyle(
-                  color: AppColors.catAbastecimento,
+              style: TextStyle(
+                  color: AppColors.leg(AppColors.catAbastecimento),
                   fontSize: 20,
                   fontWeight: FontWeight.w800)),
         ],

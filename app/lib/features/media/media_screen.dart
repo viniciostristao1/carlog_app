@@ -120,8 +120,8 @@ class _CartaoMediaGeral extends ConsumerWidget {
               textBaseline: TextBaseline.alphabetic,
               children: [
                 Text(n1(resumo.mediaGeral!),
-                    style: const TextStyle(
-                        color: AppColors.catConsumo,
+                    style: TextStyle(
+                        color: AppColors.leg(AppColors.catConsumo),
                         fontSize: 32,
                         fontWeight: FontWeight.w800)),
                 const SizedBox(width: 6),
@@ -140,9 +140,10 @@ class _CartaoMediaGeral extends ConsumerWidget {
               children: [
                 Expanded(
                     child: _mini(t.melhor, kmL(resumo.melhor!),
-                        AppColors.ok)),
+                        AppColors.leg(AppColors.ok))),
                 Expanded(
-                    child: _mini(t.pior, kmL(resumo.pior!), AppColors.warn)),
+                    child: _mini(t.pior, kmL(resumo.pior!),
+                        AppColors.leg(AppColors.warn))),
                 Expanded(
                     child: _mini(t.totalGasto, moeda(resumo.totalGasto),
                         AppColors.text)),
@@ -254,8 +255,8 @@ class _ResumoManual extends ConsumerWidget {
                   children: [
                     Text(
                       _mediaDe(tipo) != null ? kmL(_mediaDe(tipo)!) : '—',
-                      style: const TextStyle(
-                          color: AppColors.catConsumo,
+                      style: TextStyle(
+                          color: AppColors.leg(AppColors.catConsumo),
                           fontSize: 15,
                           fontWeight: FontWeight.w800),
                     ),
@@ -298,8 +299,8 @@ class _CartaoManual extends ConsumerWidget {
               borderRadius: BorderRadius.circular(7),
             ),
             child: Text(t.rotuloTipoTrecho(m.tipo),
-                style: const TextStyle(
-                    color: AppColors.catConsumo,
+                style: TextStyle(
+                    color: AppColors.leg(AppColors.catConsumo),
                     fontSize: 11.5,
                     fontWeight: FontWeight.w700)),
           ),
@@ -355,8 +356,8 @@ class _CartaoTrecho extends StatelessWidget {
             ),
           ),
           Text(kmL(t.kmPorLitro),
-              style: const TextStyle(
-                  color: AppColors.catConsumo,
+              style: TextStyle(
+                  color: AppColors.leg(AppColors.catConsumo),
                   fontSize: 16,
                   fontWeight: FontWeight.w800)),
         ],
@@ -474,8 +475,8 @@ class _CalculadoraSheetState extends ConsumerState<_CalculadoraSheet> {
           Center(
             child: Text(
               r != null ? kmL(r) : '—',
-              style: const TextStyle(
-                  color: AppColors.catConsumo,
+              style: TextStyle(
+                  color: AppColors.leg(AppColors.catConsumo),
                   fontSize: 34,
                   fontWeight: FontWeight.w800),
             ),

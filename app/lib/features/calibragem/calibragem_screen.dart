@@ -85,7 +85,8 @@ class _CartaoPressao extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(children: [
-            Icon(Icons.info_outline, color: AppColors.catCalibragem),
+            Icon(Icons.info_outline,
+                color: AppColors.leg(AppColors.catCalibragem)),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -101,7 +102,7 @@ class _CartaoPressao extends ConsumerWidget {
         veiculo!.pressaoTraseira == null;
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(18, 10, 18, 12),
+        padding: const EdgeInsets.fromLTRB(18, 4, 10, 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -116,12 +117,13 @@ class _CartaoPressao extends ConsumerWidget {
                   icon: Icon(semPressao ? Icons.add : Icons.edit_outlined,
                       size: 18),
                   label: Text(semPressao ? t.definir : t.editar),
-                  style:
-                      TextButton.styleFrom(foregroundColor: AppColors.catCalibragem),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.leg(AppColors.catCalibragem),
+                    visualDensity: VisualDensity.compact,
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 4),
             if (semPressao)
               Text(t.toqueDefinir,
                   style: TextStyle(color: AppColors.dim2, fontSize: 12.5))
@@ -129,7 +131,7 @@ class _CartaoPressao extends ConsumerWidget {
               Row(
                 children: [
                   Expanded(child: _pneu(t.dianteiro, veiculo!.pressaoDianteira)),
-                  Container(width: 1, height: 46, color: AppColors.line),
+                  Container(width: 1, height: 38, color: AppColors.line),
                   Expanded(child: _pneu(t.traseiro, veiculo!.pressaoTraseira)),
                 ],
               ),
@@ -142,14 +144,14 @@ class _CartaoPressao extends ConsumerWidget {
   Widget _pneu(String r, double? psi) => Column(
         children: [
           Text(psi != null ? n1(psi) : '—',
-              style: const TextStyle(
-                  color: AppColors.catCalibragem,
-                  fontSize: 24,
+              style: TextStyle(
+                  color: AppColors.leg(AppColors.catCalibragem),
+                  fontSize: 20,
                   fontWeight: FontWeight.w800)),
           Text('psi',
-              style: TextStyle(color: AppColors.dim, fontSize: 12)),
-          const SizedBox(height: 2),
-          Text(r, style: TextStyle(color: AppColors.dim2, fontSize: 12)),
+              style: TextStyle(color: AppColors.dim, fontSize: 11)),
+          const SizedBox(height: 1),
+          Text(r, style: TextStyle(color: AppColors.dim2, fontSize: 11.5)),
         ],
       );
 }
@@ -170,7 +172,8 @@ class _CartaoUltima extends ConsumerWidget {
         child: Row(
           children: [
             Icon(alerta ? Icons.warning_amber_rounded : Icons.tire_repair,
-                color: alerta ? AppColors.warn : AppColors.catCalibragem),
+                color: AppColors.leg(
+                    alerta ? AppColors.warn : AppColors.catCalibragem)),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -223,7 +226,8 @@ class _LinhaCalibragem extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.tire_repair, color: AppColors.catCalibragem, size: 20),
+          Icon(Icons.tire_repair,
+              color: AppColors.leg(AppColors.catCalibragem), size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

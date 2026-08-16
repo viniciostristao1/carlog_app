@@ -179,6 +179,12 @@ class _CabecalhoVeiculo extends ConsumerWidget {
     final prev = preverRevisao(v, abastecimentos, revisoes);
     // Fonte maior → tiles mais altos, para o valor/rótulo não estourarem.
     final escala = ref.watch(fonteProvider).value?.fator ?? 1.0;
+    // No tema claro (Madeira), inverte a caixa do carro: fundo bege mais escuro
+    // e os tiles de info em bege mais claro (pedido do usuário — melhora a
+    // leitura). Nos temas escuros mantém o padrão.
+    final claro = AppColors.brilho == Brightness.light;
+    final corCard = claro ? AppColors.surface2 : AppColors.surface;
+    final corTile = claro ? AppColors.surface : AppColors.surface2;
 
     // Título em duas linhas (marca em cima, modelo abaixo — cabe o modelo
     // completo). O apelido e o resto (ano/combustível) descem para a linha extra.
@@ -216,6 +222,7 @@ class _CabecalhoVeiculo extends ConsumerWidget {
     ];
 
     return Card(
+      color: corCard,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -271,7 +278,7 @@ class _CabecalhoVeiculo extends ConsumerWidget {
                 if (v.placa.trim().isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(left: 8, top: 2),
-                    child: _PlacaChip(placa: v.placa),
+                    child: _PlacaChip(placa: v.placa, fundo: corTile),
                   ),
                 IconButton(
                   icon: Icon(Icons.edit_outlined,
@@ -288,7 +295,8 @@ class _CabecalhoVeiculo extends ConsumerWidget {
               mainAxisSpacing: 12,
               crossAxisSpacing: 10,
               childAspectRatio: (1.35 / escala).clamp(1.0, 1.35),
-              children: stats.map((s) => _StatTile(stat: s)).toList(),
+              children:
+                  stats.map((s) => _StatTile(stat: s, fundo: corTile)).toList(),
             ),
           ],
         ),
@@ -321,7 +329,8 @@ class _Stat {
 
 class _StatTile extends StatelessWidget {
   final _Stat stat;
-  const _StatTile({required this.stat});
+  final Color fundo;
+  const _StatTile({required this.stat, required this.fundo});
 
   @override
   Widget build(BuildContext context) {
@@ -330,7 +339,7 @@ class _StatTile extends StatelessWidget {
     final conteudo = Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface2,
+        color: fundo,
         borderRadius: BorderRadius.circular(12),
       ),
       child: stat.alerta
@@ -338,8 +347,8 @@ class _StatTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.warning_amber_rounded,
-                    color: AppColors.warn, size: 24),
+                Icon(Icons.warning_amber_rounded,
+                    color: AppColors.leg(AppColors.warn), size: 24),
                 const SizedBox(height: 4),
                 Text(stat.rotulo,
                     maxLines: 1,
@@ -353,7 +362,7 @@ class _StatTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(stat.icone, color: stat.cor, size: 16),
+                Icon(stat.icone, color: AppColors.leg(stat.cor), size: 16),
                 const SizedBox(height: 4),
                 FittedBox(
                   fit: BoxFit.scaleDown,
@@ -387,14 +396,15 @@ class _StatTile extends StatelessWidget {
 
 class _PlacaChip extends StatelessWidget {
   final String placa;
-  const _PlacaChip({required this.placa});
+  final Color fundo;
+  const _PlacaChip({required this.placa, required this.fundo});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surface2,
+        color: fundo,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.lineStrong),
       ),

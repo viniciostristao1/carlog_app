@@ -2,6 +2,21 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-16 — Legibilidade no tema claro (Madeira) + calibragem menor (v0.13.2)
+
+- **Problema:** as cores de categoria são FIXAS (pasteis claros pensados p/ fundo escuro) → como TEXTO
+  no tema claro Madeira (bege) ficavam sem contraste (verde da média, teal da calibragem, roxo da FIPE…).
+- **Fix:** `AppColors.leg(Color)` — no tema escuro devolve a cor; no claro **escurece o hue** via HSL
+  (`lightness*0.42` clamp 0.40, satura ≥0.55) mantendo a identidade (verde continua verde). Aplicado só a
+  TEXTO/ícones coloridos sobre superfície (média, calibragem, FIPE, valor calculado do abastecimento) —
+  **NÃO nos botões redondos** (lá a cor é anel/ícone grande sobre tinta 0.14, e o usuário quis fixas).
+- **Inversão da caixa do carro (só no claro):** `_CabecalhoVeiculo` usa `corCard = surface2` (bege mais
+  escuro) e `corTile = surface` (bege claro) quando `AppColors.brilho == light` — literal "inverta as
+  cores" (troca as duas superfícies). `_StatTile`/`_PlacaChip` receberam `fundo` por parâmetro; ícones dos
+  tiles via `leg()`.
+- Calibragem recomendada: caixa mais baixa (psi 24→20, padding e divisória menores, botão Editar
+  `VisualDensity.compact`).
+
 ## 2026-08-15 — Fix: botões redondos sumiam (v0.13.1)
 
 - ⚠️ **GOTCHA:** `_OutrosCarros` (faixa de outros carros na Home) usava

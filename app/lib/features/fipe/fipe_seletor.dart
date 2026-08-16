@@ -372,8 +372,8 @@ class _CartaoResultado extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(resultado.valorTexto,
-              style: const TextStyle(
-                  color: AppColors.catFipe,
+              style: TextStyle(
+                  color: AppColors.leg(AppColors.catFipe),
                   fontSize: 28,
                   fontWeight: FontWeight.w800)),
           const SizedBox(height: 4),

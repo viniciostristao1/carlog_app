@@ -2,6 +2,12 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-16 — v0.13.2.** **Legibilidade no tema Madeira (bege) + calibragem menor.** (1) Caixa da
+  **calibragem recomendada** ficou mais baixa (fonte e espaçamento reduzidos). (2) No tema bege, os
+  números coloridos (verde da média, teal da calibragem, roxo da FIPE, etc.) agora **escurecem** para dar
+  contraste — antes sumiam no fundo claro. (3) Ainda no bege, a **caixa do carro principal** teve as cores
+  invertidas: fundo bege mais escuro e os quadrinhos de info (odômetro, FIPE, previsão…) em bege claro.
+
 - **2026-08-15 — v0.13.1.** **Correção:** os **botões redondos** ("O que você quer registrar?") sumiam
   na tela inicial quando havia carro cadastrado — um erro de layout na faixa de "outros carros" derrubava
   o conteúdo abaixo. Voltaram ao normal (Abastecimento, Consumo, Revisões, FIPE, Calibragem, Lembretes).

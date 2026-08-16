@@ -68,7 +68,7 @@ class ConfigScreen extends ConsumerWidget {
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700)),
                         const SizedBox(height: 2),
-                        Text('${t.appTagline} · v0.13.1',
+                        Text('${t.appTagline} · v0.13.2',
                             style:
                                 TextStyle(color: AppColors.dim, fontSize: 12.5)),
                       ],
