@@ -2,6 +2,26 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-16 — Repo PÚBLICO, logo no AppBar, preço editável, OCR (km/número) (v0.15.0)
+
+- **Repositório virou PÚBLICO** (`gh api -X PATCH repos/... -f visibility=public`) — limite de Actions
+  minutes de repo privado estourou; público = CI sem limite. **Antes**: auditoria de segredos (tree +
+  histórico completo) → limpa (nenhum `.jks`/`key.properties`/`google-services.json` jamais commitado; só
+  referências a `$KEYSTORE_PASSWORD`, que vem dos **secrets do GitHub**, que continuam privados; o
+  `firebase_options.dart` é config cliente pública por design). **Regra:** antes de tornar repo público,
+  varrer `git log --all -p` por chaves/senhas/tokens, não só a árvore atual.
+- **Logo no AppBar (item 3):** `assets/icon/carlog_logo.png` (128px, ~25KB — reduzido do `carlog_icon.png`
+  1024px via PIL p/ não inflar o APK), **declarado em `flutter: assets:`** (os PNGs 1024 do
+  `flutter_launcher_icons` são build-time, NÃO entram no bundle). `Image.asset` + `ClipRRect(7)` na Home.
+- **Preço editável (item 1):** item segue `String` "Nome — R$ 00,00" (`_sepPreco`, `_separaPreco`,
+  `_juntaPreco`). Chips viraram `InputChip` (onPressed=editar via diálogo nome+preço; onDeleted=remover).
+  Cobre sugeridas (entram sem preço → toca p/ pôr) e as já salvas (edita a revisão).
+- **OCR (itens 2 e 4):** NÃO amarra preço a item (`ItemLido.valor` fica null; importa só a descrição);
+  ignora "número solto" (linha sem letra, ex.: "200,00") e a linha de "total" (vira `custo`); **preserva
+  especificação** que não é preço ("Óleo 15W40" — o regex de valor exige `,dd`, então "15W40" fica).
+  **Quilometragem** (`_kmDe`): número (≥100) perto de km/quilometragem/odômetro → `OcrResultado.km` →
+  campo de odômetro (não vira item; "12 km/L" é rejeitado por ser <100). Coberto por `ocr_filtro_test`.
+
 ## 2026-08-16 — Revisões (obs./preço/limpar/busca), OCR filtra pessoal, botões bege (v0.14.0)
 
 - **Modelo `Revisao`:** +campo `observacao` (default '', em `toJson/fromJson` e no `indiceBusca`). Como o

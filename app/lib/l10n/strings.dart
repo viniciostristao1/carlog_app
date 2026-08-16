@@ -293,6 +293,12 @@ class AppStrings {
       'Cole aqui o texto do orçamento — fica buscável pela lupa.',
       'Paste the quote text here — it becomes searchable.',
       'Pega aquí el texto del presupuesto — queda buscable con la lupa.');
+  String get preco => _s('Preço', 'Price', 'Precio');
+  String get toquePecaEditar => _s('Toque numa peça para editar ou pôr preço.',
+      'Tap a part to edit or add a price.',
+      'Toca una pieza para editar o poner precio.');
+  String get nomeDaPeca =>
+      _s('Peça / serviço', 'Part / service', 'Pieza / servicio');
   String get observacoes => _s('Observações', 'Notes', 'Notas');
   String get observacoesHint => _s('Anotações sobre esta revisão…',
       'Notes about this service…', 'Notas sobre esta revisión…');

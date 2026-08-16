@@ -33,7 +33,19 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CarLog'),
+        titleSpacing: 12,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(7),
+              child: Image.asset('assets/icon/carlog_logo.png',
+                  width: 28, height: 28),
+            ),
+            const SizedBox(width: 8),
+            const Text('CarLog'),
+          ],
+        ),
         actions: [
           IconButton(
             tooltip: t.configuracoes,

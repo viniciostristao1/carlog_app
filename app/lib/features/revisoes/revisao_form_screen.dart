@@ -98,17 +98,81 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
     super.dispose();
   }
 
+  // Um item guarda nome + preço opcional num único texto: "Nome — R$ 00,00".
+  static const _sepPreco = ' — R\$ ';
+
+  (String, double?) _separaPreco(String item) {
+    final i = item.lastIndexOf(_sepPreco);
+    if (i < 0) return (item, null);
+    final preco = parseNumero(item.substring(i + _sepPreco.length));
+    if (preco == null) return (item, null);
+    return (item.substring(0, i), preco);
+  }
+
+  String _juntaPreco(String nome, double? preco) =>
+      preco != null ? '$nome$_sepPreco${n2(preco)}' : nome;
+
   void _addItem() {
     final nome = _itemCtrl.text.trim();
     if (nome.isEmpty) return;
-    // Preço opcional: vira "Nome — R$ 00,00" (mesmo formato do OCR).
-    final preco = parseNumero(_precoItem.text);
-    final texto = preco != null ? '$nome — R\$ ${n2(preco)}' : nome;
     setState(() {
-      _itens.add(texto);
+      _itens.add(_juntaPreco(nome, parseNumero(_precoItem.text)));
       _itemCtrl.clear();
       _precoItem.clear();
     });
+  }
+
+  /// Toca num item já incluído para editar nome e/ou preço (também serve para
+  /// pôr preço num item sugerido, que entra sem valor).
+  Future<void> _editarItem(int i) async {
+    final t = ref.read(stringsProvider);
+    final (nome0, preco0) = _separaPreco(_itens[i]);
+    final nomeCtrl = TextEditingController(text: nome0);
+    final precoCtrl =
+        TextEditingController(text: preco0 != null ? n2(preco0) : '');
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Text(t.editarItem),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nomeCtrl,
+              autofocus: true,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: InputDecoration(labelText: t.nomeDaPeca),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: precoCtrl,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                  labelText: t.preco, prefixText: 'R\$ ', hintText: '0,00'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(t.cancelar)),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(t.salvar)),
+        ],
+      ),
+    );
+    if (ok == true) {
+      final nome = nomeCtrl.text.trim();
+      if (nome.isNotEmpty) {
+        setState(() =>
+            _itens[i] = _juntaPreco(nome, parseNumero(precoCtrl.text)));
+      }
+    }
+    nomeCtrl.dispose();
+    precoCtrl.dispose();
   }
 
   Future<void> _escolherData() async {
@@ -187,16 +251,21 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
 
     final ocr = res;
     setState(() {
+      // Só a descrição da peça — o OCR não amarra preço a item (o usuário põe
+      // o preço tocando na peça).
       for (final it in selecionados ?? const <ItemLido>[]) {
-        _itens.add(it.valor != null
-            ? '${it.descricao} — R\$ ${n2(it.valor!)}'
-            : it.descricao);
+        _itens.add(it.descricao);
       }
       final base = _texto.text.trim();
       _texto.text =
           base.isEmpty ? ocr.textoBruto : '$base\n${ocr.textoBruto}';
+      // Total do orçamento → custo (se ainda vazio).
       if (ocr.total != null && parseNumero(_custo.text) == null) {
         _custo.text = n2(ocr.total!);
+      }
+      // Quilometragem detectada → campo de odômetro (se ainda vazio) — item 4.
+      if (ocr.km != null && parseNumero(_odometro.text) == null) {
+        _odometro.text = n0(ocr.km!.toDouble());
       }
     });
   }
@@ -367,16 +436,21 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: _itens
-                  .map((it) => Chip(
-                        label: Text(it),
-                        backgroundColor: AppColors.surface2,
-                        labelStyle: TextStyle(color: AppColors.text),
-                        deleteIconColor: AppColors.dim,
-                        onDeleted: () => setState(() => _itens.remove(it)),
-                      ))
-                  .toList(),
+              children: _itens.asMap().entries.map((e) {
+                // Toque no chip = editar nome/preço; X = remover.
+                return InputChip(
+                  label: Text(e.value),
+                  backgroundColor: AppColors.surface2,
+                  labelStyle: TextStyle(color: AppColors.text),
+                  deleteIconColor: AppColors.dim,
+                  onPressed: () => _editarItem(e.key),
+                  onDeleted: () => setState(() => _itens.removeAt(e.key)),
+                );
+              }).toList(),
             ),
+            const SizedBox(height: 4),
+            Text(t.toquePecaEditar,
+                style: TextStyle(color: AppColors.dim2, fontSize: 11.5)),
           ],
           const SizedBox(height: 16),
           Row(

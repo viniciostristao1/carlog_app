@@ -2,6 +2,13 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-16 — v0.15.0.** **Logo, preço nas peças e OCR mais útil.** (1) O **logo** do app aparece ao
+  lado de "CarLog" na tela inicial. (2) Agora dá para **tocar numa peça** (na edição da revisão) para
+  editar o nome ou **pôr/alterar o preço** — inclusive nas peças sugeridas e nas que já estavam salvas.
+  (3) O **leitor de foto** passou a **ignorar números/preços soltos** (não amarra preço à peça — isso
+  você põe tocando na peça), mas **preserva especificações** como "15W40". (4) O leitor também **puxa a
+  quilometragem** do orçamento (número perto de "km"/"quilometragem") direto para o **campo de odômetro**.
+
 - **2026-08-16 — v0.14.0.** **Revisões melhores + OCR mais esperto + botões legíveis no bege.**
   (1) Na aba **Histórico**, a caixa de cada revisão mostra só algumas peças + um **"+N"** (não cresce
   mais); ao **buscar** na lupa, a peça que casa aparece na frente e fica **destacada** — e a busca passou

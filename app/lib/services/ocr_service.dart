@@ -9,13 +9,15 @@ class ItemLido {
   const ItemLido(this.descricao, this.valor);
 }
 
-/// Resultado do OCR: o texto bruto (buscável) + as linhas separadas em
-/// descrição/valor + o total detectado (linha com "total"), se houver.
+/// Resultado do OCR: o texto bruto (buscável) + as peças/serviços (só a
+/// descrição — o OCR NÃO amarra preço a peça) + o total detectado (linha com
+/// "total") + a quilometragem detectada (número perto de "km"/"quilometragem").
 class OcrResultado {
   final String textoBruto;
   final List<ItemLido> itens;
   final double? total;
-  const OcrResultado(this.textoBruto, this.itens, this.total);
+  final int? km;
+  const OcrResultado(this.textoBruto, this.itens, this.total, this.km);
 }
 
 /// OCR do orçamento no próprio aparelho (Google ML Kit, offline e grátis).
@@ -48,6 +50,28 @@ class OcrService {
 
   // valores tipo "1.234,56", "89,90" (vírgula decimal, ponto de milhar opcional)
   static final _reValor = RegExp(r'(\d{1,3}(?:\.\d{3})*|\d+),(\d{2})');
+
+  // ---- quilometragem (item 4): número perto de "km"/"quilometragem" ----
+  // número = "10.000" (milhar com ponto) ou "10000"/"45000" (≥3 dígitos).
+  static const _n = r'(\d{1,3}(?:\.\d{3})+|\d{3,7})';
+  static final _reKm = RegExp(
+    '(?:quilometragem|kilometragem|hod[oôó]metro|od[oôó]metro|km)\\s*:?\\s*$_n'
+    '|$_n\\s*km\\b',
+    caseSensitive: false,
+  );
+
+  /// Extrai a quilometragem de uma linha (só se ≥ 100 km, p/ não pegar
+  /// "10 km/L" nem números curtos). Retorna null se a linha não é de km.
+  static int? _kmDe(String l) {
+    final m = _reKm.firstMatch(l);
+    if (m == null) return null;
+    final g = m.group(1) ?? m.group(2);
+    final n = g == null ? null : int.tryParse(g.replaceAll('.', ''));
+    return (n != null && n >= 100) ? n : null;
+  }
+
+  /// A linha tem texto de verdade (letra), ou é só número/pontuação/moeda?
+  static final _reTemLetra = RegExp(r'[A-Za-zÀ-ÿ]');
 
   // ---- filtros de informação pessoal (não viram item nem texto salvo) ----
   static final _reEmail = RegExp(r'[\w.\-]+@[\w\-]+\.[\w.\-]+');
@@ -82,34 +106,46 @@ class OcrService {
     final itens = <ItemLido>[];
     final linhasLimpas = <String>[];
     double? total;
+    int? km;
 
     for (final l in linhas) {
       final matches = _reValor.allMatches(l).toList();
       final valorLinha =
           matches.isNotEmpty ? _parseValor(matches.last.group(0)!) : null;
 
-      // total = maior valor numa linha que menciona "total" (mesmo filtrada).
+      // total = maior valor numa linha que menciona "total"; não vira item.
       final norm = l.toLowerCase();
       if (valorLinha != null && norm.contains('total')) {
         if (total == null || valorLinha > total) total = valorLinha;
+        continue;
       }
 
-      // Pula dados pessoais: não vira item nem entra no texto salvo.
-      if (_ehInfoPessoal(l)) continue;
-      linhasLimpas.add(l);
+      // Quilometragem (item 4): 1ª ocorrência vai p/ o campo de km, não vira item.
+      final kmLinha = _kmDe(l);
+      if (kmLinha != null) {
+        km ??= kmLinha;
+        continue;
+      }
 
-      double? valor;
+      // Pula dados pessoais (item 6): não vira item nem entra no texto salvo.
+      if (_ehInfoPessoal(l)) continue;
+
+      // Descrição = linha sem o valor no fim (o OCR NÃO amarra preço a peça —
+      // item 2). Preserva especificações que não são preço (ex.: "Óleo 15W40").
       String desc = l;
       if (matches.isNotEmpty) {
-        final m = matches.last;
-        valor = _parseValor(m.group(0)!);
-        desc = l.substring(0, m.start);
+        desc = l.substring(0, matches.last.start);
       }
       desc = desc.replaceAll(RegExp(r'[\s.:\-–—R\$]+$'), '').trim();
-      if (desc.isEmpty) desc = l;
-      itens.add(ItemLido(desc, valor));
+
+      // Ignora "número solto" (só dígitos/pontuação, ex.: "1,00", "200,00").
+      final soNumero = desc.isEmpty || !_reTemLetra.hasMatch(desc);
+      if (soNumero) continue;
+
+      linhasLimpas.add(l);
+      itens.add(ItemLido(desc, null));
     }
-    return OcrResultado(linhasLimpas.join('\n'), itens, total);
+    return OcrResultado(linhasLimpas.join('\n'), itens, total, km);
   }
 
   static double? _parseValor(String s) {

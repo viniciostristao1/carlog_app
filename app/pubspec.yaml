@@ -4,7 +4,7 @@ publish_to: 'none'
 
 # versionName+versionCode. Ex.: 0.1.0+1 → versionName "0.1.0", versionCode 1.
 # O +N (versionCode) TEM de crescer a cada release. A tag do release = vX.Y.Z.
-version: 0.14.0+23
+version: 0.15.0+24
 
 environment:
   sdk: ^3.12.2
@@ -50,6 +50,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icon/carlog_logo.png
 
 # Ícone do app (logo do usuário: carro + 6 ícones, fundo âmbar profundo).
 # Arte processada por tools/gerar_icone.py a partir de 1786658805549.png.
