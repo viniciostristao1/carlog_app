@@ -293,6 +293,10 @@ class AppStrings {
       'Cole aqui o texto do orçamento — fica buscável pela lupa.',
       'Paste the quote text here — it becomes searchable.',
       'Pega aquí el texto del presupuesto — queda buscable con la lupa.');
+  String get observacoes => _s('Observações', 'Notes', 'Notas');
+  String get observacoesHint => _s('Anotações sobre esta revisão…',
+      'Notes about this service…', 'Notas sobre esta revisión…');
+  String maisItens(int n) => _s('+$n', '+$n', '+$n');
   String get deTituloOuItem => _s('Dê um título ou adicione ao menos um item.',
       'Give a title or add at least one item.',
       'Pon un título o agrega al menos un ítem.');

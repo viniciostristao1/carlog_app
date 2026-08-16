@@ -2,6 +2,14 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-16 — v0.14.0.** **Revisões melhores + OCR mais esperto + botões legíveis no bege.**
+  (1) Na aba **Histórico**, a caixa de cada revisão mostra só algumas peças + um **"+N"** (não cresce
+  mais); ao **buscar** na lupa, a peça que casa aparece na frente e fica **destacada** — e a busca passou
+  a ignorar acento/maiúsculas. (2) Ao editar uma revisão: campo **Observações** (abaixo do orçamento),
+  botão **Limpar** todas as peças, e um **campo de preço** ao adicionar cada peça. (3) O **leitor de foto**
+  agora **descarta** linhas de dado pessoal (nome, endereço, CEP, CPF/CNPJ, telefone, e-mail). (4) No tema
+  **bege**, os **botões redondos** (média, calibragem, etc.) agora usam tom escuro para dar contraste.
+
 - **2026-08-16 — v0.13.3.** **Mais contraste no tema bege.** Os **ícones** coloridos (calendário da
   média, tanque do abastecimento, ícones de revisão/FIPE/lembrete, "feito" verde, etc.) e alguns textos
   que ainda ficavam apagados no fundo claro agora escurecem para dar contraste — completa o ajuste da

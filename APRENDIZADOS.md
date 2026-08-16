@@ -2,6 +2,26 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-16 — Revisões (obs./preço/limpar/busca), OCR filtra pessoal, botões bege (v0.14.0)
+
+- **Modelo `Revisao`:** +campo `observacao` (default '', em `toJson/fromJson` e no `indiceBusca`). Como o
+  store serializa o objeto inteiro, o sync cobre o campo novo automaticamente.
+- **`_CartaoRevisao` (Histórico):** peças limitadas a `maxChips=4` + chip **"+N"**; recebe `termo` da lupa
+  (já `semAcento`), joga o item que casa para a frente e o **destaca** (accent). A busca do `_historico`
+  passou a usar `semAcento(indiceBusca).contains(semAcento(termo))` — **ignora acento/caixa** (antes era
+  só `toLowerCase`, então "oleo" não achava "Óleo").
+- **Form da revisão:** campo **Observações** (`_observacao`) abaixo do texto do orçamento; **Limpar** ao
+  lado de "Peças/serviços" (`_itens.clear()`); **preço por peça** (`_precoItem`) — vira `"Nome — R$ 00,00"`
+  (mesmo formato do OCR, modelo segue `List<String>`, sem migração).
+- **OCR (item 6):** `_ehInfoPessoal(linha)` descarta e-mail/CEP/CPF/CNPJ/telefone e rótulos de cabeçalho
+  (cliente/nome/endereço/rua/avenida/bairro/cep/cpf/cnpj/telefone/celular/fone/e-mail/inscrição/whats/razão
+  social). **Cuidado:** NÃO incluir "contato"/"estado" no regex (peças reais: "chave de contato"). Linhas
+  pessoais somem dos itens **e** do `textoBruto` salvo; o "total" ainda é detectado mesmo em linha
+  filtrada. `parseTexto()` exposto com `@visibleForTesting` → `test/ocr_filtro_test.dart`.
+- **Botões redondos no bege:** agora `cor: AppColors.leg(AppColors.catX)` — escurecem só no tema claro
+  (nos escuros `leg` devolve a cor). Revisão da decisão "categorias fixas": segue fixa nos temas escuros,
+  mas no bege escurece p/ contraste (o usuário pediu explicitamente para média/calibragem).
+
 ## 2026-08-16 — Legibilidade no tema claro (Madeira) + calibragem menor (v0.13.2)
 
 - **Problema:** as cores de categoria são FIXAS (pasteis claros pensados p/ fundo escuro) → como TEXTO

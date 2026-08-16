@@ -163,10 +163,11 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
     final t = ref.watch(stringsProvider);
     final todas = [...(ref.watch(revisoesDoVeiculoProvider))]
       ..sort((a, b) => b.data.compareTo(a.data));
-    final termo = _busca.text.trim().toLowerCase();
+    final termoExibido = _busca.text.trim();
+    final termo = semAcento(termoExibido); // busca ignora acento e caixa
     final lista = termo.isEmpty
         ? todas
-        : todas.where((r) => r.indiceBusca.contains(termo)).toList();
+        : todas.where((r) => semAcento(r.indiceBusca).contains(termo)).toList();
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
@@ -197,13 +198,14 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
         else if (lista.isEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 30),
-            child: Text(t.nadaEncontradoPara(termo),
+            child: Text(t.nadaEncontradoPara(termoExibido),
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppColors.dim)),
           )
         else
           ...lista.map((r) => _CartaoRevisao(
                 r: r,
+                termo: termo,
                 onEditar: () => Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => RevisaoFormScreen(original: r))),
                 onExcluir: () =>
@@ -413,14 +415,29 @@ class _LinhaProgramado extends ConsumerWidget {
 
 class _CartaoRevisao extends ConsumerWidget {
   final Revisao r;
+  final String termo; // termo da lupa (sem acento/caixa), '' se não buscando
   final VoidCallback onEditar;
   final VoidCallback onExcluir;
   const _CartaoRevisao(
-      {required this.r, required this.onEditar, required this.onExcluir});
+      {required this.r,
+      required this.termo,
+      required this.onEditar,
+      required this.onExcluir});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(stringsProvider);
+    // Encurta a lista de peças (caixa não cresce demais) e, ao buscar, joga o
+    // item que casa para a frente e o destaca — assim dá para achá-lo na revisão.
+    const maxChips = 4;
+    final temBusca = termo.isNotEmpty;
+    bool casa(String it) => temBusca && semAcento(it).contains(termo);
+    final ordenados = temBusca
+        ? [...r.itens.where(casa), ...r.itens.where((it) => !casa(it))]
+        : r.itens;
+    final mostrados = ordenados.take(maxChips).toList();
+    final extra = r.itens.length - mostrados.length;
+
     return Dismissible(
       key: ValueKey(r.id),
       direction: DismissDirection.endToStart,
@@ -481,20 +498,47 @@ class _CartaoRevisao extends ConsumerWidget {
                     Wrap(
                       spacing: 6,
                       runSpacing: 6,
-                      children: r.itens
-                          .take(8)
-                          .map((it) => Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: AppColors.surface2,
-                                  borderRadius: BorderRadius.circular(7),
-                                ),
-                                child: Text(it,
-                                    style: TextStyle(
-                                        color: AppColors.dim, fontSize: 11.5)),
-                              ))
-                          .toList(),
+                      children: [
+                        ...mostrados.map((it) {
+                          final destaque = casa(it);
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: destaque
+                                  ? AppColors.accent.withValues(alpha: 0.20)
+                                  : AppColors.surface2,
+                              borderRadius: BorderRadius.circular(7),
+                              border: destaque
+                                  ? Border.all(color: AppColors.accent)
+                                  : null,
+                            ),
+                            child: Text(it,
+                                style: TextStyle(
+                                    color: destaque
+                                        ? AppColors.text
+                                        : AppColors.dim,
+                                    fontSize: 11.5,
+                                    fontWeight: destaque
+                                        ? FontWeight.w700
+                                        : FontWeight.w400)),
+                          );
+                        }),
+                        if (extra > 0)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: AppColors.surface2,
+                              borderRadius: BorderRadius.circular(7),
+                            ),
+                            child: Text(t.maisItens(extra),
+                                style: TextStyle(
+                                    color: AppColors.dim2,
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w700)),
+                          ),
+                      ],
                     ),
                   ],
                 ],

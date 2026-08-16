@@ -12,6 +12,7 @@ class Revisao {
   final double? custo;
   final String local; // oficina/concessionária
   final String textoBruto; // texto de OCR do orçamento (buscável)
+  final String observacao; // anotações livres do usuário
 
   const Revisao({
     required this.id,
@@ -23,15 +24,17 @@ class Revisao {
     this.custo,
     this.local = '',
     this.textoBruto = '',
+    this.observacao = '',
   });
 
-  /// Concatena tudo que é buscável (título + itens + local + texto do orçamento),
+  /// Concatena tudo que é buscável (título + itens + local + texto + obs.),
   /// em minúsculas, para a lupa.
   String get indiceBusca => [
         titulo,
         itens.join(' '),
         local,
         textoBruto,
+        observacao,
       ].join(' ').toLowerCase();
 
   Map<String, dynamic> toJson() => {
@@ -44,6 +47,7 @@ class Revisao {
         'custo': custo,
         'local': local,
         'textoBruto': textoBruto,
+        'observacao': observacao,
       };
 
   factory Revisao.fromJson(Map<String, dynamic> j) => Revisao(
@@ -56,5 +60,6 @@ class Revisao {
         custo: (j['custo'] as num?)?.toDouble(),
         local: (j['local'] ?? '') as String,
         textoBruto: (j['textoBruto'] ?? '') as String,
+        observacao: (j['observacao'] ?? '') as String,
       );
 }

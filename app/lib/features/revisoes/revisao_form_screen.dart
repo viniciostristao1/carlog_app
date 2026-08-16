@@ -28,7 +28,9 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
   late final TextEditingController _custo;
   late final TextEditingController _local;
   late final TextEditingController _texto;
+  late final TextEditingController _observacao;
   final _itemCtrl = TextEditingController();
+  final _precoItem = TextEditingController();
   late DateTime _data;
   late List<String> _itens;
   bool _ocrLoading = false;
@@ -43,6 +45,7 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
     _custo = TextEditingController(text: o?.custo != null ? n2(o!.custo!) : '');
     _local = TextEditingController(text: o?.local ?? '');
     _texto = TextEditingController(text: o?.textoBruto ?? '');
+    _observacao = TextEditingController(text: o?.observacao ?? '');
     _data = o?.data ?? DateTime.now();
     _itens = [...(o?.itens ?? const [])];
     _itemCtrl.addListener(() => setState(() {}));
@@ -80,18 +83,31 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
 
   @override
   void dispose() {
-    for (final c in [_titulo, _odometro, _custo, _local, _texto, _itemCtrl]) {
+    for (final c in [
+      _titulo,
+      _odometro,
+      _custo,
+      _local,
+      _texto,
+      _observacao,
+      _itemCtrl,
+      _precoItem
+    ]) {
       c.dispose();
     }
     super.dispose();
   }
 
   void _addItem() {
-    final t = _itemCtrl.text.trim();
-    if (t.isEmpty) return;
+    final nome = _itemCtrl.text.trim();
+    if (nome.isEmpty) return;
+    // Preço opcional: vira "Nome — R$ 00,00" (mesmo formato do OCR).
+    final preco = parseNumero(_precoItem.text);
+    final texto = preco != null ? '$nome — R\$ ${n2(preco)}' : nome;
     setState(() {
-      _itens.add(t);
+      _itens.add(texto);
       _itemCtrl.clear();
+      _precoItem.clear();
     });
   }
 
@@ -228,6 +244,7 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
       custo: parseNumero(_custo.text),
       local: _local.text.trim(),
       textoBruto: _texto.text.trim(),
+      observacao: _observacao.text.trim(),
     );
     await ref.read(revisoesProvider.notifier).salvar(r);
     if (mounted) Navigator.of(context).pop();
@@ -272,11 +289,21 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
             sugestoes: _oficinasAnteriores(),
           ),
           const SizedBox(height: 4),
-          Text(t.pecasServicos,
-              style: TextStyle(
-                  color: AppColors.text,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700)),
+          Row(children: [
+            Text(t.pecasServicos,
+                style: TextStyle(
+                    color: AppColors.text,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700)),
+            const Spacer(),
+            if (_itens.isNotEmpty)
+              TextButton.icon(
+                onPressed: () => setState(() => _itens.clear()),
+                icon: const Icon(Icons.delete_sweep_outlined, size: 18),
+                label: Text(t.limpar),
+                style: TextButton.styleFrom(foregroundColor: AppColors.dim),
+              ),
+          ]),
           const SizedBox(height: 8),
           Row(children: [
             Expanded(
@@ -286,6 +313,20 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
                 onSubmitted: (_) => _addItem(),
                 decoration: InputDecoration(
                     hintText: t.pecaHint),
+              ),
+            ),
+            const SizedBox(width: 8),
+            // Preço opcional da peça (item 5) — vira "Nome — R$ 00,00".
+            SizedBox(
+              width: 96,
+              child: TextField(
+                controller: _precoItem,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                textAlign: TextAlign.end,
+                onSubmitted: (_) => _addItem(),
+                decoration: const InputDecoration(
+                    prefixText: 'R\$ ', hintText: '0,00'),
               ),
             ),
             const SizedBox(width: 8),
@@ -372,6 +413,19 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
             textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(
                 hintText: t.coleOrcamento),
+          ),
+          const SizedBox(height: 16),
+          Text(t.observacoes,
+              style: TextStyle(
+                  color: AppColors.text,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700)),
+          const SizedBox(height: 6),
+          TextField(
+            controller: _observacao,
+            maxLines: 3,
+            textCapitalization: TextCapitalization.sentences,
+            decoration: InputDecoration(hintText: t.observacoesHint),
           ),
           const SizedBox(height: 24),
           FilledButton(onPressed: _salvar, child: Text(t.salvar)),
