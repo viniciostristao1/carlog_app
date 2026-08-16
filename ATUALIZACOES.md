@@ -2,6 +2,13 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-16 — v0.15.1.** **Leitor de foto mais esperto.** Agora ele acha a **quilometragem** mesmo
+  escrita como "Km/Horas: 166.710" (número mais adiante na linha) e a joga **direto no campo de odômetro**
+  (antes não ia). Também **ignora** mais rótulos de cadastro que vinham como peça: **placa, veículo,
+  chassi, cidade, quantidade, descrição, desconto, subtotal** — e o **nome do cliente** quando vem logo
+  após um rótulo "Cliente/Nome". (Correção: o odômetro salvava errado ao re-editar por causa do ponto de
+  milhar.)
+
 - **2026-08-16 — v0.15.0.** **Logo, preço nas peças e OCR mais útil.** (1) O **logo** do app aparece ao
   lado de "CarLog" na tela inicial. (2) Agora dá para **tocar numa peça** (na edição da revisão) para
   editar o nome ou **pôr/alterar o preço** — inclusive nas peças sugeridas e nas que já estavam salvas.

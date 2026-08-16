@@ -2,6 +2,20 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-16 — OCR km robusto + campo odômetro (bug do ponto de milhar) (v0.15.1)
+
+- **km com texto entre rótulo e número:** `_kmDe` agora acha o rótulo (`\bkm\b`/quilometragem/odômetro) e
+  pega o 1º número ADIANTE na linha (antes exigia número logo após). Pega "Km/Horas: 166.710" (166710).
+- **Mais rótulos ignorados no OCR:** placa, chassi, renavam, veículo, cidade, município, uf, quantidade,
+  qtd(e), unitário, desconto, subtotal, descrição, orçamento, vencimento, pagamento. **NÃO** incluir
+  item/marca/modelo/contato/estado (viram peça real). Nome do cliente após rótulo isolado ("Cliente" só)
+  → pula a linha seguinte (`_reRotuloSozinho` + flag `pularProximo`).
+- ⚠️ **GOTCHA (odômetro salvava errado):** campo de odômetro é **digitsOnly**, mas o init usava
+  `n0(odometro)` = "166.710" (ponto de milhar). `parseNumero` só troca vírgula→ponto; sem vírgula,
+  `double.tryParse("166.710")` = **166,71**. Ou seja, re-salvar uma revisão/abastecimento **corrompia** o
+  odômetro. **Fix:** campos digitsOnly usam **dígitos puros** (`toStringAsFixed(0)`), e o OCR grava
+  `km.toString()` (não `n0`). Regra: **campo digitsOnly nunca recebe número formatado com separador**.
+
 ## 2026-08-16 — Repo PÚBLICO, logo no AppBar, preço editável, OCR (km/número) (v0.15.0)
 
 - **Repositório virou PÚBLICO** (`gh api -X PATCH repos/... -f visibility=public`) — limite de Actions

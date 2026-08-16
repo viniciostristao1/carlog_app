@@ -40,8 +40,10 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
     super.initState();
     final o = widget.original;
     _titulo = TextEditingController(text: o?.titulo ?? '');
-    _odometro =
-        TextEditingController(text: o?.odometro != null ? n0(o!.odometro!) : '');
+    // Dígitos puros (campo digitsOnly): n0 poria "166.710", que parseNumero
+    // leria como 166,71 ao re-salvar.
+    _odometro = TextEditingController(
+        text: o?.odometro != null ? o!.odometro!.toStringAsFixed(0) : '');
     _custo = TextEditingController(text: o?.custo != null ? n2(o!.custo!) : '');
     _local = TextEditingController(text: o?.local ?? '');
     _texto = TextEditingController(text: o?.textoBruto ?? '');
@@ -264,8 +266,10 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
         _custo.text = n2(ocr.total!);
       }
       // Quilometragem detectada → campo de odômetro (se ainda vazio) — item 4.
-      if (ocr.km != null && parseNumero(_odometro.text) == null) {
-        _odometro.text = n0(ocr.km!.toDouble());
+      // Dígitos puros: o campo é digitsOnly e parseNumero leria "166.710" como
+      // decimal (166,71). "166710" salva certo.
+      if (ocr.km != null && _odometro.text.trim().isEmpty) {
+        _odometro.text = ocr.km!.toString();
       }
     });
   }

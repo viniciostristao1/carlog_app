@@ -37,8 +37,10 @@ class _AbastecimentoFormScreenState
   void initState() {
     super.initState();
     final o = widget.original;
+    // Dígitos puros (campo digitsOnly): n0 poria "45.000", que parseNumero
+    // leria como 45,0 ao re-salvar.
     _odometro = TextEditingController(
-        text: o?.odometro != null ? n0(o!.odometro!) : '');
+        text: o?.odometro != null ? o!.odometro!.toStringAsFixed(0) : '');
     _litros =
         TextEditingController(text: o?.litros != null ? n1(o!.litros!) : '');
     _preco = TextEditingController(

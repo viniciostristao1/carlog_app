@@ -52,49 +52,68 @@ class OcrService {
   static final _reValor = RegExp(r'(\d{1,3}(?:\.\d{3})*|\d+),(\d{2})');
 
   // ---- quilometragem (item 4): número perto de "km"/"quilometragem" ----
-  // número = "10.000" (milhar com ponto) ou "10000"/"45000" (≥3 dígitos).
-  static const _n = r'(\d{1,3}(?:\.\d{3})+|\d{3,7})';
-  static final _reKm = RegExp(
-    '(?:quilometragem|kilometragem|hod[oôó]metro|od[oôó]metro|km)\\s*:?\\s*$_n'
-    '|$_n\\s*km\\b',
+  // número = "10.000" (milhar com ponto) ou "10000"/"166710" (≥3 dígitos).
+  static final _reKmLabel = RegExp(
+    r'\b(?:quilometragem|kilometragem|hod[oôó]metro|od[oôó]metro|km)\b',
     caseSensitive: false,
   );
+  static final _reNumMil = RegExp(r'\d{1,3}(?:\.\d{3})+|\d{3,7}');
+  static final _reNumKm =
+      RegExp(r'(\d{1,3}(?:\.\d{3})+|\d{3,7})\s*km\b', caseSensitive: false);
 
-  /// Extrai a quilometragem de uma linha (só se ≥ 100 km, p/ não pegar
-  /// "10 km/L" nem números curtos). Retorna null se a linha não é de km.
+  /// Extrai a quilometragem de uma linha (só ≥ 100, p/ não pegar "12 km/L" nem
+  /// números curtos). Aceita texto entre o rótulo e o número, ex.:
+  /// "Km/Horas: 166.710", "Odômetro: 87.532". Null se a linha não for de km.
   static int? _kmDe(String l) {
-    final m = _reKm.firstMatch(l);
-    if (m == null) return null;
-    final g = m.group(1) ?? m.group(2);
-    final n = g == null ? null : int.tryParse(g.replaceAll('.', ''));
-    return (n != null && n >= 100) ? n : null;
+    int? val(String? s) {
+      final n = s == null ? null : int.tryParse(s.replaceAll('.', ''));
+      return (n != null && n >= 100) ? n : null;
+    }
+
+    final suf = val(_reNumKm.firstMatch(l)?.group(1)); // "10.000 km"
+    if (suf != null) return suf;
+    final lab = _reKmLabel.firstMatch(l); // "Km ... 166.710"
+    if (lab != null) {
+      return val(_reNumMil.firstMatch(l.substring(lab.end))?.group(0));
+    }
+    return null;
   }
 
   /// A linha tem texto de verdade (letra), ou é só número/pontuação/moeda?
   static final _reTemLetra = RegExp(r'[A-Za-zÀ-ÿ]');
 
-  // ---- filtros de informação pessoal (não viram item nem texto salvo) ----
+  // ---- filtros de dado pessoal / rótulo de cadastro (não viram item) ----
   static final _reEmail = RegExp(r'[\w.\-]+@[\w\-]+\.[\w.\-]+');
   static final _reCep = RegExp(r'\b\d{5}-\d{3}\b');
   static final _reCpf = RegExp(r'\b\d{3}\.\d{3}\.\d{3}-\d{2}\b');
   static final _reCnpj = RegExp(r'\b\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}\b');
   static final _reFone = RegExp(r'\(?\d{2}\)?\s?9?\d{4}-\d{4}');
-  // rótulos típicos de cabeçalho/cadastro (evita palavras que são peças, ex.:
-  // "chave de contato", por isso não inclui "contato"/"estado").
-  static final _reRotuloPessoal = RegExp(
-    r'\b(cliente|nome|endere\w*|rua|avenida|bairro|cep|cpf|cnpj|telefone|celular|fone|e-?mail|inscri\w*|whats\w*|raz[ãa]o\s+social)\b',
+  // Rótulos de cabeçalho/cadastro e colunas de tabela. Evita palavras que são
+  // peças reais (por isso NÃO inclui "contato"/"estado"/"item"/"marca"/"modelo").
+  static final _reRotulo = RegExp(
+    r'\b(cliente|nome|endere\w*|rua|avenida|bairro|cep|cpf|cnpj|telefone|celular'
+    r'|fone|e-?mail|inscri\w*|whats\w*|raz[ãa]o\s+social|respons[áa]vel|comprador'
+    r'|placa|chassi\w*|renavam|ve[íi]culo|cidade|munic[íi]pio|\buf\b'
+    r'|quantidade|qtde?\w*|unit[áa]ri\w*|desconto|subtotal|descri[çc][ãa]o'
+    r'|or[çc]amento|vencimento|pagamento)\b',
     caseSensitive: false,
   );
 
-  /// Heurística: a linha parece dado pessoal/cadastral (nome, endereço, CEP,
-  /// CPF/CNPJ, telefone, e-mail)? Se sim, o OCR a ignora.
+  /// Linha que é SÓ um rótulo de pessoa (ex.: "Cliente", "Nome:") — o valor
+  /// (o nome) costuma vir na linha seguinte, que também deve ser ignorada.
+  static final _reRotuloSozinho = RegExp(
+    r'^(cliente|nome|raz[ãa]o\s+social|respons[áa]vel|comprador)\s*:?\s*$',
+    caseSensitive: false,
+  );
+
+  /// A linha é dado pessoal/cadastral ou rótulo de cabeçalho a ignorar?
   static bool _ehInfoPessoal(String l) =>
       _reEmail.hasMatch(l) ||
       _reCep.hasMatch(l) ||
       _reCpf.hasMatch(l) ||
       _reCnpj.hasMatch(l) ||
       _reFone.hasMatch(l) ||
-      _reRotuloPessoal.hasMatch(l);
+      _reRotulo.hasMatch(l);
 
   OcrResultado _parse(String texto) {
     final linhas = texto
@@ -107,8 +126,14 @@ class OcrService {
     final linhasLimpas = <String>[];
     double? total;
     int? km;
+    bool pularProximo = false; // valor logo após um rótulo pessoal isolado
 
     for (final l in linhas) {
+      if (pularProximo) {
+        pularProximo = false;
+        continue; // ex.: o nome, na linha após um "Cliente"/"Nome" isolado
+      }
+
       final matches = _reValor.allMatches(l).toList();
       final valorLinha =
           matches.isNotEmpty ? _parseValor(matches.last.group(0)!) : null;
@@ -127,8 +152,12 @@ class OcrService {
         continue;
       }
 
-      // Pula dados pessoais (item 6): não vira item nem entra no texto salvo.
-      if (_ehInfoPessoal(l)) continue;
+      // Pula dados pessoais / rótulos de cadastro (item 6). Se for um rótulo de
+      // pessoa isolado, o valor vem na próxima linha → ignora ela também.
+      if (_ehInfoPessoal(l)) {
+        if (_reRotuloSozinho.hasMatch(l)) pularProximo = true;
+        continue;
+      }
 
       // Descrição = linha sem o valor no fim (o OCR NÃO amarra preço a peça —
       // item 2). Preserva especificações que não são preço (ex.: "Óleo 15W40").
