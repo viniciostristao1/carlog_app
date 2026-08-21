@@ -1,0 +1,92 @@
+name: Build APK
+
+# Gera APK (arm64, release) + AAB na nuvem a cada push no app — a VPS é fraca p/
+# compilar Android. Publica no release rolling "ci-latest"; o scripts/release.sh
+# corta o release nomeado com o asset de nome fixo (carlog.apk = link perene).
+#
+# Este workflow é TOLERANTE a secrets ausentes (fase inicial, sem Firebase/keystore
+# provisionados): sem KEYSTORE_BASE64 → assina em debug (instala assim mesmo);
+# sem FIREBASE_OPTIONS_DART → usa o firebase_options.dart versionado (placeholder).
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - '.github/workflows/build-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.44.7
+
+      - name: Firebase (só se houver secret; senão usa o versionado)
+        env:
+          FIREBASE_OPTIONS_DART: ${{ secrets.FIREBASE_OPTIONS_DART }}
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$FIREBASE_OPTIONS_DART" ]; then
+            echo "$FIREBASE_OPTIONS_DART" | base64 -d > app/lib/firebase_options.dart
+            echo "firebase_options.dart restaurado de secret."
+          else
+            echo "Sem secret → mantém o firebase_options.dart versionado (placeholder)."
+          fi
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            echo "$GOOGLE_SERVICES_JSON" | base64 -d > app/android/app/google-services.json
+          fi
+
+      - name: Assinatura de release (só se a keystore estiver nos secrets)
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > app/android/app/upload-keystore.jks
+            cat > app/android/key.properties <<EOF
+          storePassword=$KEYSTORE_PASSWORD
+          keyPassword=$KEYSTORE_PASSWORD
+          keyAlias=upload
+          storeFile=upload-keystore.jks
+          EOF
+            echo "Keystore de upload aplicada."
+          else
+            echo "Sem keystore nos secrets → build cai na assinatura DEBUG (instala mesmo assim)."
+          fi
+
+      - name: Dependências
+        working-directory: app
+        run: flutter pub get
+
+      # split-per-abi mantém o versionCode do arm64 (base+2000) estável → instala
+      # por cima da versão anterior sem "downgrade".
+      - name: Build APK (release, por ABI)
+        working-directory: app
+        run: flutter build apk --release --split-per-abi
+
+      # NB: o AAB (Play Store) é gerado só na hora do lançamento — compilar duas
+      # vezes (APK + AAB) no runner grátis estourava tempo/memória e cancelava o job.
+      - name: Publica APK no release ci-latest
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ci-latest
+          name: CI build (rolling — APK arm64 do último push)
+          prerelease: true
+          files: |
+            app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk

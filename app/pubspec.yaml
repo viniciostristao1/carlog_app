@@ -1,0 +1,65 @@
+name: carlog
+description: "CarLog — diário do seu carro: abastecimentos, consumo/média, revisões, FIPE, calibragem e lembretes."
+publish_to: 'none'
+
+# versionName+versionCode. Ex.: 0.1.0+1 → versionName "0.1.0", versionCode 1.
+# O +N (versionCode) TEM de crescer a cada release. A tag do release = vX.Y.Z.
+version: 0.15.1+25
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  flutter_riverpod: ^3.3.2       # estado
+  shared_preferences: ^2.3.2     # persistência local (fonte da verdade offline)
+  intl: ^0.20.2                  # formatação pt-BR (datas, moeda, litros)
+  http: ^1.2.2                   # consulta da tabela FIPE (API pública gratuita)
+
+  # Notificações locais (vencimentos de lembrete + próxima revisão). Agendamento
+  # por wall-clock no fuso America/Sao_Paulo (usuário BR) — sem plugin de fuso
+  # nativo (flutter_timezone tinha conflito de JVM target sob o Flutter atual).
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.9.4
+
+  # OCR do orçamento de revisão (reconhecimento de texto no próprio aparelho,
+  # offline e grátis) + captura por câmera/galeria.
+  google_mlkit_text_recognition: ^0.15.0
+  image_picker: ^1.1.2
+
+  # Firebase — nuvem/sync + login Google. O código já está pronto (auth_service,
+  # sync_service), mas fica ATRÁS do flag kFirebaseConfigured (lib/firebase_config.dart)
+  # até o projeto Firebase ser provisionado (ver FIREBASE.md). Enquanto o flag é
+  # false, o app roda 100% local e o login não aparece.
+  firebase_core: ^4.12.1
+  firebase_auth: ^6.5.6
+  google_sign_in: ^7.2.0
+  cloud_firestore: ^6.7.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icon/carlog_logo.png
+
+# Ícone do app (logo do usuário: carro + 6 ícones, fundo âmbar profundo).
+# Arte processada por tools/gerar_icone.py a partir de 1786658805549.png.
+# Após alterar a arte: `dart run flutter_launcher_icons`.
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/carlog_icon.png"
+  adaptive_icon_background: "#E18700"
+  adaptive_icon_foreground: "assets/icon/carlog_fg.png"
+  min_sdk_android: 23
