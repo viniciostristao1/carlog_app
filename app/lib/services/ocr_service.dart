@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../util/format.dart' show semAcento;
+
 /// Uma linha lida do orçamento: uma descrição e, se detectado, um valor.
 class ItemLido {
   final String descricao;
@@ -106,6 +108,40 @@ class OcrService {
     caseSensitive: false,
   );
 
+  // ---- rótulos de ordem de serviço / cabeçalho que NÃO são peças (item 1) ----
+  // Frases (já sem acento/caixa) que o usuário NÃO quer que virem item. Uma linha
+  // é bloqueada quando TODAS as suas palavras (só letras; números viram
+  // separador) pertencem a este conjunto — assim "Descrição" cai, mas
+  // "Troca de óleo" fica. Em "rótulo: valor", só o rótulo (antes do ":") conta,
+  // então "Cor: Branco" também cai. Para acrescentar termos, some frases aqui.
+  static const _frasesRotulo = <String>[
+    'item', 'cliente', 'aguarda', 'cor', 'tipo de os',
+    'contato para informacoes adicionais', 'csp', 'csr', 'csd', 'servicos',
+    'mao de obra', 'email', 'e mail', 'distribuidor', 'hora',
+    'ordem de servico', 'consultor', 'historico', 'campanha de servico',
+    'outros servicos necessarios recomendados', 'req', 'prisma',
+    'nao tem historico', 'cliente retorno', 'comercial', 'revisado', 'inicio',
+    'proxima', 'descricao', 'weiand', 'data', 'total estimado de servicos',
+    'sim', 'entrega', 'data da venda', 'valor total estimado', 'termino',
+    'nao', 'valor', 'estimada', 'pagina',
+  ];
+
+  /// Vocabulário de rótulo: cada palavra que aparece em [_frasesRotulo].
+  static final Set<String> _palavrasRotulo = {
+    for (final f in _frasesRotulo)
+      for (final w in f.split(RegExp(r'[^a-z]+')))
+        if (w.isNotEmpty) w,
+  };
+
+  /// A linha (já sem o valor no fim) é um rótulo de cabeçalho a ignorar?
+  static bool _ehRotuloBloqueado(String s) {
+    final norm = semAcento(s);
+    final rotulo = norm.contains(':') ? norm.substring(0, norm.indexOf(':')) : norm;
+    final palavras =
+        rotulo.split(RegExp(r'[^a-z]+')).where((w) => w.isNotEmpty);
+    return palavras.isNotEmpty && palavras.every(_palavrasRotulo.contains);
+  }
+
   /// A linha é dado pessoal/cadastral ou rótulo de cabeçalho a ignorar?
   static bool _ehInfoPessoal(String l) =>
       _reEmail.hasMatch(l) ||
@@ -170,6 +206,10 @@ class OcrService {
       // Ignora "número solto" (só dígitos/pontuação, ex.: "1,00", "200,00").
       final soNumero = desc.isEmpty || !_reTemLetra.hasMatch(desc);
       if (soNumero) continue;
+
+      // Ignora rótulos de ordem de serviço / cabeçalho (item 1) — "Item",
+      // "Consultor", "Cor: Branco", "ORDEM DE SERVIÇO"… não são peças.
+      if (_ehRotuloBloqueado(desc)) continue;
 
       linhasLimpas.add(l);
       itens.add(ItemLido(desc, null));

@@ -42,7 +42,7 @@ class CarLogApp extends ConsumerWidget {
     }
     ref.watch(notifSchedulerProvider); // reagenda notificações quando os dados mudam
 
-    final tema = ref.watch(temaProvider).value ?? TemaApp.ambar;
+    final tema = ref.watch(temaProvider).value ?? TemaApp.blueprint;
     final fonte =
         ref.watch(fonteProvider).value ?? TamanhoFonte.normal;
     final escala = fonte.fator;

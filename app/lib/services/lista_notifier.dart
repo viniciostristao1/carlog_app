@@ -50,4 +50,13 @@ abstract class ListaNotifier<T> extends AsyncNotifier<List<T>> {
     final lista = _atual..removeWhere((x) => idDe(x) == id);
     await _persist(lista);
   }
+
+  /// Remove vários itens de uma vez (ex.: "limpar tudo" de um veículo). Passe os
+  /// ids já filtrados — os demais itens (de outros carros) são preservados.
+  Future<void> removerVarios(Iterable<String> ids) async {
+    final alvo = ids.toSet();
+    if (alvo.isEmpty) return;
+    final lista = _atual..removeWhere((x) => alvo.contains(idDe(x)));
+    await _persist(lista);
+  }
 }

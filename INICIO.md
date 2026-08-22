@@ -22,7 +22,16 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 > código)** · mapa de padrões (`ARQUITETURA.md`) · técnico/gotchas (`APRENDIZADOS`) · changelog do
 > usuário (`ATUALIZACOES`) · futuro (`IDEIAS`) · nuvem (`FIREBASE`).
 
-## ⭐ ESTADO ATUAL (2026-08-15) — ler primeiro pós-/clear
+## ⭐ ESTADO ATUAL (2026-08-22) — ler primeiro pós-/clear
+
+**v0.16.0 — VISUAL BLUEPRINT + BACKUP EM ARQUIVO** (`analyze` limpo, 19 testes). Novo tema **Blueprint**
+(azul-marinho + coral) como **padrão** (os 4 antigos seguem em Config → Aparência; `TemaApp.blueprint`
+appendado no fim do enum — ver APRENDIZADOS). **Backup manual** em Config → Backup: *Exportar* (share_plus,
+arquivo `.json` com tudo) + *Importar* (file_picker, **mescla por id, nunca apaga** — `BackupService`,
+lógica pura testada). Também: **Limpar tudo** (abastecimentos / histórico de revisões), **OCR** ignora
+rótulos de OS (regra "todas as palavras são rótulo"), folha "O que importar" com `useSafeArea`, **nome do
+carro em 1 linha**, previsão de revisão mostra **"faltam X km"** sem data. ⚠️ 2 plugins nativos novos
+(share_plus/file_picker) — validados no build do CI. Base anterior:
 
 **v0.13.0 — TEMAS + FONTE + IDIOMAS (EN/ES)** (`flutter analyze` limpo, 10 testes passando). Config →
 **Aparência** (4 temas: Âmbar/Azul/Expresso/Madeira; 4 tamanhos de fonte) e **Idioma** (pt/en/es).

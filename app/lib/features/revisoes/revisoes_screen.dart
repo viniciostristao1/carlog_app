@@ -45,9 +45,20 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
   @override
   Widget build(BuildContext context) {
     final t = ref.watch(stringsProvider);
+    // "Limpar histórico" só aparece na aba Histórico e quando há revisões.
+    final revisoes = ref.watch(revisoesDoVeiculoProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text(t.revisoes),
+        actions: [
+          if (_tab.index == 1 && revisoes.isNotEmpty)
+            IconButton(
+              tooltip: t.limparTudo,
+              icon: const Icon(Icons.delete_sweep_outlined),
+              onPressed: () =>
+                  _limparHistorico(revisoes.map((r) => r.id).toList()),
+            ),
+        ],
         bottom: TabBar(
           controller: _tab,
           indicatorColor: AppColors.leg(AppColors.catRevisoes),
@@ -77,6 +88,30 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
         children: [_programar(), _historico()],
       ),
     );
+  }
+
+  Future<void> _limparHistorico(List<String> ids) async {
+    final t = ref.read(stringsProvider);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Text(t.limparHistoricoTitulo),
+        content: Text(t.limparHistoricoMsg),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(t.cancelar)),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(t.limparTudo,
+                  style: const TextStyle(color: AppColors.danger))),
+        ],
+      ),
+    );
+    if (ok == true) {
+      await ref.read(revisoesProvider.notifier).removerVarios(ids);
+    }
   }
 
   Future<void> _abrirItemSheet({ItemProgramado? original}) async {
@@ -246,7 +281,12 @@ class _CartaoProximaRevisao extends ConsumerWidget {
     }
 
     final alvoKm = p.alvoKm!;
-    final previsao = p.data != null ? dataLonga(p.data!) : '—';
+    // Data quando dá para estimar; senão, "faltam X km" explícito (item 4).
+    final previsao = p.data != null
+        ? dataLonga(p.data!)
+        : (p.faltamKm != null && p.faltamKm! > 0)
+            ? t.faltamKm(km(p.faltamKm!))
+            : '—';
     final vencida = p.vencida;
     final media12 = p.mediaKmMes12;
 

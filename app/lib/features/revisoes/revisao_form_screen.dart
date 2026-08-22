@@ -244,6 +244,9 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
     final selecionados = await showModalBottomSheet<List<ItemLido>>(
       context: context,
       isScrollControlled: true,
+      // Sem isto a folha sobe até o topo e o título fica embaixo da câmera /
+      // barra de status do Android (item 2). useSafeArea mantém abaixo do notch.
+      useSafeArea: true,
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),

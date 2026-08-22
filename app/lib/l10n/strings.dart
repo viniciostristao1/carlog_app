@@ -43,6 +43,19 @@ class AppStrings {
   String get excluir => _s('Excluir', 'Delete', 'Eliminar');
   String get alterar => _s('alterar', 'change', 'cambiar');
   String get limpar => _s('Limpar', 'Clear', 'Limpiar');
+  String get limparTudo => _s('Limpar tudo', 'Clear all', 'Limpiar todo');
+  String get limparAbastecimentosTitulo =>
+      _s('Limpar abastecimentos', 'Clear fill-ups', 'Limpiar cargas');
+  String get limparAbastecimentosMsg => _s(
+      'Excluir TODOS os abastecimentos deste carro? Não dá para desfazer.',
+      'Delete ALL fill-ups for this car? This cannot be undone.',
+      'Eliminar TODAS las cargas de este auto? No se puede deshacer.');
+  String get limparHistoricoTitulo =>
+      _s('Limpar histórico', 'Clear history', 'Limpiar historial');
+  String get limparHistoricoMsg => _s(
+      'Excluir TODO o histórico de revisões deste carro? Não dá para desfazer.',
+      'Delete ALL service history for this car? This cannot be undone.',
+      'Eliminar TODO el historial de revisiones de este auto? No se puede deshacer.');
   String get nadaEncontrado =>
       _s('Nada encontrado.', 'Nothing found.', 'Nada encontrado.');
   String nadaEncontradoPara(String termo) => _s(
@@ -93,12 +106,47 @@ class AppStrings {
       _s('Notificações', 'Notifications', 'Notificaciones');
   String get secaoSobre => _s('Sobre', 'About', 'Acerca de');
   String get secaoIdioma => _s('Idioma', 'Language', 'Idioma');
+
+  // ───────────────────────────── backup ─────────────────────────────
+  String get secaoBackup => _s('Backup', 'Backup', 'Copia de seguridad');
+  String get backupResumo => _s(
+      'Salve um arquivo com todos os seus dados e restaure quando quiser — mesmo sem nuvem.',
+      'Save a file with all your data and restore it anytime — even without the cloud.',
+      'Guarda un archivo con todos tus datos y restáuralo cuando quieras — incluso sin la nube.');
+  String get exportarBackup =>
+      _s('Exportar backup', 'Export backup', 'Exportar copia');
+  String get importarBackup =>
+      _s('Importar backup', 'Import backup', 'Importar copia');
+  String get importando => _s('Importando…', 'Importing…', 'Importando…');
+  String backupImportadoN(int n) => _s(
+      n == 0
+          ? 'Backup lido — nada novo para adicionar.'
+          : n == 1
+              ? 'Backup importado: 1 item novo adicionado.'
+              : 'Backup importado: $n itens novos adicionados.',
+      n == 0
+          ? 'Backup read — nothing new to add.'
+          : n == 1
+              ? 'Backup imported: 1 new item added.'
+              : 'Backup imported: $n new items added.',
+      n == 0
+          ? 'Copia leída — nada nuevo para añadir.'
+          : n == 1
+              ? 'Copia importada: 1 elemento nuevo.'
+              : 'Copia importada: $n elementos nuevos.');
+  String get backupInvalido => _s(
+      'Esse arquivo não parece um backup do CarLog.',
+      "That file doesn't look like a CarLog backup.",
+      'Ese archivo no parece una copia de CarLog.');
+  String get backupFalhou => _s('Não foi possível ler o arquivo.',
+      "Couldn't read the file.", 'No se pudo leer el archivo.');
   String get tema => _s('Tema', 'Theme', 'Tema');
   String nomeTema(int i) => switch (i) {
         0 => _s('Âmbar', 'Amber', 'Ámbar'),
         1 => _s('Azul', 'Blue', 'Azul'),
         2 => _s('Expresso', 'Espresso', 'Espresso'),
-        _ => _s('Madeira', 'Wood', 'Madera'),
+        3 => _s('Madeira', 'Wood', 'Madera'),
+        _ => _s('Blueprint', 'Blueprint', 'Blueprint'),
       };
   String get tamanhoFonte =>
       _s('Tamanho da fonte', 'Font size', 'Tamaño de fuente');

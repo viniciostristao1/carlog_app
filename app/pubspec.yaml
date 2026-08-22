@@ -4,7 +4,7 @@ publish_to: 'none'
 
 # versionName+versionCode. Ex.: 0.1.0+1 → versionName "0.1.0", versionCode 1.
 # O +N (versionCode) TEM de crescer a cada release. A tag do release = vX.Y.Z.
-version: 0.15.1+25
+version: 0.16.0+26
 
 environment:
   sdk: ^3.12.2
@@ -40,6 +40,12 @@ dependencies:
   firebase_auth: ^6.5.6
   google_sign_in: ^7.2.0
   cloud_firestore: ^6.7.1
+
+  # Backup manual (exportar/importar um arquivo .json com todos os dados). Rede
+  # de segurança além da nuvem. Usa BYTES nos dois sentidos (share_plus com
+  # XFile.fromData e file_picker com withData:true) — sem path_provider.
+  share_plus: ^12.0.0
+  file_picker: ^10.3.4
 
 dev_dependencies:
   flutter_test:

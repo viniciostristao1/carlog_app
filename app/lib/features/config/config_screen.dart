@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../firebase_config.dart';
 import '../../l10n/strings.dart';
 import '../../services/auth_service.dart';
+import '../../services/backup_service.dart';
 import '../../services/notifications.dart';
 import '../../services/prefs.dart';
+import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
 
 class ConfigScreen extends ConsumerWidget {
@@ -35,6 +37,10 @@ class ConfigScreen extends ConsumerWidget {
             const _ContaCard()
           else
             const _NuvemEmBreve(),
+          const SizedBox(height: 24),
+          _tituloSecao(t.secaoBackup),
+          const SizedBox(height: 8),
+          const _BackupCard(),
           const SizedBox(height: 24),
           _tituloSecao(t.secaoNotificacoes),
           const SizedBox(height: 8),
@@ -68,7 +74,7 @@ class ConfigScreen extends ConsumerWidget {
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700)),
                         const SizedBox(height: 2),
-                        Text('${t.appTagline} · v0.15.1',
+                        Text('${t.appTagline} · v0.16.0',
                             style:
                                 TextStyle(color: AppColors.dim, fontSize: 12.5)),
                       ],
@@ -91,6 +97,93 @@ class ConfigScreen extends ConsumerWidget {
                 fontSize: 13,
                 fontWeight: FontWeight.w700)),
       );
+}
+
+/// Backup manual: exportar tudo para um arquivo e importar de volta (mescla por
+/// id, sem apagar nada). Rede de segurança além da nuvem.
+class _BackupCard extends ConsumerWidget {
+  const _BackupCard();
+
+  /// Recarrega todos os stores após importar (e, se logado, dispara o envio pra
+  /// nuvem via os listeners do syncProvider).
+  void _recarregar(WidgetRef ref) {
+    ref.invalidate(veiculosProvider);
+    ref.invalidate(veiculoSelIdProvider);
+    ref.invalidate(abastecimentosProvider);
+    ref.invalidate(mediasProvider);
+    ref.invalidate(revisoesProvider);
+    ref.invalidate(programacaoProvider);
+    ref.invalidate(lembretesProvider);
+    ref.invalidate(calibragemProvider);
+  }
+
+  Future<void> _exportar(BuildContext context, WidgetRef ref) async {
+    // Captura o messenger ANTES do await (o context não é usado depois).
+    final messenger = ScaffoldMessenger.of(context);
+    final t = ref.read(stringsProvider);
+    try {
+      await BackupService().exportar();
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(t.backupFalhou)));
+    }
+  }
+
+  Future<void> _importar(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final t = ref.read(stringsProvider);
+    try {
+      final n = await BackupService().importar();
+      if (n == null) return; // usuário cancelou o seletor de arquivo
+      _recarregar(ref);
+      messenger.showSnackBar(SnackBar(content: Text(t.backupImportadoN(n))));
+    } on FormatException {
+      messenger.showSnackBar(SnackBar(content: Text(t.backupInvalido)));
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(t.backupFalhou)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = ref.watch(stringsProvider);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.backupResumo,
+                style: TextStyle(color: AppColors.dim, fontSize: 13)),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: () => _exportar(context, ref),
+                    icon: const Icon(Icons.ios_share, size: 18),
+                    label: Text(t.exportarBackup),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _importar(context, ref),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.text,
+                      side: BorderSide(color: AppColors.lineStrong),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    icon: const Icon(Icons.file_download_outlined, size: 18),
+                    label: Text(t.importarBackup),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _NuvemEmBreve extends ConsumerWidget {
@@ -255,15 +348,15 @@ class _NotificacoesCard extends ConsumerWidget {
   }
 }
 
-/// Seletor de tema: quatro amostras (âmbar/azul/espresso/madeira). A escolhida
-/// ganha um anel com a cor de destaque; troca é instantânea.
+/// Seletor de tema: as amostras (Blueprint/âmbar/azul/espresso/madeira). A
+/// escolhida ganha um anel com a cor de destaque; troca é instantânea.
 class _TemaCard extends ConsumerWidget {
   const _TemaCard();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(stringsProvider);
-    final atual = ref.watch(temaProvider).value ?? TemaApp.ambar;
+    final atual = ref.watch(temaProvider).value ?? TemaApp.blueprint;
     return Card(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),

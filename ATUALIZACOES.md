@@ -2,6 +2,17 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-22 — v0.16.0.** **Cara nova, backup e faxina.** (1) Novo visual **Blueprint** (azul-marinho
+  com destaque coral) já vem como **tema padrão** — os temas antigos (Âmbar, Azul, Expresso, Madeira)
+  continuam em **Config → Aparência**. (2) **Backup em arquivo:** em **Config → Backup**, *Exportar* gera
+  um arquivo com **todos os seus dados** (salve no Drive, mande pra você…) e *Importar* traz de volta —
+  ele **junta** com o que já existe, **sem apagar nada**. Rede de segurança além da nuvem. (3) **Limpar
+  tudo:** botão 🧹 em **Abastecimentos** e no **Histórico** de revisões (com confirmação; mexe só no carro
+  atual). (4) O **leitor de foto** ignora ainda mais rótulos de ordem de serviço (Item, Cor, ORDEM DE
+  SERVIÇO, Consultor, Página, HORA…). (5) A tela **"O que importar"** não fica mais colada na câmera/topo.
+  (6) O **nome do carro** ocupa **uma linha só**. (7) A **previsão de revisão** mostra **"faltam X km"**
+  quando ainda não dá para estimar a data (antes aparecia um número que confundia).
+
 - **2026-08-16 — v0.15.1.** **Leitor de foto mais esperto.** Agora ele acha a **quilometragem** mesmo
   escrita como "Km/Horas: 166.710" (número mais adiante na linha) e a joga **direto no campo de odômetro**
   (antes não ia). Também **ignora** mais rótulos de cadastro que vinham como peça: **placa, veículo,

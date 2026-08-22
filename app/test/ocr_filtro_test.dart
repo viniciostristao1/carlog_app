@@ -69,4 +69,40 @@ Total 124,90
     expect(r.itens.any((e) => e.descricao.toLowerCase().contains('chave')),
         isTrue);
   });
+
+  test('rótulos de ordem de serviço não viram item (item 1)', () {
+    const texto = '''
+ORDEM DE SERVIÇO
+Consultor
+Item
+Cor: Branco
+Tipo de OS
+Campanha de Serviço
+PRISMA
+WEIAND
+Não tem histórico
+Página 1 de 2
+HORA 14:30
+Filtro de ar 45,00
+Troca de óleo 120,00
+Pastilha de freio
+''';
+    final r = OcrService().parseTexto(texto);
+    final low = r.itens.map((e) => e.descricao.toLowerCase()).toList();
+    final ctx = r.itens.map((e) => e.descricao).join(' | ');
+
+    // Peças reais preservadas.
+    expect(low.any((d) => d.contains('filtro de ar')), isTrue, reason: ctx);
+    expect(low.any((d) => d.contains('óleo')), isTrue, reason: ctx);
+    expect(low.any((d) => d.contains('pastilha')), isTrue, reason: ctx);
+
+    // Rótulos descartados.
+    for (final proibido in [
+      'ordem', 'consultor', 'item', 'cor', 'tipo de os', 'campanha',
+      'prisma', 'weiand', 'histórico', 'página', 'hora',
+    ]) {
+      expect(low.any((d) => d.contains(proibido)), isFalse,
+          reason: 'não deveria conter "$proibido" — itens: $ctx');
+    }
+  });
 }

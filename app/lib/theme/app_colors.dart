@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
-/// Temas do CarLog. Âmbar (padrão) e Azul = grafite escuro "painel de carro"
-/// (muda só o accent); Espresso = marrom escuro; Madeira = claro (madeira).
-/// O usuário escolhe nas Configurações. Inspirado no app irmão (Calis Timer).
-enum TemaApp { ambar, azul, espresso, madeira }
+/// Temas do CarLog. Blueprint (padrão) = azul-marinho "prancheta de oficina"
+/// com destaque coral e hairlines azuladas; Âmbar e Azul = grafite escuro
+/// "painel de carro" (muda só o accent); Espresso = marrom escuro; Madeira =
+/// claro (madeira). O usuário escolhe nas Configurações.
+/// ⚠️ [blueprint] é appendado no FIM do enum de propósito (índices 0–3 estáveis
+/// para `AppStrings.nomeTema`); só adicione novos temas também no fim.
+enum TemaApp { ambar, azul, espresso, madeira, blueprint }
 
 /// Uma paleta completa (tokens de cor de um tema). Fundo, superfícies, texto e
 /// accent mudam por tema — por isso [AppColors] os expõe como getters que lêem
@@ -32,7 +35,7 @@ class Paleta {
 /// fundo/superfície/texto/accent vêm da [Paleta] atual.
 abstract final class AppColors {
   // ---- tokens dependentes de tema (getters lêem a paleta atual) ----
-  static Paleta _pal = _palDe(TemaApp.ambar);
+  static Paleta _pal = _palDe(TemaApp.blueprint);
 
   /// Troca a paleta atual (chamado em `buildAppTheme`, a cada (re)build do tema).
   static void aplicarTema(TemaApp t) => _pal = _palDe(t);
@@ -89,7 +92,23 @@ abstract final class AppColors {
           _grafite(const Color(0xFF4C9BFF), const Color(0xFF06121F)),
         TemaApp.espresso => _espresso,
         TemaApp.madeira => _madeira,
+        TemaApp.blueprint => _blueprint,
       };
+
+  /// Blueprint (padrão): azul-marinho "prancheta", accent coral, linhas azuladas.
+  static const Paleta _blueprint = Paleta(
+    bg: Color(0xFF0B1220),
+    surface: Color(0xFF111C31),
+    surface2: Color(0xFF17253E),
+    line: Color(0x2878A5E1),
+    lineStrong: Color(0x4C78A5E1),
+    text: Color(0xFFE7EEF7),
+    dim: Color(0xFF8098B7),
+    dim2: Color(0xFF5A6E8C),
+    accent: Color(0xFFFF6B4A),
+    onAccent: Color(0xFF2A0A02),
+    brilho: Brightness.dark,
+  );
 
   /// Grafite escuro "painel" (âmbar/azul): muda só o accent.
   static Paleta _grafite(Color accent, Color onAccent) => Paleta(

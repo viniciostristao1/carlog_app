@@ -12,7 +12,7 @@ import '../theme/app_colors.dart';
 
 const _kTema = 'tema_v1';
 
-/// Tema escolhido (âmbar/azul/espresso/madeira). Padrão = âmbar (cor oficial).
+/// Tema escolhido. Padrão = Blueprint (azul-marinho + coral).
 final temaProvider =
     AsyncNotifierProvider<TemaNotifier, TemaApp>(TemaNotifier.new);
 
@@ -23,7 +23,7 @@ class TemaNotifier extends AsyncNotifier<TemaApp> {
     final s = prefs.getString(_kTema);
     return TemaApp.values.firstWhere(
       (t) => t.name == s,
-      orElse: () => TemaApp.ambar,
+      orElse: () => TemaApp.blueprint,
     );
   }
 

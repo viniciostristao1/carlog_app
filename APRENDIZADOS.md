@@ -2,6 +2,34 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-22 — Tema Blueprint + backup em arquivo + OCR/previsão (v0.16.0)
+
+- **Tema Blueprint (novo padrão):** `TemaApp.blueprint` foi **appendado no FIM** do enum de propósito —
+  `AppStrings.nomeTema` mapeia por **índice**, então índices 0–3 (âmbar/azul/espresso/madeira) precisam
+  ficar estáveis; novos temas entram sempre no fim (case `_ =>` no `nomeTema`). Paleta navy+coral em
+  `_blueprint` (`app_colors.dart`). Default trocado p/ blueprint em 4 lugares: `prefs.dart` (`orElse`),
+  `main.dart`, `config_screen.dart` (fallback do seletor) e o `_pal` inicial em `app_colors.dart`. As
+  **cores por categoria seguem `const`** (não viraram theme-dependent) — evita refactor grande; a família
+  atual (laranja/verde/azul/roxo/teal/vermelho) já casa com o marinho.
+- **Backup export/import (Config → Backup):** plugins **`share_plus` ^12 + `file_picker` ^10**, usados
+  **por BYTES** — export com `XFile.fromData(...)` (o share_plus grava o arquivo temporário sozinho via o
+  path_provider **dele**, não precisei adicionar path_provider) e import com `pickFiles(withData:true)`
+  lendo `files.single.bytes`. Import **MESCLA por id** (`BackupService.mesclarLista`, lógica pura +
+  teste): o **LOCAL sempre vence e nunca é apagado** — só entram ids que faltam (restauro seguro, lição
+  do Taskix). Pós-import: `ref.invalidate` de todos os stores → recarrega a UI e (se logado) o
+  `syncProvider` empurra pra nuvem. Formato do arquivo: `{app,schema,exportadoEm,dados:{<store>:<json>}}`.
+  ⚠️ **2 plugins NATIVOS novos** → o `flutter analyze` **não** valida o build Android; só um push no CI
+  garante (R8 está OFF, então o risco de shrink não se aplica, mas o merge de manifest/Gradle sim).
+- **OCR (item 1):** blacklist de rótulos de ordem de serviço. Regra: normaliza a linha (sem acento/caixa)
+  e **descarta se TODAS as palavras** (só letras; números viram separador) pertencem a `_palavrasRotulo`
+  (derivado das frases em `_frasesRotulo`); em "Rótulo: valor" só conta o **rótulo antes do `:`**. Assim
+  "Descrição", "ORDEM DE SERVIÇO", "Cor: Branco", "Página 1 de 2", "HORA 14:30" caem, mas "Troca de óleo"
+  e "Chave de contato" ficam. Roda **depois** do value-strip (sobre `desc`) e das checagens de total/km.
+- **item 2:** `useSafeArea:true` na `showModalBottomSheet` da folha "O que importar" (subia até o notch).
+- **item 4 (previsão):** sem data derivável (1 leitura / sem revisão-âncora), home e card mostram
+  **`faltamKm`** ("faltam X km") em vez do odômetro-alvo cru que parecia data. Decisão do usuário.
+- **item 3 (limpar tudo):** `ListaNotifier.removerVarios(ids)`; telas passam os ids do carro selecionado.
+
 ## 2026-08-16 — OCR km robusto + campo odômetro (bug do ponto de milhar) (v0.15.1)
 
 - **km com texto entre rótulo e número:** `_kmDe` agora acha o rótulo (`\bkm\b`/quilometragem/odômetro) e

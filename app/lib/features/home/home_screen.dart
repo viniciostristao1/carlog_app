@@ -189,6 +189,16 @@ class _CabecalhoVeiculo extends ConsumerWidget {
         ? null
         : (calibragens.map((c) => c.data).reduce((a, b) => a.isAfter(b) ? a : b));
     final prev = preverRevisao(v, abastecimentos, revisoes);
+    // Previsão da próxima revisão: data quando dá para estimar; senão, deixa
+    // EXPLÍCITO que é quilometragem faltante (item 4 — "faltam X km"), em vez de
+    // um número solto que parecia uma data. Vencida vira o alerta (abaixo).
+    final prevValor = prev.vencida
+        ? ''
+        : prev.data != null
+            ? dataCurta(prev.data!)
+            : (prev.faltamKm != null && prev.faltamKm! > 0)
+                ? t.faltamKm(km(prev.faltamKm!))
+                : '—';
     // Fonte maior → tiles mais altos, para o valor/rótulo não estourarem.
     final escala = ref.watch(fonteProvider).value?.fator ?? 1.0;
     // No tema claro (Madeira), inverte a caixa do carro: fundo bege mais escuro
@@ -198,8 +208,9 @@ class _CabecalhoVeiculo extends ConsumerWidget {
     final corCard = claro ? AppColors.surface2 : AppColors.surface;
     final corTile = claro ? AppColors.surface : AppColors.surface2;
 
-    // Título em duas linhas (marca em cima, modelo abaixo — cabe o modelo
-    // completo). O apelido e o resto (ano/combustível) descem para a linha extra.
+    // Título compacto: marca (fonte pequena em cima) + modelo em NEGRITO numa
+    // ÚNICA linha (item 5 — antes ocupava duas). O apelido e o resto
+    // (ano/combustível) ficam na linha de baixo.
     final marca = v.marca.trim();
     final modelo = v.modelo.trim();
     final infoExtra = [
@@ -228,7 +239,7 @@ class _CabecalhoVeiculo extends ConsumerWidget {
           ultimaCalib != null ? dataCurta(ultimaCalib) : '—',
           onTap: () => abrir(const CalibragemScreen())),
       _Stat(Icons.build_circle_outlined, AppColors.catRevisoes, t.statPrevRevisao,
-          prev.vencida ? '' : _fmtPrevisao(prev),
+          prevValor,
           alerta: prev.vencida,
           onTap: () => abrir(const RevisoesScreen())),
     ];
@@ -249,7 +260,7 @@ class _CabecalhoVeiculo extends ConsumerWidget {
                     children: [
                       if (marca.isEmpty && modelo.isEmpty)
                         Text(v.titulo,
-                            maxLines: 2,
+                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                                 color: AppColors.text,
@@ -267,13 +278,12 @@ class _CabecalhoVeiculo extends ConsumerWidget {
                                   letterSpacing: 0.2)),
                         if (modelo.isNotEmpty)
                           Text(modelo,
-                              maxLines: 2,
+                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                   color: AppColors.text,
                                   fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                  height: 1.1)),
+                                  fontWeight: FontWeight.w700)),
                       ],
                       if (infoExtra.isNotEmpty)
                         Padding(
@@ -316,13 +326,6 @@ class _CabecalhoVeiculo extends ConsumerWidget {
     );
   }
 
-  /// Formata a previsão da próxima revisão (data, senão km-alvo). O caso
-  /// "vencida" é tratado à parte no tile — vira um símbolo de atenção.
-  String _fmtPrevisao(PrevisaoRevisao p) {
-    if (p.data != null) return dataCurta(p.data!);
-    if (p.alvoKm != null) return km(p.alvoKm!);
-    return '—';
-  }
 }
 
 class _Stat {

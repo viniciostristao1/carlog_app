@@ -17,6 +17,31 @@ class AbastecimentoScreen extends ConsumerWidget {
         builder: (_) => AbastecimentoFormScreen(original: original)));
   }
 
+  Future<void> _limparTudo(
+      BuildContext context, WidgetRef ref, Iterable<String> ids) async {
+    final t = ref.read(stringsProvider);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Text(t.limparAbastecimentosTitulo),
+        content: Text(t.limparAbastecimentosMsg),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(t.cancelar)),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(t.limparTudo,
+                  style: const TextStyle(color: AppColors.danger))),
+        ],
+      ),
+    );
+    if (ok == true) {
+      await ref.read(abastecimentosProvider.notifier).removerVarios(ids);
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(stringsProvider);
@@ -30,7 +55,18 @@ class AbastecimentoScreen extends ConsumerWidget {
     final litrosMes = doMes.fold<double>(0, (s, a) => s + (a.litros ?? 0));
 
     return Scaffold(
-      appBar: AppBar(title: Text(t.abastecimentos)),
+      appBar: AppBar(
+        title: Text(t.abastecimentos),
+        actions: [
+          if (lista.isNotEmpty)
+            IconButton(
+              tooltip: t.limparTudo,
+              icon: const Icon(Icons.delete_sweep_outlined),
+              onPressed: () =>
+                  _limparTudo(context, ref, lista.map((a) => a.id).toList()),
+            ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _novo(context),
         backgroundColor: AppColors.catAbastecimento,
