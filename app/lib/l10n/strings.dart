@@ -473,6 +473,9 @@ class AppStrings {
   String get tituloLembreteHint => _s('Ex.: IPVA 2026 — cota única',
       'e.g. Insurance 2026 — single payment', 'Ej.: Seguro 2026 — pago único');
   String venceEm(String d) => _s('Vence em $d', 'Due on $d', 'Vence el $d');
+  String get horario => _s('Horário', 'Time', 'Hora');
+  String horarioEm(String h) =>
+      _s('Avisar às $h', 'Notify at $h', 'Avisar a las $h');
   String get valorRsOpc =>
       _s('Valor (R\$, opcional)', 'Amount (optional)', 'Importe (opcional)');
   String get repeticao => _s('Repetição', 'Repeat', 'Repetición');

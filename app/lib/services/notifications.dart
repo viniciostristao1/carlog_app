@@ -139,17 +139,19 @@ class NotifScheduler {
     for (final l in lembretes.where((e) => !e.pago)) {
       final tipo = t.rotuloTipoLembrete(l.tipo);
       final nome = l.titulo.isNotEmpty ? l.titulo : tipo;
+      // Horário escolhido pelo usuário (lembretes antigos sem hora → 09:00).
+      final quando = comHoraEfetiva(l.vencimento);
       await svc.agendar(
         id: _id(l.id, 0),
         titulo: 'CarLog · $tipo',
         corpo: t.notifVenceHoje(nome),
-        quando: _as9(l.vencimento),
+        quando: quando,
       );
       await svc.agendar(
         id: _id(l.id, 1),
         titulo: 'CarLog · $tipo',
         corpo: t.notifVence3Dias(nome),
-        quando: _as9(l.vencimento.subtract(const Duration(days: 3))),
+        quando: quando.subtract(const Duration(days: 3)),
       );
     }
 

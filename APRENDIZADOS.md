@@ -2,6 +2,28 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-24 — Novo logo + horário nos lembretes (v0.17.0)
+
+- **Novo logo (carro + velocímetro + 5 ícones):** arte nova em `file_00000000c504820e9a8f80e5eafcb52c.png`
+  (o usuário subiu pela web do GitHub → `git fetch` + `merge --ff-only`, não estava no disco). O
+  `tools/gerar_icone.py` foi generalizado: aceita a origem por **argv** (default = a arte nova), e além do
+  `carlog_icon.png`/`carlog_fg.png` passou a emitir também **`carlog_logo.png`** (256px, usado no AppBar/
+  Sobre) — antes esse logo era feito à parte e ficava dessincronizado. Pipeline: âmbar amostrado agora é
+  **`#E88F00`** (era `#E18700`) → atualizei `adaptive_icon_background` no `pubspec` e o `colors.xml` foi
+  regenerado pelo `flutter_launcher_icons`. Rodar sempre: `tools_venv/bin/python tools/gerar_icone.py`
+  **depois** `cd app && dart run flutter_launcher_icons` (regenera mipmaps/drawables — 10 PNGs no diff).
+- **Horário nos lembretes:** o `vencimento` (DateTime) já carregava data+hora, mas a UI só tinha
+  `showDatePicker` e o agendador **fixava 09:00** (`_as9`). Agora: `showTimePicker` no form
+  (`_hora: TimeOfDay`, default 09:00), `_salvar` combina data+hora, e `notifications.dart` agenda no
+  horário escolhido (`comHoraEfetiva(l.vencimento)`) em vez de `_as9`. **`_as9` segue só para a previsão
+  de revisão** (que não tem hora). **Gotcha de dado legado:** lembretes salvos antes disso têm hora 00:00
+  (o `showDatePicker` retornava meia-noite) → helper **`comHoraEfetiva(v)`** (`format.dart`) mapeia
+  **00:00 → 09:00** para não notificar de madrugada; usado no agendador E no cartão, então o que a UI
+  mostra bate com quando dispara. Efeito colateral aceito: não dá para escolher exatamente meia-noite
+  (vira 09:00) — irrelevante p/ lembrete de carro. **`_proximo` (empurra recorrência) passou a preservar
+  `hour`/`minute`** — antes recriava `DateTime(y, m, d)` e zerava a hora a cada pagamento. i18n:
+  `t.horario` + `t.horarioEm(h)`; `horaCurta(DateTime)` = `HH:mm` em `format.dart`.
+
 ## 2026-08-22 — Tema Blueprint + backup em arquivo + OCR/previsão (v0.16.0)
 
 - **Tema Blueprint (novo padrão):** `TemaApp.blueprint` foi **appendado no FIM** do enum de propósito —

@@ -65,8 +65,10 @@ class LembretesScreen extends ConsumerWidget {
   }
 
   static DateTime _proximo(DateTime d, Recorrencia r) => switch (r) {
-        Recorrencia.mensal => DateTime(d.year, d.month + 1, d.day),
-        Recorrencia.anual => DateTime(d.year + 1, d.month, d.day),
+        Recorrencia.mensal =>
+          DateTime(d.year, d.month + 1, d.day, d.hour, d.minute),
+        Recorrencia.anual =>
+          DateTime(d.year + 1, d.month, d.day, d.hour, d.minute),
         Recorrencia.nenhuma => d,
       };
 
@@ -167,7 +169,7 @@ class _CartaoLembrete extends ConsumerWidget {
                         Text(
                           l.pago
                               ? t.pago
-                              : '${dataCurta(l.vencimento)} · ${t.desdeAte(l.vencimento)}',
+                              : '${dataCurta(l.vencimento)} · ${horaCurta(comHoraEfetiva(l.vencimento))} · ${t.desdeAte(l.vencimento)}',
                           style: TextStyle(color: cor, fontSize: 12.5),
                         ),
                       ],
@@ -218,6 +220,7 @@ class _LembreteFormSheetState extends ConsumerState<_LembreteFormSheet> {
   late TipoLembrete _tipo;
   late Recorrencia _recorrencia;
   late DateTime _vencimento;
+  late TimeOfDay _hora;
 
   @override
   void initState() {
@@ -227,7 +230,15 @@ class _LembreteFormSheetState extends ConsumerState<_LembreteFormSheet> {
     _valor = TextEditingController(text: o?.valor != null ? n2(o!.valor!) : '');
     _tipo = o?.tipo ?? TipoLembrete.ipva;
     _recorrencia = o?.recorrencia ?? Recorrencia.anual;
-    _vencimento = o?.vencimento ?? DateTime.now().add(const Duration(days: 30));
+    if (o != null) {
+      _vencimento = o.vencimento;
+      final ef = comHoraEfetiva(o.vencimento); // hora antiga 00:00 → 09:00
+      _hora = TimeOfDay(hour: ef.hour, minute: ef.minute);
+    } else {
+      final d = DateTime.now().add(const Duration(days: 30));
+      _vencimento = DateTime(d.year, d.month, d.day, 9);
+      _hora = const TimeOfDay(hour: 9, minute: 0);
+    }
   }
 
   @override
@@ -247,14 +258,21 @@ class _LembreteFormSheetState extends ConsumerState<_LembreteFormSheet> {
     if (d != null) setState(() => _vencimento = d);
   }
 
+  Future<void> _escolherHora() async {
+    final h = await showTimePicker(context: context, initialTime: _hora);
+    if (h != null) setState(() => _hora = h);
+  }
+
   Future<void> _salvar() async {
+    final venc = DateTime(_vencimento.year, _vencimento.month,
+        _vencimento.day, _hora.hour, _hora.minute);
     final l = Lembrete(
       id: widget.original?.id ?? novoId(),
       veiculoId:
           widget.original?.veiculoId ?? ref.read(veiculoSelecionadoProvider)?.id,
       tipo: _tipo,
       titulo: _titulo.text.trim(),
-      vencimento: _vencimento,
+      vencimento: venc,
       valor: parseNumero(_valor.text),
       recorrencia: _recorrencia,
       pago: widget.original?.pago ?? false,
@@ -324,6 +342,29 @@ class _LembreteFormSheetState extends ConsumerState<_LembreteFormSheet> {
                   Icon(Icons.event, color: AppColors.dim, size: 20),
                   const SizedBox(width: 12),
                   Text(t.venceEm(dataLonga(_vencimento)),
+                      style: TextStyle(
+                          color: AppColors.text, fontWeight: FontWeight.w600)),
+                ]),
+              ),
+            ),
+            const SizedBox(height: 10),
+            InkWell(
+              onTap: _escolherHora,
+              borderRadius: BorderRadius.circular(14),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: AppColors.surface2,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.line),
+                ),
+                child: Row(children: [
+                  Icon(Icons.schedule, color: AppColors.dim, size: 20),
+                  const SizedBox(width: 12),
+                  Text(
+                      t.horarioEm(
+                          horaCurta(DateTime(2000, 1, 1, _hora.hour, _hora.minute))),
                       style: TextStyle(
                           color: AppColors.text, fontWeight: FontWeight.w600)),
                 ]),

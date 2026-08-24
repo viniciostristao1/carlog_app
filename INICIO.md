@@ -22,7 +22,16 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 > código)** · mapa de padrões (`ARQUITETURA.md`) · técnico/gotchas (`APRENDIZADOS`) · changelog do
 > usuário (`ATUALIZACOES`) · futuro (`IDEIAS`) · nuvem (`FIREBASE`).
 
-## ⭐ ESTADO ATUAL (2026-08-22) — ler primeiro pós-/clear
+## ⭐ ESTADO ATUAL (2026-08-24) — ler primeiro pós-/clear
+
+**v0.17.0 — NOVO LOGO + HORÁRIO NOS LEMBRETES** (`analyze` limpo, 19 testes). (1) **Logo novo** (carro +
+velocímetro + 5 ícones) no ícone do app e no AppBar — arte nova em
+`file_00000000c504820e9a8f80e5eafcb52c.png`; `tools/gerar_icone.py` agora aceita a origem por argv e
+também emite `carlog_logo.png`; âmbar do adaptive passou a `#E88F00`. (2) **Lembretes com horário:**
+`showTimePicker` no form (default 09:00), agendador usa o horário escolhido (`comHoraEfetiva`, não mais
+`_as9` fixo em 9h); dado legado com hora 00:00 → tratado como 09:00; `_proximo` (recorrência) preserva
+hora. Ver APRENDIZADOS. **Sync JÁ é automático em tempo real** quando logado no Google (Config → Conta):
+não há nem é preciso botão "nuvem" (ao contrário do Taskix). Base anterior:
 
 **v0.16.0 — VISUAL BLUEPRINT + BACKUP EM ARQUIVO** (`analyze` limpo, 19 testes). Novo tema **Blueprint**
 (azul-marinho + coral) como **padrão** (os 4 antigos seguem em Config → Aparência; `TemaApp.blueprint`

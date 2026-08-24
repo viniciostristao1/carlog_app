@@ -6,6 +6,7 @@ final _num1 = NumberFormat('#,##0.0', 'pt_BR');
 final _num2 = NumberFormat('#,##0.00', 'pt_BR');
 final _num0 = NumberFormat('#,##0', 'pt_BR');
 final _dataCurta = DateFormat('dd/MM/yy', 'pt_BR');
+final _horaCurta = DateFormat('HH:mm', 'pt_BR');
 
 /// Locale das datas por extenso (`dataLonga`), atualizado pelo `main` quando o
 /// idioma muda. Números/moeda/unidades seguem pt-BR (o carro é do Brasil).
@@ -32,6 +33,16 @@ String dataLonga(DateTime d) {
 }
 
 String dataCurta(DateTime d) => _dataCurta.format(d);
+
+/// "HH:mm" (24h) — horário de um lembrete/notificação.
+String horaCurta(DateTime d) => _horaCurta.format(d);
+
+/// Horário efetivo de um lembrete: se a hora for meia-noite (dado antigo, salvo
+/// antes do seletor de horário existir), assume **09:00**. Assim lembretes
+/// antigos seguem notificando de manhã e a UI mostra um horário coerente.
+DateTime comHoraEfetiva(DateTime v) => (v.hour == 0 && v.minute == 0)
+    ? DateTime(v.year, v.month, v.day, 9)
+    : v;
 
 extension StringFallback on String {
   /// Retorna [fallback] se a string for vazia; senão a própria string.

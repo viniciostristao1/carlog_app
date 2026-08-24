@@ -1,17 +1,24 @@
 #!/usr/bin/env python3
-"""Gera os assets do ícone do CarLog a partir do logo do usuário.
+"""Gera os assets do ícone/logo do CarLog a partir da arte do usuário.
 
 Aprofunda o âmbar, RECORTA na borda do conteúdo (autocrop, para os desenhos
 ficarem grandes, sem a margem âmbar sobrando) e produz:
   - app/assets/icon/carlog_icon.png  (1024, legacy / image_path)
   - app/assets/icon/carlog_fg.png    (1024, adaptive foreground, arte ~92%)
+  - app/assets/icon/carlog_logo.png  (256, logo do AppBar/Sobre)
 
+Uso:  tools_venv/bin/python tools/gerar_icone.py [origem.png]
+      (origem padrão = a última arte enviada pelo usuário; ver ORIGEM)
 Depois rode:  cd app && dart run flutter_launcher_icons
 Requer o tools_venv com Pillow.
 """
+import sys
+
 from PIL import Image, ImageEnhance
 
-ORIGEM = '1786658805549.png'
+# Arte enviada pelo usuário (carro + velocímetro + 5 ícones, fundo âmbar).
+ORIGEM = sys.argv[1] if len(sys.argv) > 1 \
+    else 'file_00000000c504820e9a8f80e5eafcb52c.png'
 DEST = 'app/assets/icon'
 
 img = Image.open(ORIGEM).convert('RGB')
@@ -20,6 +27,7 @@ img = ImageEnhance.Brightness(img).enhance(0.90)
 img = ImageEnhance.Contrast(img).enhance(1.03)
 
 bg = img.getpixel((6, 6))
+print('origem', ORIGEM, img.size)
 print('amber bg', bg, '#%02X%02X%02X' % bg)
 
 # Autocrop: bbox do conteúdo escuro (navy) sobre o âmbar.
@@ -48,4 +56,9 @@ fg = Image.new('RGB', (1024, 1024), bg)
 art = sq.resize((FG, FG), Image.LANCZOS)
 fg.paste(art, ((1024 - FG) // 2, (1024 - FG) // 2))
 fg.save(f'{DEST}/carlog_fg.png')
-print('ok -> carlog_icon.png, carlog_fg.png')
+
+# Logo do AppBar/Sobre: o mesmo quadrado autocrop, menor.
+sq.resize((256, 256), Image.LANCZOS).save(f'{DEST}/carlog_logo.png')
+
+print('ok -> carlog_icon.png, carlog_fg.png, carlog_logo.png')
+print('AGORA: cd app && dart run flutter_launcher_icons')

@@ -4,7 +4,7 @@ publish_to: 'none'
 
 # versionName+versionCode. Ex.: 0.1.0+1 → versionName "0.1.0", versionCode 1.
 # O +N (versionCode) TEM de crescer a cada release. A tag do release = vX.Y.Z.
-version: 0.16.0+26
+version: 0.17.0+27
 
 environment:
   sdk: ^3.12.2
@@ -59,13 +59,14 @@ flutter:
   assets:
     - assets/icon/carlog_logo.png
 
-# Ícone do app (logo do usuário: carro + 6 ícones, fundo âmbar profundo).
-# Arte processada por tools/gerar_icone.py a partir de 1786658805549.png.
+# Ícone do app (logo do usuário: carro + velocímetro + 5 ícones, fundo âmbar).
+# Arte processada por tools/gerar_icone.py a partir de
+# file_00000000c504820e9a8f80e5eafcb52c.png.
 # Após alterar a arte: `dart run flutter_launcher_icons`.
 flutter_launcher_icons:
   android: true
   ios: false
   image_path: "assets/icon/carlog_icon.png"
-  adaptive_icon_background: "#E18700"
+  adaptive_icon_background: "#E88F00"
   adaptive_icon_foreground: "assets/icon/carlog_fg.png"
   min_sdk_android: 23

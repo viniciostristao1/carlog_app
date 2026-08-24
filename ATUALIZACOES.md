@@ -2,6 +2,12 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-24 — v0.17.0.** **Novo logo e horário nos lembretes.** (1) **Ícone/logo novos** — carro com
+  velocímetro e os 5 atalhos ao redor (aparece no celular e no topo do app). (2) **Lembretes agora têm
+  horário:** ao criar/editar um lembrete você escolhe **a que horas quer ser avisado** (padrão 09:00) —
+  antes o aviso era sempre às 9h. O horário aparece no cartão do lembrete. Lembretes antigos seguem
+  avisando às 9h até você editá-los.
+
 - **2026-08-22 — v0.16.0.** **Cara nova, backup e faxina.** (1) Novo visual **Blueprint** (azul-marinho
   com destaque coral) já vem como **tema padrão** — os temas antigos (Âmbar, Azul, Expresso, Madeira)
   continuam em **Config → Aparência**. (2) **Backup em arquivo:** em **Config → Backup**, *Exportar* gera
