@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/lembrete.dart';
+import '../../services/alertas.dart';
 import '../../services/prefs.dart';
 import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
@@ -9,11 +10,29 @@ import '../../util/format.dart';
 import '../../util/ids.dart';
 import '../../widgets/estado_vazio.dart';
 
-class LembretesScreen extends ConsumerWidget {
+class LembretesScreen extends ConsumerStatefulWidget {
   const LembretesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LembretesScreen> createState() => _LembretesScreenState();
+}
+
+class _LembretesScreenState extends ConsumerState<LembretesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Abrir a tela = "vi os alertas": marca como lidos os lembretes já vencidos
+    // (some com o número do badge no botão da home).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref
+          .read(alertasLidosProvider.notifier)
+          .marcarLidos(ref.read(lembretesDoVeiculoProvider));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final t = ref.watch(stringsProvider);
     final lista = [...(ref.watch(lembretesDoVeiculoProvider))]
       ..sort((a, b) {
@@ -229,7 +248,7 @@ class _LembreteFormSheetState extends ConsumerState<_LembreteFormSheet> {
     _titulo = TextEditingController(text: o?.titulo ?? '');
     _valor = TextEditingController(text: o?.valor != null ? n2(o!.valor!) : '');
     _tipo = o?.tipo ?? TipoLembrete.ipva;
-    _recorrencia = o?.recorrencia ?? Recorrencia.anual;
+    _recorrencia = o?.recorrencia ?? Recorrencia.nenhuma;
     if (o != null) {
       _vencimento = o.vencimento;
       final ef = comHoraEfetiva(o.vencimento); // hora antiga 00:00 → 09:00

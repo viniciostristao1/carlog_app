@@ -616,11 +616,26 @@ class _OcrReviewSheetState extends State<_OcrReviewSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(t.oQueImportar,
-              style: TextStyle(
-                  color: AppColors.text,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700)),
+          Row(
+            children: [
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                visualDensity: VisualDensity.compact,
+                tooltip: t.voltar,
+                icon: Icon(Icons.arrow_back, color: AppColors.text),
+                onPressed: () => Navigator.pop(context),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(t.oQueImportar,
+                    style: TextStyle(
+                        color: AppColors.text,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700)),
+              ),
+            ],
+          ),
           const SizedBox(height: 4),
           Text(
             t.oQueImportarSub,

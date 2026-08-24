@@ -20,9 +20,19 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 >
 > Papéis dos docs: referência (`INICIO`) · **como contribuir/regras (`AGENTS.md` — LER antes de editar
 > código)** · mapa de padrões (`ARQUITETURA.md`) · técnico/gotchas (`APRENDIZADOS`) · changelog do
-> usuário (`ATUALIZACOES`) · futuro (`IDEIAS`) · nuvem (`FIREBASE`).
+> usuário (`ATUALIZACOES`) · futuro (`IDEIAS`) · nuvem (`FIREBASE`) · **motor "Ler foto" + log de casos
+> (`OCR.md`)**.
 
 ## ⭐ ESTADO ATUAL (2026-08-24) — ler primeiro pós-/clear
+
+**v0.18.0 — OCR MODULAR + FILTROS + BADGE DE LEMBRETE** (`analyze` limpo, 25 testes). (1) **"Ler foto"
+reescrito** em `lib/services/ocr/` (motor puro `ocr_engine` + regras em `ocr_filtros` + `ocr_km`); filosofia
+= **filtrar por LÓGICA** (não whitelist); doc + log de casos em **`OCR.md`**. Muito mais ruído descartado
+(marca/concessionária/cidade/CNPJ/placa/Emissão/Garantia/Ano-Modelo/…); **bug do km corrigido** ("KM:
+<espaços> 120973" pegava 130 → agora pega o número com mais dígitos, e o doc fica com a MAIOR leitura).
+(2) **Lembretes:** default `nenhuma` (era anual) + **badge** de alerta vencido não lido no botão da home
+(`services/alertas.dart`, store local; abrir a tela marca lido). (3) Folha **"O que importar"** com botão
+voltar. Base anterior:
 
 **v0.17.0 — NOVO LOGO + HORÁRIO NOS LEMBRETES** (`analyze` limpo, 19 testes). (1) **Logo novo** (carro +
 velocímetro + 5 ícones) no ícone do app e no AppBar — arte nova em
@@ -127,7 +137,8 @@ Tela principal = 6 atalhos redondos:
 - `services/` — `repositories.dart` (providers Riverpod por store, via `lista_notifier.dart` base),
   `store_keys.dart` (chaves = campos do Firestore + `todosOsStores`), `auth_service.dart`,
   `sync_service.dart` (JSON por store em `users/{uid}`), `notifications.dart` (agenda lembrete/revisão),
-  `ocr_service.dart` (ML Kit: foto→texto→item×valor).
+  `ocr_service.dart` (cola ML Kit) + **`ocr/`** (motor puro: `ocr_engine`/`ocr_filtros`/`ocr_km`/
+  `ocr_models` — regras de "o que NÃO é peça"; ver `OCR.md`).
 - `util/` — `consumo.dart` (média km/L, km-mês, `ritmoKmPorDia`, `previsaoData`, **com testes**),
   `format.dart` (pt-BR + `parseNumero`), `ids.dart` (`novoId`), `messenger.dart`.
 - `theme/` — `app_colors.dart` (tokens + `accent` âmbar + cor por categoria), `app_theme.dart`.

@@ -2,6 +2,37 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-24 — Motor de OCR modular + filtros + badge de lembrete (v0.18.0)
+
+- **OCR refatorado em `lib/services/ocr/`** (era um `ocr_service.dart` monolítico): `ocr_models`
+  (ItemLido/OcrResultado), `ocr_filtros` (as REGRAS — o arquivo que cresce), `ocr_km` (odômetro),
+  `ocr_engine` (parser puro `OcrEngine.analisar`). O `services/ocr_service.dart` virou só a **cola** do
+  ML Kit e **reexporta** os modelos (`export 'ocr/ocr_models.dart'`) — assim o form e o teste antigo
+  (`import '.../ocr_service.dart'`) seguem compilando sem mudança. Doc dedicada: **`OCR.md`** (motor +
+  **log de casos**, linkado no INICIO). Testes novos: `ocr_km_test`, `ocr_casos_test`.
+- **Filosofia do filtro = LÓGICA, não whitelist** (pedido explícito do usuário). Regra de ouro mantida e
+  ampliada: uma linha só é cabeçalho quando **TODAS** as suas palavras são rótulo/marca (`rotuloBloqueado`)
+  → "Serviço" cai, "Serviço de alinhamento" fica; "TOYOTA" cai, "Óleo Toyota 5W30" fica. 3 camadas em
+  `ocr_filtros`: (1) `linhaEhRuido` = token estrutural/regex (e-mail, CEP, CPF, **CNPJ 14 díg** formatado
+  OU corrido, **placa** ABC1234/ABC1D23, **cidade "… - UF"** por sufixo de sigla de estado, rótulos
+  fortes); (2) vocabulário `_frasesRotulo` + `_marcas`; (3) rótulo-de-pessoa-sozinho pula a próxima linha.
+  Termos somados nesta versão: emissao, responsavel, garantia, fabrica, cor externa, concessionaria,
+  sugestao, servico(singular), legenda, data, linha, documento, ano/modelo, combustivel, preco/preco
+  total, total, externa + marcas de carro.
+- **Bug do km (`ocr_km.dart`):** "KM:      120973" (muitos espaços) pegava "130". Fix: numa linha com
+  rótulo de km, pega o número com **mais dígitos** (odômetro tem 5–6); e o engine fica com a **maior**
+  leitura do documento (`km = max`), em vez do `km ??=` (primeiro-vence) antigo. Cobertura em
+  `ocr_km_test` (inclui "KM 130 ordem 120973" → 120973).
+- **Badge de lembrete não lido:** `services/alertas.dart` — store LOCAL (não sincroniza; fora de
+  `todosOsStores`) de chaves `"${id}@${vencimentoMillis}"` já vistas. `alertaDisparado` usa
+  `comHoraEfetiva` (mesmo horário do agendador). `alertasNaoLidosProvider` conta os disparados e não
+  lidos do carro selecionado → vira o `badge` do `BotaoRedondo` (Stack + Positioned, borda cor `bg`).
+  **Abrir a `LembretesScreen` marca como lido** (virou `ConsumerStatefulWidget`; `addPostFrameCallback`
+  → `marcarLidos`). A chave por vencimento faz um lembrete **recorrente** virar alerta novo a cada
+  período. Default de recorrência no form mudou de `anual` → **`nenhuma`**.
+- **Folha "O que importar":** título virou `Row` com `IconButton(arrow_back)` à esquerda que dá
+  `Navigator.pop` (importa nada). String nova `t.voltar` (pt/en/es).
+
 ## 2026-08-24 — Novo logo + horário nos lembretes (v0.17.0)
 
 - **Novo logo (carro + velocímetro + 5 ícones):** arte nova em `file_00000000c504820e9a8f80e5eafcb52c.png`

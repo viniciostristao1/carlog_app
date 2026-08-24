@@ -2,6 +2,16 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-24 — v0.18.0.** **Ler foto mais esperto + lembretes.** (1) O **leitor de orçamento** ficou
+  bem melhor: passou a **ignorar** marca do carro (TOYOTA…), concessionária, cidade, CNPJ, placa,
+  Emissão, Garantia, Fábrica, Cor externa, Combustível, Ano/Modelo, Documento, Legenda, Sugestão,
+  "Serviço"/"Preço Total" e afins — mantendo as **peças de verdade** (inclusive quando têm a marca no
+  meio, tipo "Óleo Toyota 5W30"). (2) **Corrigida a leitura do KM** quando vinha com muitos espaços (ex.:
+  "KM:      120973" — antes pegava um número errado). (3) **Lembretes:** novos já vêm como **"Sem
+  repetição"** (você escolhe se repete) e o botão **Lembretes** na tela inicial mostra um **número** quando
+  há aviso vencido não visto (some ao abrir os lembretes). (4) A tela **"O que importar"** ganhou um
+  **botão de voltar** no topo.
+
 - **2026-08-24 — v0.17.0.** **Novo logo e horário nos lembretes.** (1) **Ícone/logo novos** — carro com
   velocímetro e os 5 atalhos ao redor (aparece no celular e no topo do app). (2) **Lembretes agora têm
   horário:** ao criar/editar um lembrete você escolhe **a que horas quer ser avisado** (padrão 09:00) —

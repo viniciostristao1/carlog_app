@@ -362,6 +362,7 @@ class AppStrings {
       'Take a photo of the quote', 'Tomar foto del presupuesto');
   String get escolherGaleria =>
       _s('Escolher da galeria', 'Pick from gallery', 'Elegir de la galería');
+  String get voltar => _s('Voltar', 'Back', 'Volver');
   String get oQueImportar => _s('O que importar do orçamento',
       'What to import from the quote', 'Qué importar del presupuesto');
   String get oQueImportarSub => _s(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/veiculo.dart';
+import '../../services/alertas.dart';
 import '../../services/prefs.dart';
 import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
@@ -119,6 +120,7 @@ class HomeScreen extends ConsumerWidget {
                   icone: Icons.event_available_outlined,
                   rotulo: t.catLembretes,
                   cor: AppColors.leg(AppColors.catLembretes),
+                  badge: ref.watch(alertasNaoLidosProvider),
                   onTap: () => _abrir(context, const LembretesScreen()),
                 ),
               ],
