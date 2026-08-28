@@ -163,6 +163,27 @@ class _AbastecimentoFormScreenState
     return sugestaoOdometro(ab, revs);
   }
 
+  Abastecimento? _ultimo() {
+    if (widget.original != null) return null;
+    final lista = ref.watch(abastecimentosDoVeiculoProvider);
+    if (lista.isEmpty) return null;
+    final ord = [...lista]..sort((a, b) => b.data.compareTo(a.data));
+    return ord.first;
+  }
+
+  void _aplicarUltimo(Abastecimento u) {
+    setState(() {
+      if (u.litros != null) _litros.text = n1(u.litros!);
+      if (u.precoLitro != null) {
+        _modoTotal = false;
+        _preco.text = n2(u.precoLitro!);
+        _total.clear();
+      }
+      if (u.posto.trim().isNotEmpty) _posto.text = u.posto;
+      _cheio = u.tanqueCheio;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = ref.watch(stringsProvider);
@@ -184,6 +205,7 @@ class _AbastecimentoFormScreenState
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
           _linhaData(t),
+          if (_ultimo() != null) _chipRepetirUltimo(_ultimo()!),
           const SizedBox(height: 12),
           _campo(_odometro, t.odometroKmOpc,
               teclado: TextInputType.number, soDigitos: true),
@@ -312,6 +334,34 @@ class _AbastecimentoFormScreenState
                   fontSize: 20,
                   fontWeight: FontWeight.w800)),
         ],
+      ),
+    );
+  }
+
+  Widget _chipRepetirUltimo(Abastecimento u) {
+    final jaPreenchido =
+        _litros.text.trim().isNotEmpty || _posto.text.trim().isNotEmpty;
+    if (jaPreenchido) return const SizedBox.shrink();
+    final desc = [
+      if (u.litros != null) '${n1(u.litros!)}L',
+      if (u.precoLitro != null) 'R\$ ${n2(u.precoLitro!)}',
+      if (u.posto.trim().isNotEmpty) u.posto,
+    ].join(' · ');
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: ActionChip(
+          label: Text('Repetir último: $desc',
+              style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
+          avatar: const Icon(Icons.history, size: 16),
+          backgroundColor: AppColors.leg(AppColors.catAbastecimento)
+              .withValues(alpha: 0.14),
+          side: BorderSide(
+              color: AppColors.leg(AppColors.catAbastecimento)
+                  .withValues(alpha: 0.4)),
+          onPressed: () => _aplicarUltimo(u),
+        ),
       ),
     );
   }

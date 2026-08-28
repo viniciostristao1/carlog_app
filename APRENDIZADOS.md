@@ -2,6 +2,10 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-28 — Abastecimento 1-toque (v0.21.0)
+
+- **Repetir último abastecimento:** `_ultimo()` pega o mais recente por `data`, `_chipRepetirUltimo` mostra `ActionChip` com `litros · preço · posto` quando `original==null` e campos vazios. `_aplicarUltimo` preenche `litros/preco/posto/tanqueCheio`. Evita redigitar posto/litros padrão. GPS de posto próximo fica para fase futura (requer permissão + `geolocator`).
+
 ## 2026-08-28 — Odômetro inteligente (v0.20.0)
 
 - **`sugestaoOdometro(ab, revs)` em `util/consumo.dart`:** lê `_leituras(ab,revs)` (mesma base da previsão), pega o maior odômetro + sua data, calcula `kmDia` 12m (fallback todo histórico) e faz `ultimo + kmDia*dias(desde última leitura)`. Usado em `AbastecimentoForm` e `RevisaoForm`: se `_odometro.text` vazio e não é edição, mostra `ActionChip("Sugerido: ${n0} km")` que preenche o campo. Não sugere se já tem valor ou está editando revisão existente. Teste implícito via lógica já coberta por `consumo_test`/`ocr_km_test`.

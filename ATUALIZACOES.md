@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-28 — v0.21.0.** **Abastecimento 1-toque.** Ao criar abastecimento, aparece chip `Repetir último: 38L · R$ 5,89 · Shell` que preenche litros/preço/posto/tanque cheio do último abastecimento — só falta o odômetro (que já tem o chip Sugerido).
+
 - **2026-08-28 — v0.20.0.** **Odômetro inteligente.** Ao criar abastecimento ou revisão, se o campo de **odômetro** estiver vazio, o app sugere `último + ritmo` (km/dia dos últimos 12 meses) num chip `Sugerido: 12.345 km` — toque para preencher. Evita digitar e mantém coerência com a previsão de revisão.
 
 - **2026-08-27 — v0.19.0.** **Terracota + Config com setas + Ler foto preciso.** (1) Tema **Blueprint renomeado para Terracota** (mesma cor navy/coral) — quem já usava continua no Terracota automaticamente. (2) **Configurações com seta:** Idioma, Tema e Tamanho da fonte agora são **dropdowns** — toque na seta ↓ para abrir as opções. (3) **Ler foto muito mais preciso:** passa a ignorar "Autorizo a execução", "Requisição", "Peças", "Disp/Disponível", "Dt. Fab", cores ("BRANCO"…), "Centro/Automotivo", nomes de cliente, "N. Pré. S", "Liberada", "Data Ini. Contr", "Impressão" + datas, cidades soltas tipo "LAJEADO", "Validade", "Entrada", "Insc.Estad.", "Previsão de Entrega", "Weiand"/oficinas, data isolada, "Total Geral", "Próxima revisão", "Estou ciente e concordo…", "<<Pág" e "VALOR TOTAL ESTIMADO" — importando só as **peças de verdade**.
