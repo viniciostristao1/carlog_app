@@ -25,6 +25,8 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 
 ## ⭐ ESTADO ATUAL (2026-08-28) — ler primeiro pós-/clear
 
+**v0.25.0 — DESFAZER SUGESTÕES** (`analyze` limpo, 25 testes). Após tocar `Sugerido`/`Repetir`/`Kits` aparece botão **Desfazer** (↩) para voltar; antes de usar, **X** dispensa. Base anterior:
+
 **v0.24.0 — DISPENSAR SUGESTÕES** (`analyze` limpo, 25 testes). Chips `Sugerido` e `Repetir último/última` ganharam **X** para dispensar o automático. Base anterior:
 
 **v0.23.0 — LEMBRETE AUTO** (`analyze` limpo, 25 testes). Ao programar item (km-alvo/a cada) cria `Lembrete revisao` com data estimada (ritmo) — switch `Criar lembrete` para desativar. Base anterior:

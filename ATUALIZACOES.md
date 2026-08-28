@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-28 — v0.25.0.** **Desfazer sugestões.** Ao tocar em `Sugerido` ou `Repetir último/última` e `Kits`, aparece botão **Desfazer** (↩) para voltar com 1 clique — além do X para dispensar antes de usar.
+
 - **2026-08-28 — v0.24.0.** **Dispensar sugestões.** Chips `Sugerido: X km` e `Repetir último/última` agora têm um **X** para dispensar — se não quiser o automático, toque no X e eles somem até reabrir o form.
 
 - **2026-08-28 — v0.23.0.** **Lembrete auto.** Ao programar um item (com km-alvo ou a cada X km) o app cria automaticamente um **lembrete de Revisão** com data estimada (último odômetro + ritmo → data) — com opção `Criar lembrete` para desativar.

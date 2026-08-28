@@ -37,6 +37,10 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
   bool _ocrLoading = false;
   bool _ocultarSugestaoOdo = false;
   bool _ocultarRepetir = false;
+  bool _mostrarDesfazerOdo = false;
+  String? _backupOdo;
+  List<String> _ultimosAutoItens = [];
+  String? _backupLocal;
 
   @override
   void initState() {
@@ -93,6 +97,62 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
     if (lista.isEmpty) return null;
     final ord = [...lista]..sort((a, b) => b.data.compareTo(a.data));
     return ord.first;
+  }
+
+  void _aplicarSugestaoOdo(int v) {
+    setState(() {
+      _backupOdo = _odometro.text;
+      _mostrarDesfazerOdo = true;
+      _ocultarSugestaoOdo = true;
+      _odometro.text = v.toString();
+    });
+  }
+
+  void _desfazerSugestaoOdo() {
+    setState(() {
+      _odometro.text = _backupOdo ?? '';
+      _mostrarDesfazerOdo = false;
+      _ocultarSugestaoOdo = false;
+    });
+  }
+
+  void _aplicarRepetir(Revisao u) {
+    setState(() {
+      _backupLocal = _local.text;
+      final added = u.itens.where((e) => !_itens.contains(e)).toList();
+      _ultimosAutoItens = added;
+      _itens.addAll(added);
+      if (u.local.trim().isNotEmpty && _local.text.trim().isEmpty) {
+        _local.text = u.local;
+      } else if (added.isEmpty) {
+        _ultimosAutoItens = [];
+      }
+      _ocultarRepetir = true;
+    });
+  }
+
+  void _aplicarKit(KitSugerido k) {
+    setState(() {
+      final added = k.itens.where((e) => !_itens.contains(e)).toList();
+      if (added.isNotEmpty) {
+        _ultimosAutoItens = added;
+        _itens.addAll(added);
+      }
+    });
+  }
+
+  void _desfazerAutoItens() {
+    setState(() {
+      for (final it in _ultimosAutoItens) {
+        _itens.remove(it);
+      }
+      if (_backupLocal != null) {
+        _local.text = _backupLocal!;
+        _backupLocal = null;
+      }
+      _ultimosAutoItens = [];
+      _ocultarRepetir = false;
+    });
   }
 
   @override
@@ -396,8 +456,22 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
                   backgroundColor: AppColors.accent.withValues(alpha: 0.14),
                   side: BorderSide(
                       color: AppColors.accent.withValues(alpha: 0.4)),
-                  onPressed: () =>
-                      setState(() => _odometro.text = sugOdo.toString()),
+                  onPressed: () => _aplicarSugestaoOdo(sugOdo),
+                ),
+              ),
+            ),
+          if (_mostrarDesfazerOdo)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: ActionChip(
+                  label: const Text('Desfazer',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  avatar: const Icon(Icons.undo, size: 16),
+                  backgroundColor: AppColors.surface2,
+                  side: BorderSide(color: AppColors.line),
+                  onPressed: _desfazerSugestaoOdo,
                 ),
               ),
             ),
@@ -449,12 +523,7 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
                     side: BorderSide(
                         color: AppColors.leg(AppColors.catRevisoes)
                             .withValues(alpha: 0.4)),
-                    onPressed: () => setState(() {
-                      _itens.addAll(u.itens.where((e) => !_itens.contains(e)));
-                      if (u.local.trim().isNotEmpty && _local.text.trim().isEmpty) {
-                        _local.text = u.local;
-                      }
-                    }),
+                    onPressed: () => _aplicarRepetir(u),
                   );
                 }),
               ),
@@ -474,13 +543,25 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
                               style: const TextStyle(fontSize: 12)),
                           backgroundColor: AppColors.surface2,
                           side: BorderSide(color: AppColors.line),
-                          onPressed: () => setState(() {
-                            for (final it in k.itens) {
-                              if (!_itens.contains(it)) _itens.add(it);
-                            }
-                          }),
+                          onPressed: () => _aplicarKit(k),
                         ))
                     .toList(),
+              ),
+            ),
+          if (_ultimosAutoItens.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 0, bottom: 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: ActionChip(
+                  label: Text('Desfazer (${_ultimosAutoItens.length})',
+                      style: const TextStyle(
+                          fontSize: 12.5, fontWeight: FontWeight.w600)),
+                  avatar: const Icon(Icons.undo, size: 16),
+                  backgroundColor: AppColors.surface2,
+                  side: BorderSide(color: AppColors.line),
+                  onPressed: _desfazerAutoItens,
+                ),
               ),
             ),
           Row(children: [

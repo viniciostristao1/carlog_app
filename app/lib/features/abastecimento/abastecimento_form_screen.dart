@@ -35,6 +35,15 @@ class _AbastecimentoFormScreenState
   bool _modoTotal = false; // false = informar preço/L; true = informar valor total
   bool _ocultarRepetir = false;
   bool _ocultarSugestao = false;
+  bool _mostrarDesfazerOdo = false;
+  String? _backupOdo;
+  bool _mostrarDesfazerRepetir = false;
+  String? _backupLitros;
+  String? _backupPreco;
+  String? _backupTotal;
+  String? _backupPosto;
+  bool? _backupCheio;
+  bool? _backupModoTotal;
 
   @override
   void initState() {
@@ -177,6 +186,14 @@ class _AbastecimentoFormScreenState
 
   void _aplicarUltimo(Abastecimento u) {
     setState(() {
+      _backupLitros = _litros.text;
+      _backupPreco = _preco.text;
+      _backupTotal = _total.text;
+      _backupPosto = _posto.text;
+      _backupCheio = _cheio;
+      _backupModoTotal = _modoTotal;
+      _mostrarDesfazerRepetir = true;
+      _ocultarRepetir = true;
       if (u.litros != null) _litros.text = n1(u.litros!);
       if (u.precoLitro != null) {
         _modoTotal = false;
@@ -185,6 +202,36 @@ class _AbastecimentoFormScreenState
       }
       if (u.posto.trim().isNotEmpty) _posto.text = u.posto;
       _cheio = u.tanqueCheio;
+    });
+  }
+
+  void _desfazerUltimo() {
+    setState(() {
+      _litros.text = _backupLitros ?? '';
+      _preco.text = _backupPreco ?? '';
+      _total.text = _backupTotal ?? '';
+      _posto.text = _backupPosto ?? '';
+      if (_backupCheio != null) _cheio = _backupCheio!;
+      if (_backupModoTotal != null) _modoTotal = _backupModoTotal!;
+      _mostrarDesfazerRepetir = false;
+      _ocultarRepetir = false;
+    });
+  }
+
+  void _aplicarSugestaoOdo(int v) {
+    setState(() {
+      _backupOdo = _odometro.text;
+      _mostrarDesfazerOdo = true;
+      _ocultarSugestao = true;
+      _odometro.text = v.toString();
+    });
+  }
+
+  void _desfazerSugestaoOdo() {
+    setState(() {
+      _odometro.text = _backupOdo ?? '';
+      _mostrarDesfazerOdo = false;
+      _ocultarSugestao = false;
     });
   }
 
@@ -210,10 +257,12 @@ class _AbastecimentoFormScreenState
         children: [
           _linhaData(t),
           if (_ultimo() != null) _chipRepetirUltimo(_ultimo()!),
+          if (_mostrarDesfazerRepetir) _chipDesfazerRepetir(),
           const SizedBox(height: 12),
           _campo(_odometro, t.odometroKmOpc,
               teclado: TextInputType.number, soDigitos: true),
           if (sugOdo != null) _chipSugestaoOdo(sugOdo),
+          if (_mostrarDesfazerOdo) _chipDesfazerOdo(),
           _campo(_litros, t.litrosOpc,
               teclado: const TextInputType.numberWithOptions(decimal: true)),
           _seletorModo(t),
@@ -389,7 +438,41 @@ class _AbastecimentoFormScreenState
           deleteButtonTooltipMessage: 'Dispensar',
           backgroundColor: AppColors.accent.withValues(alpha: 0.14),
           side: BorderSide(color: AppColors.accent.withValues(alpha: 0.4)),
-          onPressed: () => setState(() => _odometro.text = v.toString()),
+          onPressed: () => _aplicarSugestaoOdo(v),
+        ),
+      ),
+    );
+  }
+
+  Widget _chipDesfazerOdo() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: ActionChip(
+          label: const Text('Desfazer',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+          avatar: const Icon(Icons.undo, size: 16),
+          backgroundColor: AppColors.surface2,
+          side: BorderSide(color: AppColors.line),
+          onPressed: _desfazerSugestaoOdo,
+        ),
+      ),
+    );
+  }
+
+  Widget _chipDesfazerRepetir() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: ActionChip(
+          label: const Text('Desfazer',
+              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
+          avatar: const Icon(Icons.undo, size: 16),
+          backgroundColor: AppColors.surface2,
+          side: BorderSide(color: AppColors.line),
+          onPressed: _desfazerUltimo,
         ),
       ),
     );

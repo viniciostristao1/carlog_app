@@ -2,6 +2,10 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-28 — Desfazer após aplicar sugestão (v0.25.0)
+
+- **Desfazer (voltar):** `AbastecimentoForm` e `RevisaoForm` ganharam estado de backup (`_backupOdo/_backupLitros...` e `_ultimosAutoItens`) e chips `Desfazer (↩)` após aplicar `Sugerido`/`Repetir`/`Kits`. `Sugerido` → `onPressed` salva backup, preenche e mostra `Desfazer`; `Repetir`/`Kits` → guardam lista adicionada e `local` anterior para remover no desfazer. Mantém `X` para dispensar antes.
+
 ## 2026-08-28 — Dispensar sugestões com X (v0.24.0)
 
 - **X para dispensar:** `AbastecimentoForm` e `RevisaoForm` ganharam `bool _ocultarSugestaoOdo/_ocultarRepetir` e `InputChip(deleteIcon: close, onDeleted: setState ocultar)` no lugar de `ActionChip`. ` _sugestaoOdo()` e `_ultimo()/_ultimaRevisao()` retornam `null` se ocultado. Chip continua sumindo sozinho quando campo preenchido (`_odometro`/`_litros`/`_posto`).
