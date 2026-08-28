@@ -35,6 +35,8 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
   late DateTime _data;
   late List<String> _itens;
   bool _ocrLoading = false;
+  bool _ocultarSugestaoOdo = false;
+  bool _ocultarRepetir = false;
 
   @override
   void initState() {
@@ -85,6 +87,7 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
   }
 
   Revisao? _ultimaRevisao() {
+    if (_ocultarRepetir) return null;
     if (widget.original != null) return null;
     final lista = ref.watch(revisoesDoVeiculoProvider);
     if (lista.isEmpty) return null;
@@ -336,6 +339,7 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
   }
 
   int? _sugestaoOdo() {
+    if (_ocultarSugestaoOdo) return null;
     if (_odometro.text.trim().isNotEmpty) return null;
     if (widget.original?.odometro != null) return null;
     final ab = ref.watch(abastecimentosDoVeiculoProvider);
@@ -380,11 +384,15 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
               padding: const EdgeInsets.only(bottom: 8),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: ActionChip(
+                child: InputChip(
                   label: Text('Sugerido: ${n0(sugOdo.toDouble())} km',
                       style: const TextStyle(
                           fontSize: 13, fontWeight: FontWeight.w600)),
                   avatar: const Icon(Icons.auto_awesome, size: 16),
+                  deleteIcon: const Icon(Icons.close, size: 16),
+                  onDeleted: () => setState(() => _ocultarSugestaoOdo = true),
+                  deleteIconColor: AppColors.dim,
+                  deleteButtonTooltipMessage: 'Dispensar',
                   backgroundColor: AppColors.accent.withValues(alpha: 0.14),
                   side: BorderSide(
                       color: AppColors.accent.withValues(alpha: 0.4)),
@@ -427,11 +435,15 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
                   final titulo = u.titulo.isNotEmpty
                       ? u.titulo
                       : '${u.itens.length} itens';
-                  return ActionChip(
+                  return InputChip(
                     avatar: const Icon(Icons.history, size: 16),
                     label: Text('Repetir última: $titulo (${u.itens.length})',
                         style: const TextStyle(
                             fontSize: 12.5, fontWeight: FontWeight.w600)),
+                    deleteIcon: const Icon(Icons.close, size: 16),
+                    onDeleted: () => setState(() => _ocultarRepetir = true),
+                    deleteIconColor: AppColors.dim,
+                    deleteButtonTooltipMessage: 'Dispensar',
                     backgroundColor:
                         AppColors.leg(AppColors.catRevisoes).withValues(alpha: 0.14),
                     side: BorderSide(

@@ -33,6 +33,8 @@ class _AbastecimentoFormScreenState
   late DateTime _data;
   late bool _cheio;
   bool _modoTotal = false; // false = informar preço/L; true = informar valor total
+  bool _ocultarRepetir = false;
+  bool _ocultarSugestao = false;
 
   @override
   void initState() {
@@ -156,6 +158,7 @@ class _AbastecimentoFormScreenState
   }
 
   int? _sugestaoOdo() {
+    if (_ocultarSugestao) return null;
     if (_odometro.text.trim().isNotEmpty) return null;
     if (widget.original?.odometro != null) return null;
     final ab = ref.watch(abastecimentosDoVeiculoProvider);
@@ -164,6 +167,7 @@ class _AbastecimentoFormScreenState
   }
 
   Abastecimento? _ultimo() {
+    if (_ocultarRepetir) return null;
     if (widget.original != null) return null;
     final lista = ref.watch(abastecimentosDoVeiculoProvider);
     if (lista.isEmpty) return null;
@@ -351,10 +355,14 @@ class _AbastecimentoFormScreenState
       padding: const EdgeInsets.only(top: 8),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: ActionChip(
+        child: InputChip(
           label: Text('Repetir último: $desc',
               style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
           avatar: const Icon(Icons.history, size: 16),
+          deleteIcon: const Icon(Icons.close, size: 16),
+          onDeleted: () => setState(() => _ocultarRepetir = true),
+          deleteIconColor: AppColors.dim,
+          deleteButtonTooltipMessage: 'Dispensar',
           backgroundColor: AppColors.leg(AppColors.catAbastecimento)
               .withValues(alpha: 0.14),
           side: BorderSide(
@@ -371,10 +379,14 @@ class _AbastecimentoFormScreenState
       padding: const EdgeInsets.only(bottom: 12),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: ActionChip(
+        child: InputChip(
           label: Text('Sugerido: ${n0(v.toDouble())} km',
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
           avatar: const Icon(Icons.auto_awesome, size: 16),
+          deleteIcon: const Icon(Icons.close, size: 16),
+          onDeleted: () => setState(() => _ocultarSugestao = true),
+          deleteIconColor: AppColors.dim,
+          deleteButtonTooltipMessage: 'Dispensar',
           backgroundColor: AppColors.accent.withValues(alpha: 0.14),
           side: BorderSide(color: AppColors.accent.withValues(alpha: 0.4)),
           onPressed: () => setState(() => _odometro.text = v.toString()),

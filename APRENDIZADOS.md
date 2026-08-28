@@ -2,6 +2,10 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-28 — Dispensar sugestões com X (v0.24.0)
+
+- **X para dispensar:** `AbastecimentoForm` e `RevisaoForm` ganharam `bool _ocultarSugestaoOdo/_ocultarRepetir` e `InputChip(deleteIcon: close, onDeleted: setState ocultar)` no lugar de `ActionChip`. ` _sugestaoOdo()` e `_ultimo()/_ultimaRevisao()` retornam `null` se ocultado. Chip continua sumindo sozinho quando campo preenchido (`_odometro`/`_litros`/`_posto`).
+
 ## 2026-08-28 — Lembrete auto ao programar (v0.23.0)
 
 - **Auto-lembrete:** `_ItemSheet` ganha `SwitchListTile _criarLembrete` (default `true`) e em `_salvar` cria `Lembrete(tipo:revisao, titulo:descricao, vencimento:previsaoData(falta, ritmo) ?? now+intervaloMeses*30, 09:00)` via `lembretesProvider`. Só para itens novos com `kmAlvo` ou `intervaloKm`. Reuso de `ultimoOdometro`/`ritmoKmPorDia`/`previsaoData` já existentes.
