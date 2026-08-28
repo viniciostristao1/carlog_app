@@ -84,6 +84,14 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
     return out;
   }
 
+  Revisao? _ultimaRevisao() {
+    if (widget.original != null) return null;
+    final lista = ref.watch(revisoesDoVeiculoProvider);
+    if (lista.isEmpty) return null;
+    final ord = [...lista]..sort((a, b) => b.data.compareTo(a.data));
+    return ord.first;
+  }
+
   @override
   void dispose() {
     for (final c in [
@@ -409,6 +417,60 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
               ),
           ]),
           const SizedBox(height: 8),
+          if (_itens.isEmpty && _ultimaRevisao() != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Builder(builder: (_) {
+                  final u = _ultimaRevisao()!;
+                  final titulo = u.titulo.isNotEmpty
+                      ? u.titulo
+                      : '${u.itens.length} itens';
+                  return ActionChip(
+                    avatar: const Icon(Icons.history, size: 16),
+                    label: Text('Repetir última: $titulo (${u.itens.length})',
+                        style: const TextStyle(
+                            fontSize: 12.5, fontWeight: FontWeight.w600)),
+                    backgroundColor:
+                        AppColors.leg(AppColors.catRevisoes).withValues(alpha: 0.14),
+                    side: BorderSide(
+                        color: AppColors.leg(AppColors.catRevisoes)
+                            .withValues(alpha: 0.4)),
+                    onPressed: () => setState(() {
+                      _itens.addAll(u.itens.where((e) => !_itens.contains(e)));
+                      if (u.local.trim().isNotEmpty && _local.text.trim().isEmpty) {
+                        _local.text = u.local;
+                      }
+                    }),
+                  );
+                }),
+              ),
+            ),
+          if (_itens.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: kitsRevisao
+                    .map((k) => ActionChip(
+                          avatar: Icon(Icons.build_outlined,
+                              size: 16,
+                              color: AppColors.leg(AppColors.catRevisoes)),
+                          label: Text('${k.nome} (${k.itens.length})',
+                              style: const TextStyle(fontSize: 12)),
+                          backgroundColor: AppColors.surface2,
+                          side: BorderSide(color: AppColors.line),
+                          onPressed: () => setState(() {
+                            for (final it in k.itens) {
+                              if (!_itens.contains(it)) _itens.add(it);
+                            }
+                          }),
+                        ))
+                    .toList(),
+              ),
+            ),
           Row(children: [
             Expanded(
               child: TextField(

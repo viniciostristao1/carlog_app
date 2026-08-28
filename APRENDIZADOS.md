@@ -2,6 +2,10 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-28 — Kits de revisão + Repetir última (v0.22.0)
+
+- **Kits + Repetir:** `kitsRevisao` (5 kits) em `itens_sugeridos.dart` + `Revisao? _ultimaRevisao()` (mais recente por `data` filtrada por veículo). UI só quando `_itens.isEmpty`: `ActionChip("Repetir última: $titulo (N)")` copia `itens` + `local` se vazio; `Wrap` de kits adiciona `kit.itens.where(not in _itens)`. Fica acima do campo de peça, sem poluir quando já tem itens.
+
 ## 2026-08-28 — Abastecimento 1-toque (v0.21.0)
 
 - **Repetir último abastecimento:** `_ultimo()` pega o mais recente por `data`, `_chipRepetirUltimo` mostra `ActionChip` com `litros · preço · posto` quando `original==null` e campos vazios. `_aplicarUltimo` preenche `litros/preco/posto/tanqueCheio`. Evita redigitar posto/litros padrão. GPS de posto próximo fica para fase futura (requer permissão + `geolocator`).

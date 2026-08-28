@@ -46,6 +46,39 @@ const itensSugeridos = <ItemSugerido>[
   ItemSugerido('Rolamento de roda traseira', 60000),
 ];
 
+class KitSugerido {
+  final String nome;
+  final List<String> itens;
+  const KitSugerido(this.nome, this.itens);
+}
+
+const kitsRevisao = <KitSugerido>[
+  KitSugerido('Kit Óleo', ['Óleo do motor', 'Filtro de óleo']),
+  KitSugerido('Kit Filtros', [
+    'Filtro de óleo',
+    'Filtro de ar',
+    'Filtro de combustível',
+    'Filtro do ar-condicionado (cabine)'
+  ]),
+  KitSugerido('Kit Freios', [
+    'Pastilhas de freio (dianteiras)',
+    'Discos de freio',
+    'Fluido de freio'
+  ]),
+  KitSugerido('Kit Correias', [
+    'Correia dentada',
+    'Correia dos acessórios (alternador)',
+    'Polia (tensor/alternador)'
+  ]),
+  KitSugerido('Kit Revisão 10k', [
+    'Óleo do motor',
+    'Filtro de óleo',
+    'Filtro de ar',
+    'Rodízio dos pneus',
+    'Alinhamento e balanceamento'
+  ]),
+];
+
 /// Sugestões que combinam com o texto digitado (sem acento/caixa), até [max].
 List<ItemSugerido> sugestoesPara(String termo, {int max = 6}) {
   final t = _norm(termo);

@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-28 — v0.22.0.** **Kits de revisão + Repetir última.** Na nova revisão, chip `Repetir última: Revisão 40k (5 itens)` copia itens/oficina da revisão anterior e 5 kits (`Kit Óleo, Filtros, Freios, Correias, Revisão 10k`) adicionam vários itens de uma vez.
+
 - **2026-08-28 — v0.21.0.** **Abastecimento 1-toque.** Ao criar abastecimento, aparece chip `Repetir último: 38L · R$ 5,89 · Shell` que preenche litros/preço/posto/tanque cheio do último abastecimento — só falta o odômetro (que já tem o chip Sugerido).
 
 - **2026-08-28 — v0.20.0.** **Odômetro inteligente.** Ao criar abastecimento ou revisão, se o campo de **odômetro** estiver vazio, o app sugere `último + ritmo` (km/dia dos últimos 12 meses) num chip `Sugerido: 12.345 km` — toque para preencher. Evita digitar e mantém coerência com a previsão de revisão.
