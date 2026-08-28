@@ -25,6 +25,8 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 
 ## ⭐ ESTADO ATUAL (2026-08-28) — ler primeiro pós-/clear
 
+**v0.23.0 — LEMBRETE AUTO** (`analyze` limpo, 25 testes). Ao programar item (km-alvo/a cada) cria `Lembrete revisao` com data estimada (ritmo) — switch `Criar lembrete` para desativar. Base anterior:
+
 **v0.22.0 — KITS DE REVISÃO + REPETIR ÚLTIMA** (`analyze` limpo, 25 testes). Chip `Repetir última` + 5 kits (`Óleo, Filtros, Freios, Correias, Revisão 10k`) no form de revisão adicionam vários itens de uma vez. Base anterior:
 
 **v0.21.0 — ABASTECIMENTO 1-TOQUE** (`analyze` limpo, 25 testes). Chip `Repetir último: 38L · R$ 5,89 · Shell` no form de abastecimento preenche litros/preço/posto/tanque do último. Base anterior:

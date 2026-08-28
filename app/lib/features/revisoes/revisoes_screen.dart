@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../models/lembrete.dart';
 import '../../models/programacao.dart';
 import '../../models/revisao.dart';
 import '../../models/veiculo.dart';
@@ -605,6 +606,7 @@ class _ItemSheetState extends ConsumerState<_ItemSheet> {
   late final TextEditingController _desc;
   late final TextEditingController _kmAlvo;
   late final TextEditingController _intervalo;
+  bool _criarLembrete = true;
 
   @override
   void initState() {
@@ -654,6 +656,31 @@ class _ItemSheetState extends ConsumerState<_ItemSheet> {
       limparIntervalo: _intervalo.text.trim().isEmpty,
     );
     await ref.read(programacaoProvider.notifier).salvar(item);
+    if (_criarLembrete &&
+        widget.original == null &&
+        (item.kmAlvo != null || item.intervaloKm != null)) {
+      final ab = ref.read(abastecimentosDoVeiculoProvider);
+      final odo = ultimoOdometro(ab);
+      final ritmo = ritmoKmPorDia(ab);
+      DateTime? venc;
+      if (item.kmAlvo != null && odo != null) {
+        final falta = item.kmAlvo! - odo;
+        venc = previsaoData(falta > 0 ? falta : 0, ritmo);
+      }
+      final veic = ref.read(veiculoSelecionadoProvider);
+      venc ??= DateTime.now().add(
+          Duration(days: (veic?.revisaoIntervaloMeses ?? 6) * 30));
+      venc = DateTime(venc.year, venc.month, venc.day, 9);
+      final lemb = Lembrete(
+        id: novoId(),
+        veiculoId: item.veiculoId,
+        tipo: TipoLembrete.revisao,
+        titulo: desc,
+        vencimento: venc,
+        recorrencia: Recorrencia.nenhuma,
+      );
+      await ref.read(lembretesProvider.notifier).salvar(lemb);
+    }
     if (mounted) Navigator.of(context).pop();
   }
 
@@ -730,7 +757,21 @@ class _ItemSheetState extends ConsumerState<_ItemSheet> {
               t.ambosOpcionais,
               style: TextStyle(color: AppColors.dim2, fontSize: 12),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 10),
+            SwitchListTile(
+              value: _criarLembrete,
+              onChanged: (v) => setState(() => _criarLembrete = v),
+              contentPadding: EdgeInsets.zero,
+              activeThumbColor: AppColors.accent,
+              title: Text('Criar lembrete',
+                  style: TextStyle(
+                      color: AppColors.text,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600)),
+              subtitle: Text('Avisa quando chegar perto',
+                  style: TextStyle(color: AppColors.dim, fontSize: 12.5)),
+            ),
+            const SizedBox(height: 10),
             FilledButton(
               onPressed: _salvar,
               style: FilledButton.styleFrom(

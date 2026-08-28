@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-28 — v0.23.0.** **Lembrete auto.** Ao programar um item (com km-alvo ou a cada X km) o app cria automaticamente um **lembrete de Revisão** com data estimada (último odômetro + ritmo → data) — com opção `Criar lembrete` para desativar.
+
 - **2026-08-28 — v0.22.0.** **Kits de revisão + Repetir última.** Na nova revisão, chip `Repetir última: Revisão 40k (5 itens)` copia itens/oficina da revisão anterior e 5 kits (`Kit Óleo, Filtros, Freios, Correias, Revisão 10k`) adicionam vários itens de uma vez.
 
 - **2026-08-28 — v0.21.0.** **Abastecimento 1-toque.** Ao criar abastecimento, aparece chip `Repetir último: 38L · R$ 5,89 · Shell` que preenche litros/preço/posto/tanque cheio do último abastecimento — só falta o odômetro (que já tem o chip Sugerido).

@@ -2,6 +2,10 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-28 — Lembrete auto ao programar (v0.23.0)
+
+- **Auto-lembrete:** `_ItemSheet` ganha `SwitchListTile _criarLembrete` (default `true`) e em `_salvar` cria `Lembrete(tipo:revisao, titulo:descricao, vencimento:previsaoData(falta, ritmo) ?? now+intervaloMeses*30, 09:00)` via `lembretesProvider`. Só para itens novos com `kmAlvo` ou `intervaloKm`. Reuso de `ultimoOdometro`/`ritmoKmPorDia`/`previsaoData` já existentes.
+
 ## 2026-08-28 — Kits de revisão + Repetir última (v0.22.0)
 
 - **Kits + Repetir:** `kitsRevisao` (5 kits) em `itens_sugeridos.dart` + `Revisao? _ultimaRevisao()` (mais recente por `data` filtrada por veículo). UI só quando `_itens.isEmpty`: `ActionChip("Repetir última: $titulo (N)")` copia `itens` + `local` se vazio; `Wrap` de kits adiciona `kit.itens.where(not in _itens)`. Fica acima do campo de peça, sem poluir quando já tem itens.
