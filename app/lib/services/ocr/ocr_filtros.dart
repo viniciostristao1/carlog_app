@@ -41,16 +41,23 @@ const _ufs = r'AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS'
     r'|RO|RR|SC|SP|SE|TO';
 // Linha que TERMINA em "… - SP", "…/MG", "…, RJ" → é endereço/cidade, não peça.
 final _reCidadeUf = RegExp('[-/,]\\s*(?:$_ufs)\\s*\$');
+final _reData = RegExp(r'\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b');
+final _rePagina = RegExp(r'<<\s*p[áa]g|p[áa]g\.\s*\d|p[áa]gina\s*\d', caseSensitive: false);
+final _reAutorizoCiente = RegExp(
+  r'\b(autorizo|autoriza\w*|execu\w*|ciente|concordo)\b',
+  caseSensitive: false,
+);
 
 // Rótulos fortes de cabeçalho/cadastro: se aparecem em QUALQUER lugar da linha,
 // a linha é cadastro (não peça). NÃO inclui palavras que também são peça
 // (contato, estado, item, marca, modelo…) — essas ficam na camada 2.
 final _reRotuloForte = RegExp(
   r'\b(cliente|nome|endere\w*|rua|avenida|bairro|cep|cpf|cnpj|telefone|celular'
-  r'|fone|e-?mail|inscri\w*|whats\w*|raz[ãa]o\s+social|respons[áa]vel|comprador'
-  r'|placa|chassi\w*|renavam|ve[íi]culo|cidade|munic[íi]pio|\buf\b|concession\w*'
+  r'|fone|e-?mail|inscri\w*|estad\w*|whats\w*|raz[ãa]o\s+social|respons[áa]vel|comprador'
+  r'|placa|chassi\w*|renavam|ve[íi]culo|cidade|munic[íi]pio|\buf\b|concession\w*|oficina\w*'
   r'|quantidade|qtde?\w*|unit[áa]ri\w*|desconto|subtotal|descri[çc][ãa]o'
-  r'|or[çc]amento|vencimento|pagamento)\b',
+  r'|or[çc]amento|vencimento|pagamento|validad\w*|previs\w*'
+  r'|requis\w*|pecas?|pe[çc]as?|disp(\b|\.)|dispon\w*|liberad\w*|impress\w*)\b',
   caseSensitive: false,
 );
 
@@ -63,7 +70,29 @@ bool linhaEhRuido(String linha) =>
     _reFone.hasMatch(linha) ||
     _rePlaca.hasMatch(linha) ||
     _reCidadeUf.hasMatch(linha) ||
-    _reRotuloForte.hasMatch(linha);
+    _rePagina.hasMatch(linha) ||
+    _reAutorizoCiente.hasMatch(linha) ||
+    _reRotuloForte.hasMatch(linha) ||
+    _ehLinhaDataOuNumerica(linha);
+
+bool _ehLinhaDataOuNumerica(String linha) {
+  if (!_reData.hasMatch(linha)) return false;
+  final semData = linha.replaceAll(_reData, '').trim();
+  final soData = semData.replaceAll(RegExp(r'[\s./\-:]+'), '').isEmpty;
+  if (soData) return true;
+  final norm = semAcento(semData).toLowerCase();
+  const gatilhosData = [
+    'impressao',
+    'emissao',
+    'emiss',
+    'validade',
+    'entrada',
+    'previsao',
+    'vencimento',
+    'data',
+  ];
+  return gatilhosData.any(norm.contains);
+}
 
 /// Rótulo de pessoa SOZINHO ("Cliente", "Nome:") — o valor vem na linha
 /// seguinte, que o motor também ignora.
@@ -95,6 +124,21 @@ const _frasesRotulo = <String>[
   'concessionaria', 'sugestao', 'legenda', 'linha', 'documento',
   'ano modelo', 'ano', 'modelo', 'combustivel', 'preco', 'preco total',
   'total', 'externa',
+  // — acrescentados 2026-08-27 (orçamento genérico — precisão de peças) —
+  'autorizo', 'autorizo a execucao', 'autorizo a execução', 'execucao',
+  'requisicao', 'requisição', 'requis', 'peca', 'pecas', 'peça', 'peças',
+  'disp', 'disponivel', 'disponível', 'dt fab', 'dt', 'fab',
+  'branco', 'preto', 'prata', 'cinza', 'grafite', 'vermelho', 'azul',
+  'verde', 'amarelo', 'bege', 'marrom', 'dourado', 'laranja', 'vinho',
+  'centro', 'liberada', 'liberado', 'data ini contr', 'data ini',
+  'ini contr', 'n pre s', 'impressao', 'impressão', 'lajeado', 'validade',
+  'entrada', 'insc', 'estad', 'insc estad', 'inscricao estadual',
+  'previsao', 'previsão', 'previsao de entrega', 'previsão de entrega',
+  'previsao entrega', 'geral', 'total geral', 'proxima revisao',
+  'próxima revisão', 'revisao', 'revisão', 'estou ciente', 'ciente',
+  'concordo', 'estou ciente e concordo', 'pag', 'pág', 'estimado',
+  'valor total estimado', 'oficina', 'auto center', 'mecanica', 'automotivo',
+  'automotiva', 'automotivos',
 ];
 
 /// Marcas de carro — "TOYOTA" sozinho vira ruído; "Filtro Toyota" sobrevive

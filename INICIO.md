@@ -23,7 +23,9 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 > usuário (`ATUALIZACOES`) · futuro (`IDEIAS`) · nuvem (`FIREBASE`) · **motor "Ler foto" + log de casos
 > (`OCR.md`)**.
 
-## ⭐ ESTADO ATUAL (2026-08-24) — ler primeiro pós-/clear
+## ⭐ ESTADO ATUAL (2026-08-27) — ler primeiro pós-/clear
+
+**v0.19.0 — TERRACOTA + DROPDOWNS + OCR PRECISO** (`analyze` limpo, 25 testes). (1) **Blueprint → Terracota** (mesma paleta navy/coral, `TemaApp.terracota` com migração de `blueprint`). (2) **Configurações com seta:** Idioma, Tema e Tamanho da fonte viraram **dropdowns com seta ↓** (`ExpansionTile` com subtítulo = valor atual). (3) **"Ler foto" preciso:** ignora "Autorizo…", "Requisição", "Peças", "Disp/Disponível", "Dt. Fab", cores, "Centro", "LAJEADO", "Validade", "Entrada", "Insc.Estad.", "Previsão Entrega", "Total Geral", "<<Pág", "VALOR TOTAL ESTIMADO", datas isoladas etc. — só peças importam. Base anterior:
 
 **v0.18.0 — OCR MODULAR + FILTROS + BADGE DE LEMBRETE** (`analyze` limpo, 25 testes). (1) **"Ler foto"
 reescrito** em `lib/services/ocr/` (motor puro `ocr_engine` + regras em `ocr_filtros` + `ocr_km`); filosofia
@@ -43,9 +45,9 @@ também emite `carlog_logo.png`; âmbar do adaptive passou a `#E88F00`. (2) **Le
 hora. Ver APRENDIZADOS. **Sync JÁ é automático em tempo real** quando logado no Google (Config → Conta):
 não há nem é preciso botão "nuvem" (ao contrário do Taskix). Base anterior:
 
-**v0.16.0 — VISUAL BLUEPRINT + BACKUP EM ARQUIVO** (`analyze` limpo, 19 testes). Novo tema **Blueprint**
-(azul-marinho + coral) como **padrão** (os 4 antigos seguem em Config → Aparência; `TemaApp.blueprint`
-appendado no fim do enum — ver APRENDIZADOS). **Backup manual** em Config → Backup: *Exportar* (share_plus,
+**v0.16.0 — VISUAL BLUEPRINT (hoje TERRACOTA) + BACKUP EM ARQUIVO** (`analyze` limpo, 19 testes). Novo tema **Terracota**
+(antes Blueprint — azul-marinho + coral) como **padrão** (os 4 antigos seguem em Config → Aparência; `TemaApp.terracota`
+— antes `blueprint` — appendado no fim do enum — ver APRENDIZADOS). **Backup manual** em Config → Backup: *Exportar* (share_plus,
 arquivo `.json` com tudo) + *Importar* (file_picker, **mescla por id, nunca apaga** — `BackupService`,
 lógica pura testada). Também: **Limpar tudo** (abastecimentos / histórico de revisões), **OCR** ignora
 rótulos de OS (regra "todas as palavras são rótulo"), folha "O que importar" com `useSafeArea`, **nome do
@@ -165,6 +167,8 @@ versionado. Ciclo por mudança:
 - **Página:** `https://github.com/viniciostristao1/carlog_app/releases/latest`
 - **APK arm64 direto:** `https://github.com/viniciostristao1/carlog_app/releases/latest/download/carlog.apk`
 ⚠️ Se o repo for **privado**, o download só funciona **logado no GitHub** (curl anônimo dá 404).
+
+> 📲 **Regra do fluxo:** ao cortar nova versão (`scripts/release.sh`), **sempre mande ao usuário o link direto do APK** acima.
 
 > **Assinatura (Play Store):** quando for lançar, gerar a keystore de upload, guardar como secrets
 > `KEYSTORE_BASE64`/`KEYSTORE_PASSWORD` (alias `upload`) — o Gradle já lê `key.properties` e o CI já

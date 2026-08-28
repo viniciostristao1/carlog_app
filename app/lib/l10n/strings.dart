@@ -146,7 +146,7 @@ class AppStrings {
         1 => _s('Azul', 'Blue', 'Azul'),
         2 => _s('Expresso', 'Espresso', 'Espresso'),
         3 => _s('Madeira', 'Wood', 'Madera'),
-        _ => _s('Blueprint', 'Blueprint', 'Blueprint'),
+        _ => _s('Terracota', 'Terracota', 'Terracota'),
       };
   String get tamanhoFonte =>
       _s('Tamanho da fonte', 'Font size', 'Tamaño de fuente');

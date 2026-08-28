@@ -69,6 +69,9 @@ Rodar como root só emite um aviso; funciona. **Não** rode `flutter build apk` 
    `gh run watch <id> --exit-status`.
 3. Com o CI **verde**: `scripts/release.sh vX.Y.Z "<nota 1 linha>"` → publica o APK de nome fixo
    `carlog.apk` (link perene `/releases/latest/download/carlog.apk`).
+4. **Ao terminar a nova versão, SEMPRE envie ao usuário o link direto do APK:**
+   `https://github.com/viniciostristao1/carlog_app/releases/latest/download/carlog.apk`
+   (página do release: `https://github.com/viniciostristao1/carlog_app/releases/latest`).
 
 ## 6. Checklist de gotchas de build (NÃO reintroduzir — detalhes em APRENDIZADOS.md)
 - ⛔ **Minify/R8 e `shrinkResources` ficam DESLIGADOS** no release (`app/android/app/build.gradle.kts`):

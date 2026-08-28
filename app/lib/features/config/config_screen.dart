@@ -74,7 +74,7 @@ class ConfigScreen extends ConsumerWidget {
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700)),
                         const SizedBox(height: 2),
-                        Text('${t.appTagline} · v0.18.0',
+                        Text('${t.appTagline} · v0.19.0',
                             style:
                                 TextStyle(color: AppColors.dim, fontSize: 12.5)),
                       ],
@@ -348,27 +348,32 @@ class _NotificacoesCard extends ConsumerWidget {
   }
 }
 
-/// Seletor de tema: as amostras (Blueprint/âmbar/azul/espresso/madeira). A
-/// escolhida ganha um anel com a cor de destaque; troca é instantânea.
+/// Seletor de tema: dropdown com seta (expande para as amostras).
 class _TemaCard extends ConsumerWidget {
   const _TemaCard();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(stringsProvider);
-    final atual = ref.watch(temaProvider).value ?? TemaApp.blueprint;
+    final atual = ref.watch(temaProvider).value ?? TemaApp.terracota;
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      clipBehavior: Clip.antiAlias,
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          collapsedIconColor: AppColors.dim,
+          iconColor: AppColors.accent,
+          title: Text(s.tema,
+              style: TextStyle(
+                  color: AppColors.text,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700)),
+          subtitle: Text(s.nomeTema(atual.index),
+              style: TextStyle(color: AppColors.dim, fontSize: 12.5)),
           children: [
-            Text(s.tema,
-                style: TextStyle(
-                    color: AppColors.text,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700)),
-            const SizedBox(height: 12),
+            const SizedBox(height: 4),
             Row(
               children: [
                 for (final tval in TemaApp.values) ...[
@@ -449,8 +454,7 @@ class _TemaSwatch extends StatelessWidget {
   }
 }
 
-/// Seletor de tamanho de fonte: menor / normal / duas maiores. Vale para o app
-/// inteiro (aplicado no `main` via MediaQuery).
+/// Seletor de tamanho de fonte: dropdown com seta.
 class _FonteCard extends ConsumerWidget {
   const _FonteCard();
 
@@ -465,20 +469,23 @@ class _FonteCard extends ConsumerWidget {
       TamanhoFonte.maximo: s.fonteMax,
     };
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      clipBehavior: Clip.antiAlias,
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          collapsedIconColor: AppColors.dim,
+          iconColor: AppColors.accent,
+          title: Text(s.tamanhoFonte,
+              style: TextStyle(
+                  color: AppColors.text,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700)),
+          subtitle: Text('${nomes[atual]} · ${s.valeAppInteiro}',
+              style: TextStyle(color: AppColors.dim, fontSize: 12.5)),
           children: [
-            Text(s.tamanhoFonte,
-                style: TextStyle(
-                    color: AppColors.text,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700)),
-            const SizedBox(height: 2),
-            Text(s.valeAppInteiro,
-                style: TextStyle(color: AppColors.dim, fontSize: 12.5)),
-            const SizedBox(height: 12),
+            const SizedBox(height: 4),
             Row(
               children: [
                 for (final tf in TamanhoFonte.values) ...[
@@ -555,17 +562,30 @@ class _FonteOpcao extends StatelessWidget {
   }
 }
 
-/// Seletor de idioma (Português / English / Español). Troca é instantânea.
+/// Seletor de idioma: dropdown com seta.
 class _IdiomaCard extends ConsumerWidget {
   const _IdiomaCard();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final atual = ref.watch(idiomaProvider).value ?? Idioma.pt;
+    final t = ref.watch(stringsProvider);
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(6),
-        child: Column(
+      clipBehavior: Clip.antiAlias,
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          childrenPadding: const EdgeInsets.fromLTRB(6, 0, 6, 6),
+          collapsedIconColor: AppColors.dim,
+          iconColor: AppColors.accent,
+          title: Text(t.secaoIdioma,
+              style: TextStyle(
+                  color: AppColors.text,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700)),
+          subtitle: Text(atual.nomeNativo,
+              style: TextStyle(color: AppColors.dim, fontSize: 12.5)),
           children: [
             for (final i in Idioma.values)
               InkWell(

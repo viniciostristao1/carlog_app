@@ -2,6 +2,11 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-27 — Terracota + dropdowns em Configurações (v0.19.0)
+
+- **Blueprint → Terracota:** `TemaApp.blueprint` renomeado para `terracota` (mesma paleta navy #0B1220 / coral #FF6B4A). `strings.nomeTema` agora devolve "Terracota". Migração: `prefs` mapeia valor legado `"blueprint"` → `"terracota"` para não perder preferência salva.
+- **Configurações com seta (dropdown):** `_IdiomaCard`, `_TemaCard` e `_FonteCard` viraram `ExpansionTile` dentro de `Card` (`dividerColor: transparent`, `collapsedIconColor: dim`, `iconColor: accent`). Título = nome da seção, subtítulo = valor atual (idioma nome nativo, tema nome, fonte nome + "Vale para o app inteiro"), seta padrão do ExpansionTile para expandir. Mantém `AppColors` e troca instantânea.
+
 ## 2026-08-24 — Motor de OCR modular + filtros + badge de lembrete (v0.18.0)
 
 - **OCR refatorado em `lib/services/ocr/`** (era um `ocr_service.dart` monolítico): `ocr_models`

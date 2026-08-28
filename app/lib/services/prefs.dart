@@ -12,7 +12,7 @@ import '../theme/app_colors.dart';
 
 const _kTema = 'tema_v1';
 
-/// Tema escolhido. Padrão = Blueprint (azul-marinho + coral).
+/// Tema escolhido. Padrão = Terracota (azul-marinho + coral).
 final temaProvider =
     AsyncNotifierProvider<TemaNotifier, TemaApp>(TemaNotifier.new);
 
@@ -21,9 +21,10 @@ class TemaNotifier extends AsyncNotifier<TemaApp> {
   Future<TemaApp> build() async {
     final prefs = await SharedPreferences.getInstance();
     final s = prefs.getString(_kTema);
+    final norm = s == 'blueprint' ? 'terracota' : s;
     return TemaApp.values.firstWhere(
-      (t) => t.name == s,
-      orElse: () => TemaApp.blueprint,
+      (t) => t.name == norm,
+      orElse: () => TemaApp.terracota,
     );
   }
 

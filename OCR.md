@@ -71,3 +71,20 @@ Km e total têm tratamento próprio no engine (não viram item):
     Linha, Documento, Ano/Modelo, Combustível, Placa (7 díg.), Preço Total, nome de
     cidade. → termos somados a `_frasesRotulo`/`_marcas`; CNPJ-14, placa e "Cidade - UF"
     viraram regex estrutural em `linhaEhRuido`. Coberto por `ocr_casos_test.dart`.
+- **2026-08-27 — orçamento genérico (precisão de peças).**
+  - **viraram item indevidamente:** "Autorizo a execução", "Serviço", "Requisição",
+    "Peças", "Disp"/"Disponível", "Dt. Fab", "BRANCO" e outras cores, "Centro",
+    "Centro Automotivo", nome de cliente, "N. Pré. S", "Liberada", "Data Ini. Contr",
+    "Impressão" e datas de impressão, "LAJEADO" e outras cidades isoladas, "Validade",
+    "Entrada", "Insc.Estad.:", "Previsão de Entrega", "Weiand" e outras oficinas,
+    data isolada "27/08/2026", "Total Geral", "Próxima revisão", "Estou ciente e
+    concordo...", "<<Pág", "VALOR TOTAL ESTIMADO". → expandido `_frasesRotulo` (cores,
+    `autorizo/execucao/requisicao/peca/disp/dt/fab/centro/liberada/validade/entrada/
+    insc/estad/previsao/geral/revisao/ciente/concordo/pag/estimado/oficina/mecanica/
+    automotivo/lajeado` + variações), novos gatilhos em `linhaEhRuido`:
+    `_reData` + `_ehLinhaDataOuNumerica` (data solta ou com rótulo data/impressão/
+    validade/entrada/previsão), `_rePagina` (`<<Pág`/`Pág.`/`Página`), `_reAutorizoCiente`
+    (`autorizo/execu/ciente/concordo`) e `_reRotuloForte` ampliado (`validad*`,
+    `previs*`, `requis*`, `peca*`, `disp*`, `dispon*`, `liberad*`, `impress*`,
+    `oficina*`). Filosofia mantida: só peça cai se **todas** palavras forem rótulo —
+    "Entrada de ar" e "Chave de contato" seguem preservadas.

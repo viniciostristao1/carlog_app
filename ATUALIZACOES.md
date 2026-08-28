@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-08-27 — v0.19.0.** **Terracota + Config com setas + Ler foto preciso.** (1) Tema **Blueprint renomeado para Terracota** (mesma cor navy/coral) — quem já usava continua no Terracota automaticamente. (2) **Configurações com seta:** Idioma, Tema e Tamanho da fonte agora são **dropdowns** — toque na seta ↓ para abrir as opções. (3) **Ler foto muito mais preciso:** passa a ignorar "Autorizo a execução", "Requisição", "Peças", "Disp/Disponível", "Dt. Fab", cores ("BRANCO"…), "Centro/Automotivo", nomes de cliente, "N. Pré. S", "Liberada", "Data Ini. Contr", "Impressão" + datas, cidades soltas tipo "LAJEADO", "Validade", "Entrada", "Insc.Estad.", "Previsão de Entrega", "Weiand"/oficinas, data isolada, "Total Geral", "Próxima revisão", "Estou ciente e concordo…", "<<Pág" e "VALOR TOTAL ESTIMADO" — importando só as **peças de verdade**.
+
 - **2026-08-24 — v0.18.0.** **Ler foto mais esperto + lembretes.** (1) O **leitor de orçamento** ficou
   bem melhor: passou a **ignorar** marca do carro (TOYOTA…), concessionária, cidade, CNPJ, placa,
   Emissão, Garantia, Fábrica, Cor externa, Combustível, Ano/Modelo, Documento, Legenda, Sugestão,
