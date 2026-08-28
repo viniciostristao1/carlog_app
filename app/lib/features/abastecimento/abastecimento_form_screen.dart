@@ -7,6 +7,7 @@ import '../../models/abastecimento.dart';
 import '../../services/prefs.dart';
 import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
+import '../../util/consumo.dart';
 import '../../util/format.dart';
 import '../../util/ids.dart';
 import '../../widgets/campo_sugestoes.dart';
@@ -154,9 +155,18 @@ class _AbastecimentoFormScreenState
     }
   }
 
+  int? _sugestaoOdo() {
+    if (_odometro.text.trim().isNotEmpty) return null;
+    if (widget.original?.odometro != null) return null;
+    final ab = ref.watch(abastecimentosDoVeiculoProvider);
+    final revs = ref.watch(revisoesDoVeiculoProvider);
+    return sugestaoOdometro(ab, revs);
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = ref.watch(stringsProvider);
+    final sugOdo = _sugestaoOdo();
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -177,6 +187,7 @@ class _AbastecimentoFormScreenState
           const SizedBox(height: 12),
           _campo(_odometro, t.odometroKmOpc,
               teclado: TextInputType.number, soDigitos: true),
+          if (sugOdo != null) _chipSugestaoOdo(sugOdo),
           _campo(_litros, t.litrosOpc,
               teclado: const TextInputType.numberWithOptions(decimal: true)),
           _seletorModo(t),
@@ -301,6 +312,23 @@ class _AbastecimentoFormScreenState
                   fontSize: 20,
                   fontWeight: FontWeight.w800)),
         ],
+      ),
+    );
+  }
+
+  Widget _chipSugestaoOdo(int v) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: ActionChip(
+          label: Text('Sugerido: ${n0(v.toDouble())} km',
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+          avatar: const Icon(Icons.auto_awesome, size: 16),
+          backgroundColor: AppColors.accent.withValues(alpha: 0.14),
+          side: BorderSide(color: AppColors.accent.withValues(alpha: 0.4)),
+          onPressed: () => setState(() => _odometro.text = v.toString()),
+        ),
       ),
     );
   }

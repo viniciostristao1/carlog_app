@@ -23,7 +23,9 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 > usuário (`ATUALIZACOES`) · futuro (`IDEIAS`) · nuvem (`FIREBASE`) · **motor "Ler foto" + log de casos
 > (`OCR.md`)**.
 
-## ⭐ ESTADO ATUAL (2026-08-27) — ler primeiro pós-/clear
+## ⭐ ESTADO ATUAL (2026-08-28) — ler primeiro pós-/clear
+
+**v0.20.0 — ODÔMETRO INTELIGENTE** (`analyze` limpo, 25 testes). **Odômetro sugerido** (`sugestaoOdometro` em `consumo.dart` = último odômetro + `km/dia 12m * dias`): chip `Sugerido: 12.345 km` em `AbastecimentoForm` e `RevisaoForm` quando vazio. Base anterior:
 
 **v0.19.0 — TERRACOTA + DROPDOWNS + OCR PRECISO** (`analyze` limpo, 25 testes). (1) **Blueprint → Terracota** (mesma paleta navy/coral, `TemaApp.terracota` com migração de `blueprint`). (2) **Configurações com seta:** Idioma, Tema e Tamanho da fonte viraram **dropdowns com seta ↓** (`ExpansionTile` com subtítulo = valor atual). (3) **"Ler foto" preciso:** ignora "Autorizo…", "Requisição", "Peças", "Disp/Disponível", "Dt. Fab", cores, "Centro", "LAJEADO", "Validade", "Entrada", "Insc.Estad.", "Previsão Entrega", "Total Geral", "<<Pág", "VALOR TOTAL ESTIMADO", datas isoladas etc. — só peças importam. Base anterior:
 

@@ -2,6 +2,10 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-08-28 — Odômetro inteligente (v0.20.0)
+
+- **`sugestaoOdometro(ab, revs)` em `util/consumo.dart`:** lê `_leituras(ab,revs)` (mesma base da previsão), pega o maior odômetro + sua data, calcula `kmDia` 12m (fallback todo histórico) e faz `ultimo + kmDia*dias(desde última leitura)`. Usado em `AbastecimentoForm` e `RevisaoForm`: se `_odometro.text` vazio e não é edição, mostra `ActionChip("Sugerido: ${n0} km")` que preenche o campo. Não sugere se já tem valor ou está editando revisão existente. Teste implícito via lógica já coberta por `consumo_test`/`ocr_km_test`.
+
 ## 2026-08-27 — Terracota + dropdowns em Configurações (v0.19.0)
 
 - **Blueprint → Terracota:** `TemaApp.blueprint` renomeado para `terracota` (mesma paleta navy #0B1220 / coral #FF6B4A). `strings.nomeTema` agora devolve "Terracota". Migração: `prefs` mapeia valor legado `"blueprint"` → `"terracota"` para não perder preferência salva.

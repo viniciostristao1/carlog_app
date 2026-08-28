@@ -9,6 +9,7 @@ import '../../services/ocr_service.dart';
 import '../../services/prefs.dart';
 import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
+import '../../util/consumo.dart';
 import '../../util/format.dart';
 import '../../util/ids.dart';
 import '../../widgets/campo_sugestoes.dart';
@@ -326,9 +327,18 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
     if (mounted) Navigator.of(context).pop();
   }
 
+  int? _sugestaoOdo() {
+    if (_odometro.text.trim().isNotEmpty) return null;
+    if (widget.original?.odometro != null) return null;
+    final ab = ref.watch(abastecimentosDoVeiculoProvider);
+    final revs = ref.watch(revisoesDoVeiculoProvider);
+    return sugestaoOdometro(ab, revs);
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = ref.watch(stringsProvider);
+    final sugOdo = _sugestaoOdo();
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.original == null ? t.novaRevisao : t.revisao),
@@ -357,6 +367,24 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
                     teclado:
                         const TextInputType.numberWithOptions(decimal: true))),
           ]),
+          if (sugOdo != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: ActionChip(
+                  label: Text('Sugerido: ${n0(sugOdo.toDouble())} km',
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w600)),
+                  avatar: const Icon(Icons.auto_awesome, size: 16),
+                  backgroundColor: AppColors.accent.withValues(alpha: 0.14),
+                  side: BorderSide(
+                      color: AppColors.accent.withValues(alpha: 0.4)),
+                  onPressed: () =>
+                      setState(() => _odometro.text = sugOdo.toString()),
+                ),
+              ),
+            ),
           CampoSugestoes(
             controller: _local,
             label: t.oficinaConcessionaria,

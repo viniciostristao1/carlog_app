@@ -167,6 +167,36 @@ double? ultimoOdometro(List<Abastecimento> abastecimentos) {
   return odos.reduce((a, b) => a > b ? a : b);
 }
 
+/// Sugestão de odômetro = último + ritmo * dias desde a última leitura.
+/// Usa abastecimentos + revisões juntos (mesma base da previsão).
+int? sugestaoOdometro(List<Abastecimento> ab, List<Revisao> revs) {
+  final leituras = _leituras(ab, revs);
+  if (leituras.isEmpty) return null;
+  double odo = leituras.first.$2;
+  DateTime dataOdo = leituras.first.$1;
+  for (final l in leituras) {
+    if (l.$2 > odo) {
+      odo = l.$2;
+      dataOdo = l.$1;
+    }
+    if (l.$1.isAfter(dataOdo) && l.$2 == odo) dataOdo = l.$1;
+  }
+  final dias = DateTime.now().difference(dataOdo).inDays;
+  if (dias <= 0) return odo.round();
+  double? kmDia;
+  if (leituras.length >= 2) {
+    final corte = DateTime.now().subtract(const Duration(days: 365));
+    var jan = leituras.where((l) => !l.$1.isBefore(corte)).toList();
+    if (jan.length < 2) jan = leituras;
+    final dist = jan.last.$2 - jan.first.$2;
+    final ndias = jan.last.$1.difference(jan.first.$1).inDays;
+    if (dist > 0 && ndias > 0) kmDia = dist / ndias;
+  }
+  if (kmDia == null || kmDia <= 0) return odo.round();
+  final est = odo + kmDia * dias;
+  return est.round();
+}
+
 // ─────────────────────────── Previsão de revisão ───────────────────────────
 
 /// Previsão da próxima revisão, combinando abastecimentos + revisões.
