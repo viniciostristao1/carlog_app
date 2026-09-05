@@ -16,9 +16,9 @@ import sys
 
 from PIL import Image, ImageEnhance
 
-# Arte enviada pelo usuário (carro + velocímetro + 5 ícones, fundo âmbar).
+# Arte enviada pelo usuário (carro + velocímetro + 5 ícones, fundo preto).
 ORIGEM = sys.argv[1] if len(sys.argv) > 1 \
-    else 'file_00000000c504820e9a8f80e5eafcb52c.png'
+    else 'file_000000005e94820e9ffd7d6feec8260a.png'
 DEST = 'app/assets/icon'
 
 img = Image.open(ORIGEM).convert('RGB')
