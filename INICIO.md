@@ -23,7 +23,9 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 > usuário (`ATUALIZACOES`) · futuro (`IDEIAS`) · nuvem (`FIREBASE`) · **motor "Ler foto" + log de casos
 > (`OCR.md`)**.
 
-## ⭐ ESTADO ATUAL (2026-08-28) — ler primeiro pós-/clear
+## ⭐ ESTADO ATUAL (2026-09-05) — ler primeiro pós-/clear
+
+**v0.26.0 — NOVO LOGO (FUNDO PRETO)** (`analyze` limpo, 25 testes). Ícone/launcher regenerado a partir de `file_000000005e94820e9ffd7d6feec8260a.png`; adaptive background `#000000`. Base anterior:
 
 **v0.25.0 — DESFAZER SUGESTÕES** (`analyze` limpo, 25 testes). Após tocar `Sugerido`/`Repetir`/`Kits` aparece botão **Desfazer** (↩) para voltar; antes de usar, **X** dispensa. Base anterior:
 

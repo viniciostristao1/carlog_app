@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-09-05 — v0.26.0.** **Novo logo (fundo preto).** Ícone do app regenerado a partir de `file_000000005e94820e9ffd7d6feec8260a.png` (adaptive `#000000`).
+
 - **2026-08-28 — v0.25.0.** **Desfazer sugestões.** Ao tocar em `Sugerido` ou `Repetir último/última` e `Kits`, aparece botão **Desfazer** (↩) para voltar com 1 clique — além do X para dispensar antes de usar.
 
 - **2026-08-28 — v0.24.0.** **Dispensar sugestões.** Chips `Sugerido: X km` e `Repetir último/última` agora têm um **X** para dispensar — se não quiser o automático, toque no X e eles somem até reabrir o form.
