@@ -85,6 +85,14 @@ abstract final class AppColors {
   static const catCalibragem = Color(0xFF19C7B1); // teal (pneus)
   static const catLembretes = Color(0xFFFF6B6B); // vermelho (vencimentos)
 
+  // ---- placa Mercosul (reprodução da placa física: faixa azul + fundo claro) ----
+  static const placaAzul = Color(0xFF0B4CA8); // faixa superior
+  static const placaBranco = Color(0xFFF7F9FC); // fundo da placa
+  static const placaPreto = Color(0xFF16181C); // caracteres/borda
+  static const bandeiraVerde = Color(0xFF009739); // bandeira do Brasil
+  static const bandeiraAmarelo = Color(0xFFFEDD00);
+  static const bandeiraAzul = Color(0xFF012169);
+
   // ---- as 4 paletas ----
   static Paleta _palDe(TemaApp t) => switch (t) {
         TemaApp.ambar =>

@@ -8,6 +8,7 @@ import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
 import '../../util/consumo.dart';
 import '../../widgets/botao_redondo.dart';
+import '../../widgets/placa_mercosul.dart';
 import '../abastecimento/abastecimento_screen.dart';
 import '../calibragem/calibragem_screen.dart';
 import '../config/config_screen.dart';
@@ -195,11 +196,9 @@ class _CabecalhoVeiculo extends ConsumerWidget {
     // Fonte maior → tiles mais altos, para o valor/rótulo não estourarem.
     final escala = ref.watch(fonteProvider).value?.fator ?? 1.0;
     // No tema claro (Madeira), inverte a caixa do carro: fundo bege mais escuro
-    // e os tiles de info em bege mais claro (pedido do usuário — melhora a
-    // leitura). Nos temas escuros mantém o padrão.
+    // (pedido do usuário — melhora a leitura). Nos temas escuros, o padrão.
     final claro = AppColors.brilho == Brightness.light;
     final corCard = claro ? AppColors.surface2 : AppColors.surface;
-    final corTile = claro ? AppColors.surface : AppColors.surface2;
 
     // Título compacto: marca (fonte pequena em cima) + modelo em NEGRITO numa
     // ÚNICA linha (item 5 — antes ocupava duas). O apelido e o resto
@@ -289,7 +288,7 @@ class _CabecalhoVeiculo extends ConsumerWidget {
                 if (v.placa.trim().isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(left: 8, top: 2),
-                    child: _PlacaChip(placa: v.placa, fundo: corTile),
+                    child: PlacaMercosul(placa: v.placa),
                   ),
                 IconButton(
                   icon: Icon(Icons.edit_outlined,
@@ -310,33 +309,6 @@ class _CabecalhoVeiculo extends ConsumerWidget {
     );
   }
 
-}
-
-class _PlacaChip extends StatelessWidget {
-  final String placa;
-  final Color fundo;
-  const _PlacaChip({required this.placa, required this.fundo});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: fundo,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.lineStrong),
-      ),
-      child: Text(
-        placa.toUpperCase(),
-        style: TextStyle(
-          color: AppColors.text,
-          fontSize: 13,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 1.2,
-        ),
-      ),
-    );
-  }
 }
 
 /// Outros carros (os não-selecionados), logo abaixo do principal: cada um ocupa
