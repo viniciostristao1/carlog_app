@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-09-12 — v0.30.0.** **Placa Mercosul.** No cartão do veículo a placa agora aparece no **estilo Mercosul**: faixa azul com logo + "BRASIL" + bandeira do Brasil e o código em preto sobre fundo claro, na proporção real da placa (400×130).
+
 - **2026-09-12 — v0.29.0.** **Botão único dos modos no topo.** O seletor saiu de dentro do cartão do veículo: agora é **um botão ao lado da engrenagem** (ícone do modo atual) que troca a exibição a cada toque — Painel → Grade → Progresso — mantendo a escolha salva.
 
 - **2026-09-12 — v0.28.0.** **Topo da tela inicial com 3 modos.** Um seletor dentro do cartão do veículo (estilo grade × pasta) alterna entre **Painel digital**, **Grade por categoria** e **Progresso da revisão** — e o app lembra da sua escolha.

@@ -25,6 +25,8 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 
 ## ⭐ ESTADO ATUAL (2026-09-12) — ler primeiro pós-/clear
 
+**v0.30.0 — PLACA MERCOSUL** (`analyze` limpo, 28 testes). O chip de texto da placa virou uma **placa Mercosul em miniatura** desenhada em Flutter (`widgets/placa_mercosul.dart`): faixa azul com logo + BRASIL + bandeira e código em preto no fundo claro (400×130). Preview: `adm-projetos-design/carlog-placa-mercosul.html`. Base anterior:
+
 **v0.29.0 — MODO DO TOPO EM BOTÃO ÚNICO** (`analyze` limpo, 28 testes). O seletor de 3 segmentos saiu do cartão do veículo; agora `TopoModoBotao` (`features/home/topo_veiculo.dart`) fica na **AppBar, à esquerda da engrenagem**, e alterna Painel → Grade → Progresso a cada toque (escolha salva em `modoTopoProvider`). Base anterior:
 
 **v0.28.0 — TOPO DA HOME COM 3 MODOS** (`analyze` limpo, 28 testes). Seletor tipo grade×pasta dentro do cartão do veículo alterna **Painel digital** / **Grade por categoria** / **Progresso da revisão**; escolha salva (`modoTopoProvider`, `prefs.dart`). Lógica da barra em `progressoRevisao()` (`util/consumo.dart`, testada); UI em `features/home/topo_veiculo.dart`. Preview: `adm-projetos-design/carlog-topo-modos.html`. Base anterior:

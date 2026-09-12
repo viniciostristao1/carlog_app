@@ -2,6 +2,13 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-12 — Placa Mercosul no cartão do veículo (v0.30.0)
+
+- **`widgets/placa_mercosul.dart`**: placa desenhada em Flutter (sem asset): fundo claro com borda proporcional, faixa azul com `_LogoMercosul` (CustomPainter de 4 arcos em cata-vento), "BRASIL" e `_BandeiraBrasil` (verde + losango amarelo + círculo azul); código em `FittedBox`. Proporção real 400×130; `altura` parametrizável (default 38) — a largura sai daí.
+- Cores da placa/bandeira foram para a seção "placa Mercosul" do `AppColors` (`placaAzul/placaBranco/placaPreto/bandeira*`), seguindo a regra de não usar `Color(0x…)` solto.
+- `home_screen.dart` trocou o `_PlacaChip` por `PlacaMercosul`; a variável `corTile` deixou de existir (o chip antigo era o último uso dela).
+- Preview: golden temporário com o widget real (tema escuro, claro e zoom) → `adm-projetos-design/carlog-placa-mercosul.html`; teste removido depois.
+
 ## 2026-09-12 — Modo do topo virou botão único na AppBar (v0.29.0)
 
 - **`TopoModoBotao`** substitui o `TopoModoSeletor` de 3 segmentos: sai de dentro do cartão (a home não mostra mais a linha "MODO DE EXIBIÇÃO") e entra nas `actions` da AppBar, **antes da engrenagem**, e só aparece quando há veículo selecionado.
