@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-09-12 — v0.32.0.** **Editar pelo nome do carro.** O ícone de lápis saiu do cartão do veículo — agora **toque no nome do carro** para abrir a edição. O nome ganhou o espaço do ícone e fica menos cortado.
+
 - **2026-09-12 — v0.31.0.** **Placa Mercosul compacta.** A placa do cartão do veículo ficou **mais estreita** (cabe melhor ao lado do nome) e os **cantos de cima agora são arredondados** iguais aos de baixo.
 
 - **2026-09-12 — v0.30.0.** **Placa Mercosul.** No cartão do veículo a placa agora aparece no **estilo Mercosul**: faixa azul com logo + "BRASIL" + bandeira do Brasil e o código em preto sobre fundo claro, na proporção real da placa (400×130).
