@@ -23,7 +23,9 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 > usuário (`ATUALIZACOES`) · futuro (`IDEIAS`) · nuvem (`FIREBASE`) · **motor "Ler foto" + log de casos
 > (`OCR.md`)**.
 
-## ⭐ ESTADO ATUAL (2026-09-05) — ler primeiro pós-/clear
+## ⭐ ESTADO ATUAL (2026-09-12) — ler primeiro pós-/clear
+
+**v0.27.0 — BOTÕES FILL DEGRADÊ** (`analyze` limpo, 25 testes). Os 6 atalhos da home deixaram o visual "tonal + borda" e agora são **preenchidos com degradê** (cor da categoria → tom 28% mais escuro, `HSLColor.withLightness(lightness*0.72)`) com ícone branco (`botao_redondo.dart`). Aprovado pela Variação 5 do preview `adm-projetos-design/carlog-botoes-fill.html`. Base anterior:
 
 **v0.26.0 — NOVO LOGO (FUNDO PRETO)** (`analyze` limpo, 25 testes). Ícone/launcher regenerado a partir de `file_000000005e94820e9ffd7d6feec8260a.png`; adaptive background `#000000`. Base anterior:
 
