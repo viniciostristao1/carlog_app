@@ -25,6 +25,8 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 
 ## ⭐ ESTADO ATUAL (2026-09-12) — ler primeiro pós-/clear
 
+**v0.32.0 — EDITAR PELO NOME DO CARRO** (`analyze` limpo, 28 testes). O ícone de lápis saiu do cartão; **tocar na identificação do veículo** abre a edição (`InkWell` + `Semantics`), liberando espaço para o nome. Base anterior:
+
 **v0.31.0 — PLACA MERCOSUL COMPACTA** (`analyze` limpo, 28 testes). Placa mais estreita (largura = altura×2.45, ~88 px) e **cantos de cima arredondados iguais aos de baixo** (raio explícito na faixa azul). Preview: `adm-projetos-design/carlog-placa-mercosul.html`. Base anterior:
 
 **v0.30.0 — PLACA MERCOSUL** (`analyze` limpo, 28 testes). O chip de texto da placa virou uma **placa Mercosul em miniatura** desenhada em Flutter (`widgets/placa_mercosul.dart`): faixa azul com logo + BRASIL + bandeira e código em preto no fundo claro (400×130). Preview: `adm-projetos-design/carlog-placa-mercosul.html`. Base anterior:

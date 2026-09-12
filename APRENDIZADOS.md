@@ -2,6 +2,10 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-12 — Editar pelo nome do carro (v0.32.0)
+
+- **Lápis removido** do cabeçalho do cartão do veículo (`home_screen.dart`): a coluna de identificação (marca/modelo/info) virou um `InkWell` que chama `onEditar`, liberando ~48 px para o nome (que era cortado com frequência). Acessibilidade via `Semantics(button: true, label: t.editar)`.
+
 ## 2026-09-12 — Placa Mercosul compacta + cantos de cima (v0.31.0)
 
 - **Largura:** `PlacaMercosul` deixou a proporção real 400×130 e usa `largura = altura * 2.45` (default `altura = 36` → ~88 px, antes ~117 px), para não empurrar o nome do carro no cabeçalho.

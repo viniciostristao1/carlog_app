@@ -242,47 +242,62 @@ class _CabecalhoVeiculo extends ConsumerWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Tocar no nome/identificação abre a edição do veículo (o antigo
+                // lápis saiu — libera espaço para o nome, que era cortado).
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (marca.isEmpty && modelo.isEmpty)
-                        Text(v.titulo,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                color: AppColors.text,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700))
-                      else ...[
-                        if (marca.isNotEmpty)
-                          Text(marca,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                  color: AppColors.dim,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.2)),
-                        if (modelo.isNotEmpty)
-                          Text(modelo,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                  color: AppColors.text,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700)),
-                      ],
-                      if (infoExtra.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Text(infoExtra,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                  color: AppColors.dim, fontSize: 12.5)),
+                  child: InkWell(
+                    onTap: onEditar,
+                    borderRadius: BorderRadius.circular(10),
+                    child: Semantics(
+                      button: true,
+                      label: t.editar,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 2, vertical: 2),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (marca.isEmpty && modelo.isEmpty)
+                              Text(v.titulo,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      color: AppColors.text,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700))
+                            else ...[
+                              if (marca.isNotEmpty)
+                                Text(marca,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        color: AppColors.dim,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.2)),
+                              if (modelo.isNotEmpty)
+                                Text(modelo,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        color: AppColors.text,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700)),
+                            ],
+                            if (infoExtra.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Text(infoExtra,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        color: AppColors.dim,
+                                        fontSize: 12.5)),
+                              ),
+                          ],
                         ),
-                    ],
+                      ),
+                    ),
                   ),
                 ),
                 if (v.placa.trim().isNotEmpty)
@@ -290,11 +305,6 @@ class _CabecalhoVeiculo extends ConsumerWidget {
                     padding: const EdgeInsets.only(left: 8, top: 2),
                     child: PlacaMercosul(placa: v.placa),
                   ),
-                IconButton(
-                  icon: Icon(Icons.edit_outlined,
-                      size: 20, color: AppColors.dim),
-                  onPressed: onEditar,
-                ),
               ],
             ),
             const SizedBox(height: 12),
