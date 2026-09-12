@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 
-/// Botão redondo da home: um círculo com o símbolo da categoria (na cor dela) e
-/// o rótulo embaixo. É o "atalho rápido" que o usuário toca para lançar dados.
+/// Botão redondo da home: um círculo PREENCHIDO com degradê da cor da categoria
+/// (tom cheio → tom mais escuro) e o símbolo em branco, com o rótulo embaixo.
+/// É o "atalho rápido" que o usuário toca para lançar dados.
 class BotaoRedondo extends StatelessWidget {
   final IconData icone;
   final String rotulo;
@@ -25,6 +26,13 @@ class BotaoRedondo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Fill com degradê (variação aprovada): cor cheia da categoria até um tom
+    // 28% mais escuro, com o ícone branco. Substitui o antigo visual "tonal +
+    // borda" (outline).
+    final escura = HSLColor.fromColor(cor)
+        .withLightness(
+            (HSLColor.fromColor(cor).lightness * 0.72).clamp(0.0, 1.0))
+        .toColor();
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
@@ -39,11 +47,13 @@ class BotaoRedondo extends StatelessWidget {
                 height: 74,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: cor.withValues(alpha: 0.14),
-                  border:
-                      Border.all(color: cor.withValues(alpha: 0.55), width: 1.6),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [cor, escura],
+                  ),
                 ),
-                child: Icon(icone, color: cor, size: 32),
+                child: Icon(icone, color: Colors.white, size: 32),
               ),
               if (badge > 0)
                 Positioned(
