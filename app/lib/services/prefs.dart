@@ -35,6 +35,37 @@ class TemaNotifier extends AsyncNotifier<TemaApp> {
   }
 }
 
+// ─────────────────────────── Modo do topo (home) ───────────────────────────
+
+/// Como os indicadores do veículo aparecem na home: painel digital, grade de
+/// tiles nas cores das categorias ou barra de progresso da revisão.
+/// Preferência local (não sincroniza).
+enum ModoTopo { painel, grade, progresso }
+
+const _kModoTopo = 'modoTopo_v1';
+
+/// Modo escolhido para o topo. Padrão = painel digital.
+final modoTopoProvider =
+    AsyncNotifierProvider<ModoTopoNotifier, ModoTopo>(ModoTopoNotifier.new);
+
+class ModoTopoNotifier extends AsyncNotifier<ModoTopo> {
+  @override
+  Future<ModoTopo> build() async {
+    final prefs = await SharedPreferences.getInstance();
+    final s = prefs.getString(_kModoTopo);
+    return ModoTopo.values.firstWhere(
+      (m) => m.name == s,
+      orElse: () => ModoTopo.painel,
+    );
+  }
+
+  Future<void> definir(ModoTopo m) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kModoTopo, m.name);
+    state = AsyncData(m);
+  }
+}
+
 // ─────────────────────────── Tamanho de fonte ───────────────────────────
 
 /// Fatores de escala de fonte oferecidos (vale para o app inteiro). Normal = 1.0

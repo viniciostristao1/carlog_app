@@ -7,7 +7,6 @@ import '../../services/prefs.dart';
 import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
 import '../../util/consumo.dart';
-import '../../util/format.dart';
 import '../../widgets/botao_redondo.dart';
 import '../abastecimento/abastecimento_screen.dart';
 import '../calibragem/calibragem_screen.dart';
@@ -17,6 +16,7 @@ import '../lembretes/lembretes_screen.dart';
 import '../media/media_screen.dart';
 import '../revisoes/revisoes_screen.dart';
 import '../veiculo/veiculo_form_screen.dart';
+import 'topo_veiculo.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -191,16 +191,6 @@ class _CabecalhoVeiculo extends ConsumerWidget {
         ? null
         : (calibragens.map((c) => c.data).reduce((a, b) => a.isAfter(b) ? a : b));
     final prev = preverRevisao(v, abastecimentos, revisoes);
-    // Previsão da próxima revisão: data quando dá para estimar; senão, deixa
-    // EXPLÍCITO que é quilometragem faltante (item 4 — "faltam X km"), em vez de
-    // um número solto que parecia uma data. Vencida vira o alerta (abaixo).
-    final prevValor = prev.vencida
-        ? ''
-        : prev.data != null
-            ? dataCurta(prev.data!)
-            : (prev.faltamKm != null && prev.faltamKm! > 0)
-                ? t.faltamKm(km(prev.faltamKm!))
-                : '—';
     // Fonte maior → tiles mais altos, para o valor/rótulo não estourarem.
     final escala = ref.watch(fonteProvider).value?.fator ?? 1.0;
     // No tema claro (Madeira), inverte a caixa do carro: fundo bege mais escuro
@@ -224,27 +214,23 @@ class _CabecalhoVeiculo extends ConsumerWidget {
     void abrir(Widget tela) => Navigator.of(context)
         .push(MaterialPageRoute(builder: (_) => tela));
 
-    final stats = <_Stat>[
-      _Stat(Icons.speed, AppColors.accent, t.statOdometro,
-          odo != null ? km(odo) : '—',
-          onTap: () => abrir(const AbastecimentoScreen())),
-      _Stat(Icons.calendar_month, AppColors.catConsumo, t.statKmMes,
-          kmMes > 0 ? km(kmMes) : '—',
-          onTap: () => abrir(const MediaScreen())),
-      _Stat(Icons.local_gas_station, AppColors.catAbastecimento,
-          t.statCombustivelMes, gastoMes > 0 ? moeda(gastoMes) : '—',
-          onTap: () => abrir(const AbastecimentoScreen())),
-      _Stat(Icons.request_quote_outlined, AppColors.catFipe, t.statFipe,
-          v.fipeValor != null ? moeda(v.fipeValor!) : '—',
-          onTap: () => abrir(const FipeScreen())),
-      _Stat(Icons.tire_repair, AppColors.catCalibragem, t.statCalibragem,
-          ultimaCalib != null ? dataCurta(ultimaCalib) : '—',
-          onTap: () => abrir(const CalibragemScreen())),
-      _Stat(Icons.build_circle_outlined, AppColors.catRevisoes, t.statPrevRevisao,
-          prevValor,
-          alerta: prev.vencida,
-          onTap: () => abrir(const RevisoesScreen())),
-    ];
+    final modo = ref.watch(modoTopoProvider).value ?? ModoTopo.painel;
+    final dados = DadosTopo(
+      veiculo: v,
+      odo: odo,
+      kmMes: kmMes,
+      gastoMes: gastoMes,
+      ultimaCalib: ultimaCalib,
+      prev: prev,
+      progresso: progressoRevisao(v, abastecimentos, revisoes),
+      agora: agora,
+      escala: escala,
+      onAbastecimento: () => abrir(const AbastecimentoScreen()),
+      onConsumo: () => abrir(const MediaScreen()),
+      onFipe: () => abrir(const FipeScreen()),
+      onCalibragem: () => abrir(const CalibragemScreen()),
+      onRevisoes: () => abrir(const RevisoesScreen()),
+    );
 
     return Card(
       color: corCard,
@@ -312,103 +298,31 @@ class _CabecalhoVeiculo extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 12),
-            GridView.count(
-              crossAxisCount: 3,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 10,
-              childAspectRatio: (1.35 / escala).clamp(1.0, 1.35),
-              children:
-                  stats.map((s) => _StatTile(stat: s, fundo: corTile)).toList(),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(t.modoExibicao.toUpperCase(),
+                      style: TextStyle(
+                          color: AppColors.dim2,
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.2)),
+                ),
+                const TopoModoSeletor(),
+              ],
             ),
+            const SizedBox(height: 12),
+            switch (modo) {
+              ModoTopo.painel => TopoPainel(d: dados),
+              ModoTopo.grade => TopoGrade(d: dados),
+              ModoTopo.progresso => TopoProgresso(d: dados),
+            },
           ],
         ),
       ),
     );
   }
 
-}
-
-class _Stat {
-  final IconData icone;
-  final Color cor;
-  final String rotulo;
-  final String valor;
-  final VoidCallback? onTap;
-
-  /// Quando true, o tile mostra um símbolo de atenção centralizado no lugar do
-  /// valor (ex.: revisão vencida) em vez de escrever "Vencida".
-  final bool alerta;
-  const _Stat(this.icone, this.cor, this.rotulo, this.valor,
-      {this.onTap, this.alerta = false});
-}
-
-class _StatTile extends StatelessWidget {
-  final _Stat stat;
-  final Color fundo;
-  const _StatTile({required this.stat, required this.fundo});
-
-  @override
-  Widget build(BuildContext context) {
-    // Revisão vencida: em vez de escrever "Vencida", mostra o símbolo de
-    // atenção centralizado (mais direto e cabe no tile).
-    final conteudo = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: fundo,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: stat.alerta
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.warning_amber_rounded,
-                    color: AppColors.leg(AppColors.warn), size: 24),
-                const SizedBox(height: 4),
-                Text(stat.rotulo,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style:
-                        TextStyle(color: AppColors.dim2, fontSize: 10.5)),
-              ],
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(stat.icone, color: AppColors.leg(stat.cor), size: 16),
-                const SizedBox(height: 4),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(stat.valor,
-                      style: TextStyle(
-                          color: AppColors.text,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800)),
-                ),
-                Text(stat.rotulo,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style:
-                        TextStyle(color: AppColors.dim2, fontSize: 10.5)),
-              ],
-            ),
-    );
-    if (stat.onTap == null) return conteudo;
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        onTap: stat.onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: conteudo,
-      ),
-    );
-  }
 }
 
 class _PlacaChip extends StatelessWidget {

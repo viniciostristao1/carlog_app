@@ -127,4 +127,45 @@ void main() {
       expect(preverRevisao(v, const [], const []).alvoKm, isNull);
     });
   });
+
+  group('progressoRevisao', () {
+    test('metade do intervalo percorrido (base 40k, alvo 50k, atual 45k)', () {
+      const v = Veiculo(id: 'v', apelido: 'x'); // intervalo 10000
+      final revs = [
+        Revisao(id: 'r', data: DateTime(2026, 1, 10), odometro: 40000),
+      ];
+      final ab = [
+        _ab('a', DateTime(2026, 3, 1), 45000, 40),
+      ];
+      final p = progressoRevisao(v, ab, revs);
+      expect(p.baseKm, closeTo(40000, 1));
+      expect(p.alvoKm, closeTo(50000, 1));
+      expect(p.atualKm, closeTo(45000, 1));
+      expect(p.fracao, closeTo(0.5, 1e-9));
+      expect(p.faltamKm, closeTo(5000, 1));
+    });
+
+    test('passou do alvo: fração trava em 1', () {
+      const v = Veiculo(id: 'v', apelido: 'x');
+      final revs = [
+        Revisao(id: 'r', data: DateTime(2026, 1, 10), odometro: 40000),
+      ];
+      final ab = [
+        _ab('a', DateTime(2026, 3, 1), 52000, 40),
+      ];
+      final p = progressoRevisao(v, ab, revs);
+      expect(p.fracao, 1.0);
+      expect(p.faltamKm, closeTo(-2000, 1));
+    });
+
+    test('sem intervalo ou sem leitura → vazio', () {
+      const semIntervalo = Veiculo(id: 'v', apelido: 'x', revisaoIntervaloKm: 0);
+      final revs = [
+        Revisao(id: 'r', data: DateTime(2026, 1, 10), odometro: 40000),
+      ];
+      expect(progressoRevisao(semIntervalo, const [], revs).fracao, isNull);
+      const v = Veiculo(id: 'v', apelido: 'x');
+      expect(progressoRevisao(v, const [], const []).fracao, isNull);
+    });
+  });
 }

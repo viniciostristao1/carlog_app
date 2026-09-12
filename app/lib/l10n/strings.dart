@@ -96,6 +96,16 @@ class AppStrings {
   String get statPrevRevisao =>
       _s('Prev. revisão', 'Next service', 'Próx. revisión');
 
+  // seletor do modo de exibição do topo (home)
+  String get modoExibicao =>
+      _s('Modo de exibição', 'Display mode', 'Modo de vista');
+  String get modoPainel => _s('Painel', 'Panel', 'Panel');
+  String get modoGrade => _s('Grade', 'Grid', 'Cuadrícula');
+  String get modoProgresso => _s('Progresso', 'Progress', 'Progreso');
+  String get meta => _s('meta', 'target', 'meta');
+  String get unidadeDias => _s('dias', 'days', 'días');
+  String get vencida => _s('Vencida', 'Overdue', 'Vencida');
+
   // ───────────────────────────── config ─────────────────────────────
   String get configuracoes =>
       _s('Configurações', 'Settings', 'Configuración');
