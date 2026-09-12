@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-09-12 — v0.27.0.** **Botões da tela inicial preenchidos (fill degradê).** Os 6 atalhos redondos deixaram de ser só contorno e agora são **preenchidos** com um degradê da cor de cada categoria (tom cheio → tom mais escuro), com o **ícone branco** — mais contraste e leitura fácil no fundo escuro.
+
 - **2026-09-05 — v0.26.0.** **Novo logo (fundo preto).** Ícone do app regenerado a partir de `file_000000005e94820e9ffd7d6feec8260a.png` (adaptive `#000000`).
 
 - **2026-08-28 — v0.25.0.** **Desfazer sugestões.** Ao tocar em `Sugerido` ou `Repetir último/última` e `Kits`, aparece botão **Desfazer** (↩) para voltar com 1 clique — além do X para dispensar antes de usar.

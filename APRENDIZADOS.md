@@ -2,6 +2,12 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-12 — Botões da home com fill degradê (v0.27.0)
+
+- **`BotaoRedondo` fill:** o círculo trocou `color: cor.withValues(alpha: 0.14)` + `Border` (tonal/outline) por `LinearGradient(topLeft→bottomRight, [cor, escura])` e `Icon(Colors.white)`, onde `escura = HSLColor.fromColor(cor).withLightness(lightness * 0.72)`. Funciona nos 5 temas sem tocar nas categorias: a home já passa `AppColors.leg(cat)`, então no tema claro (Madeira) o degradê parte do tom já escurecido.
+- **Renders de aprovação:** as 6 opções foram geradas por um golden test **temporário** (`flutter test --update-goldens`) no tamanho 390×800@2.5×, carregando `MaterialIcons` + `Roboto` do cache do Flutter via `FontLoader` e ligando `debugDisableShadows = false` apenas durante a captura (restaurar antes do fim do teste — o framework valida a var em `debugAssertAllPaintingVarsUnset`). O teste foi removido do repo de propósito: usa **path absoluto** das fontes e quebraria no CI/auditoria. Página com as imagens: `adm-projetos-design/carlog-botoes-fill.html`.
+- **Verificação:** `flutter analyze lib/` limpo e `flutter test` verde (7 testes).
+
 ## 2026-08-28 — Desfazer após aplicar sugestão (v0.25.0)
 
 - **Desfazer (voltar):** `AbastecimentoForm` e `RevisaoForm` ganharam estado de backup (`_backupOdo/_backupLitros...` e `_ultimosAutoItens`) e chips `Desfazer (↩)` após aplicar `Sugerido`/`Repetir`/`Kits`. `Sugerido` → `onPressed` salva backup, preenche e mostra `Desfazer`; `Repetir`/`Kits` → guardam lista adicionada e `local` anterior para remover no desfazer. Mantém `X` para dispensar antes.
