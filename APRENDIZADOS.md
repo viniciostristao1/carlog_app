@@ -2,6 +2,11 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-12 — Placa Mercosul compacta + cantos de cima (v0.31.0)
+
+- **Largura:** `PlacaMercosul` deixou a proporção real 400×130 e usa `largura = altura * 2.45` (default `altura = 36` → ~88 px, antes ~117 px), para não empurrar o nome do carro no cabeçalho.
+- **Cantos de cima:** a faixa azul ganhou `BorderRadius.vertical(top: raio − borda)` próprio. Motivo: só o clip do `Container` externo deixava o canto interno "quase reto" (o canto do filho fica dentro do raio externo quando `borda < 0,293·raio`), então a curva não aparecia. Com o raio explícito na faixa, fica igual ao canto de baixo.
+
 ## 2026-09-12 — Placa Mercosul no cartão do veículo (v0.30.0)
 
 - **`widgets/placa_mercosul.dart`**: placa desenhada em Flutter (sem asset): fundo claro com borda proporcional, faixa azul com `_LogoMercosul` (CustomPainter de 4 arcos em cata-vento), "BRASIL" e `_BandeiraBrasil` (verde + losango amarelo + círculo azul); código em `FittedBox`. Proporção real 400×130; `altura` parametrizável (default 38) — a largura sai daí.

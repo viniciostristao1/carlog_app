@@ -10,14 +10,17 @@ import '../theme/app_colors.dart';
 class PlacaMercosul extends StatelessWidget {
   final String placa;
 
-  /// Altura da placa (a largura segue a proporção real 400×130).
+  /// Altura da placa. A largura é propositalmente mais compacta que a proporção
+  /// real (400×130) para caber no cartão sem empurrar o nome do carro.
   final double altura;
 
-  const PlacaMercosul({super.key, required this.placa, this.altura = 38});
+  const PlacaMercosul({super.key, required this.placa, this.altura = 36});
 
   @override
   Widget build(BuildContext context) {
-    final largura = altura * 400 / 130;
+    final largura = altura * 2.45;
+    final raio = altura * 0.22;
+    final borda = altura * 0.035;
     final faixa = altura * 0.32;
     final fonte = altura * 0.42;
     return Container(
@@ -26,16 +29,21 @@ class PlacaMercosul extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColors.placaBranco,
-        borderRadius: BorderRadius.circular(altura * 0.14),
-        border: Border.all(
-            color: AppColors.placaPreto, width: altura * 0.035),
+        borderRadius: BorderRadius.circular(raio),
+        border: Border.all(color: AppColors.placaPreto, width: borda),
       ),
       child: Column(
         children: [
           Container(
             height: faixa,
-            color: AppColors.placaAzul,
-            padding: EdgeInsets.symmetric(horizontal: largura * 0.045),
+            padding: EdgeInsets.symmetric(horizontal: largura * 0.05),
+            decoration: BoxDecoration(
+              color: AppColors.placaAzul,
+              // Cantos de cima arredondados iguais aos de baixo (raio interno).
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(math.max(0, raio - borda)),
+              ),
+            ),
             child: Row(
               children: [
                 _LogoMercosul(tamanho: faixa * 0.66),
