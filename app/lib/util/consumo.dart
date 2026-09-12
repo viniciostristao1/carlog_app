@@ -290,3 +290,44 @@ PrevisaoRevisao preverRevisao(
     vencida: vencida,
   );
 }
+
+// ─────────────────────────── Progresso da revisão ───────────────────────────
+
+/// Progresso do intervalo até a próxima revisão (alimenta a barra da home).
+class ProgressoRevisao {
+  final double? baseKm; // odômetro da última revisão (início do intervalo)
+  final double? alvoKm; // odômetro alvo da próxima revisão
+  final double? atualKm; // odômetro atual conhecido
+  final double? fracao; // 0..1 (1 = chegou/passou do alvo)
+  final double? faltamKm;
+
+  const ProgressoRevisao({
+    this.baseKm,
+    this.alvoKm,
+    this.atualKm,
+    this.fracao,
+    this.faltamKm,
+  });
+
+  static const vazio = ProgressoRevisao();
+}
+
+/// Combina [preverRevisao] com o intervalo do cadastro para dar a fração já
+/// percorrida desde a última revisão. Sem intervalo (> 0) ou sem alvo → vazio.
+ProgressoRevisao progressoRevisao(
+    Veiculo v, List<Abastecimento> abastecimentos, List<Revisao> revisoes) {
+  if (v.revisaoIntervaloKm <= 0) return ProgressoRevisao.vazio;
+  final prev = preverRevisao(v, abastecimentos, revisoes);
+  final alvo = prev.alvoKm;
+  if (alvo == null) return ProgressoRevisao.vazio;
+  final atual = alvo - (prev.faltamKm ?? 0);
+  final base = alvo - v.revisaoIntervaloKm;
+  final fracao = ((atual - base) / v.revisaoIntervaloKm).clamp(0.0, 1.0);
+  return ProgressoRevisao(
+    baseKm: base,
+    alvoKm: alvo,
+    atualKm: atual,
+    fracao: fracao,
+    faltamKm: prev.faltamKm,
+  );
+}

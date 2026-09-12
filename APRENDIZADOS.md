@@ -2,6 +2,13 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-12 — Topo da home com 3 modos + seletor (v0.28.0)
+
+- **Preferência:** `ModoTopo { painel, grade, progresso }` + `modoTopoProvider` em `services/prefs.dart` (chave `modoTopo_v1`, padrão `painel`), mesma mecânica de Tema/Fonte (`AsyncNotifier` + SharedPreferences). Não sincroniza (é por aparelho).
+- **Lógica pura:** `util/consumo.dart` ganhou `ProgressoRevisao`/`progressoRevisao()` **com teste** em `consumo_test.dart` (3 casos: metade do intervalo, passou do alvo → fração 1, sem intervalo/leitura → vazio). Base = `alvoKm − revisaoIntervaloKm`; `atualKm = alvoKm − faltamKm` (mesmas leituras de abastecimentos+revisões do `preverRevisao`).
+- **UI:** `features/home/topo_veiculo.dart` — `TopoModoSeletor` (3 segmentos com ícone; ativo no accent) + `TopoPainel`/`TopoGrade`/`TopoProgresso` (ConsumerWidget, recebem `DadosTopo` com valores já formatados e callbacks de navegação). `home_screen.dart` só monta `DadosTopo` e escolhe no `switch (modo)`; o antigo `_Stat/_StatTile` foi removido.
+- **Preview/golden temporário:** renderiza os widgets REAIS + `SharedPreferences.setMockInitialValues({'modoTopo_v1': …, 'idioma_v1': 'pt'})` e `initializeDateFormatting('pt_BR')` (sem isso o `DateFormat` lança `LocaleDataException` mesmo com as strings em pt). Teste removido do repo (paths absolutos de fonte quebrariam o CI); página: `adm-projetos-design/carlog-topo-modos.html`.
+
 ## 2026-09-12 — Botões da home com fill degradê (v0.27.0)
 
 - **`BotaoRedondo` fill:** o círculo trocou `color: cor.withValues(alpha: 0.14)` + `Border` (tonal/outline) por `LinearGradient(topLeft→bottomRight, [cor, escura])` e `Icon(Colors.white)`, onde `escura = HSLColor.fromColor(cor).withLightness(lightness * 0.72)`. Funciona nos 5 temas sem tocar nas categorias: a home já passa `AppColors.leg(cat)`, então no tema claro (Madeira) o degradê parte do tom já escurecido.
