@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-09-12 — v0.29.0.** **Botão único dos modos no topo.** O seletor saiu de dentro do cartão do veículo: agora é **um botão ao lado da engrenagem** (ícone do modo atual) que troca a exibição a cada toque — Painel → Grade → Progresso — mantendo a escolha salva.
+
 - **2026-09-12 — v0.28.0.** **Topo da tela inicial com 3 modos.** Um seletor dentro do cartão do veículo (estilo grade × pasta) alterna entre **Painel digital**, **Grade por categoria** e **Progresso da revisão** — e o app lembra da sua escolha.
 
 - **2026-09-12 — v0.27.0.** **Botões da tela inicial preenchidos (fill degradê).** Os 6 atalhos redondos deixaram de ser só contorno e agora são **preenchidos** com um degradê da cor de cada categoria (tom cheio → tom mais escuro), com o **ícone branco** — mais contraste e leitura fácil no fundo escuro.

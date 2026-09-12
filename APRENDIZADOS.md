@@ -2,6 +2,11 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-12 — Modo do topo virou botão único na AppBar (v0.29.0)
+
+- **`TopoModoBotao`** substitui o `TopoModoSeletor` de 3 segmentos: sai de dentro do cartão (a home não mostra mais a linha "MODO DE EXIBIÇÃO") e entra nas `actions` da AppBar, **antes da engrenagem**, e só aparece quando há veículo selecionado.
+- Alterna com `ModoTopo.values[(atual.index + 1) % values.length]`; o botão mostra o ícone do modo ATUAL (accent) e o tooltip "Modo de exibição: X". `AnimatedSwitcher` suaviza a troca do ícone.
+
 ## 2026-09-12 — Topo da home com 3 modos + seletor (v0.28.0)
 
 - **Preferência:** `ModoTopo { painel, grade, progresso }` + `modoTopoProvider` em `services/prefs.dart` (chave `modoTopo_v1`, padrão `painel`), mesma mecânica de Tema/Fonte (`AsyncNotifier` + SharedPreferences). Não sincroniza (é por aparelho).

@@ -48,57 +48,32 @@ class DadosTopo {
       ultimaCalib == null ? null : agora.difference(ultimaCalib!).inDays;
 }
 
-/// Seletor de modo (estilo "grade x pasta"): 3 segmentos com ícone, o ativo
-/// preenchido com o accent. A escolha fica salva no aparelho.
-class TopoModoSeletor extends ConsumerWidget {
-  const TopoModoSeletor({super.key});
+/// Botão único do modo de exibição (fica na AppBar, à esquerda da engrenagem):
+/// mostra o ícone do modo atual e, a cada toque, alterna para o próximo
+/// (painel → grade → progresso). A escolha fica salva no aparelho.
+class TopoModoBotao extends ConsumerWidget {
+  const TopoModoBotao({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(stringsProvider);
     final atual = ref.watch(modoTopoProvider).value ?? ModoTopo.painel;
-    final itens = <(ModoTopo, IconData, String)>[
-      (ModoTopo.painel, Icons.space_dashboard_outlined, t.modoPainel),
-      (ModoTopo.grade, Icons.grid_view_rounded, t.modoGrade),
-      (ModoTopo.progresso, Icons.linear_scale, t.modoProgresso),
-    ];
-    return Container(
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        color: AppColors.surface2,
-        borderRadius: BorderRadius.circular(11),
-        border: Border.all(color: AppColors.line),
+    final (icone, nome) = switch (atual) {
+      ModoTopo.painel => (Icons.space_dashboard_outlined, t.modoPainel),
+      ModoTopo.grade => (Icons.grid_view_rounded, t.modoGrade),
+      ModoTopo.progresso => (Icons.linear_scale, t.modoProgresso),
+    };
+    return IconButton(
+      tooltip: '${t.modoExibicao}: $nome',
+      icon: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 180),
+        child: Icon(icone, key: ValueKey(atual), color: AppColors.accent),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final (modo, icone, rotulo) in itens)
-            Tooltip(
-              message: rotulo,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(8),
-                onTap: () =>
-                    ref.read(modoTopoProvider.notifier).definir(modo),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  width: 36,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: atual == modo
-                        ? AppColors.accent
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    icone,
-                    size: 17,
-                    color: atual == modo ? AppColors.onAccent : AppColors.dim,
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
+      onPressed: () {
+        final proximo =
+            ModoTopo.values[(atual.index + 1) % ModoTopo.values.length];
+        ref.read(modoTopoProvider.notifier).definir(proximo);
+      },
     );
   }
 }

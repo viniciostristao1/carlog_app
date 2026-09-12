@@ -25,6 +25,8 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 
 ## ⭐ ESTADO ATUAL (2026-09-12) — ler primeiro pós-/clear
 
+**v0.29.0 — MODO DO TOPO EM BOTÃO ÚNICO** (`analyze` limpo, 28 testes). O seletor de 3 segmentos saiu do cartão do veículo; agora `TopoModoBotao` (`features/home/topo_veiculo.dart`) fica na **AppBar, à esquerda da engrenagem**, e alterna Painel → Grade → Progresso a cada toque (escolha salva em `modoTopoProvider`). Base anterior:
+
 **v0.28.0 — TOPO DA HOME COM 3 MODOS** (`analyze` limpo, 28 testes). Seletor tipo grade×pasta dentro do cartão do veículo alterna **Painel digital** / **Grade por categoria** / **Progresso da revisão**; escolha salva (`modoTopoProvider`, `prefs.dart`). Lógica da barra em `progressoRevisao()` (`util/consumo.dart`, testada); UI em `features/home/topo_veiculo.dart`. Preview: `adm-projetos-design/carlog-topo-modos.html`. Base anterior:
 
 **v0.27.0 — BOTÕES FILL DEGRADÊ** (`analyze` limpo, 25 testes). Os 6 atalhos da home deixaram o visual "tonal + borda" e agora são **preenchidos com degradê** (cor da categoria → tom 28% mais escuro, `HSLColor.withLightness(lightness*0.72)`) com ícone branco (`botao_redondo.dart`). Aprovado pela Variação 5 do preview `adm-projetos-design/carlog-botoes-fill.html`. Base anterior:

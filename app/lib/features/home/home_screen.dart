@@ -48,6 +48,7 @@ class HomeScreen extends ConsumerWidget {
           ],
         ),
         actions: [
+          if (veiculo != null) const TopoModoBotao(),
           IconButton(
             tooltip: t.configuracoes,
             icon: const Icon(Icons.settings_outlined),
@@ -295,20 +296,6 @@ class _CabecalhoVeiculo extends ConsumerWidget {
                       size: 20, color: AppColors.dim),
                   onPressed: onEditar,
                 ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(t.modoExibicao.toUpperCase(),
-                      style: TextStyle(
-                          color: AppColors.dim2,
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.2)),
-                ),
-                const TopoModoSeletor(),
               ],
             ),
             const SizedBox(height: 12),
