@@ -336,6 +336,15 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
       if (ocr.km != null && _odometro.text.trim().isEmpty) {
         _odometro.text = ocr.km!.toString();
       }
+      // Data do serviço lida no documento → campo de data. Só quando ainda está
+      // em HOJE (lançamento novo): edição de revisão antiga preserva a data.
+      final hoje = DateTime.now();
+      final emHoje = _data.year == hoje.year &&
+          _data.month == hoje.month &&
+          _data.day == hoje.day;
+      if (ocr.dataServico != null && emHoje) {
+        _data = ocr.dataServico!;
+      }
     });
   }
 
