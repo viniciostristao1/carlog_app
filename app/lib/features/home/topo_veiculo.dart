@@ -88,9 +88,11 @@ class TopoPainel extends ConsumerWidget {
     final t = ref.watch(stringsProvider);
     final calib =
         d.diasCalib == null ? '—' : '${n0(d.diasCalib!)} ${t.unidadeDias}';
+    // No painel, a previsão mostra a DATA provável (como nos tiles); "faltam
+    // km" fica só no modo com a barra de progresso.
     final revisao = d.prev.vencida
         ? t.vencida
-        : (d.prev.faltamKm != null ? km(d.prev.faltamKm!) : '—');
+        : (d.prev.data != null ? dataCurta(d.prev.data!) : '—');
 
     return Container(
       padding: const EdgeInsets.all(14),

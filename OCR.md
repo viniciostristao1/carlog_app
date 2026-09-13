@@ -19,10 +19,12 @@ não *whitelistar*. A regra de ouro que protege peça de verdade:
 | `ocr_models.dart` | `ItemLido`, `OcrResultado` (puros). |
 | `ocr_filtros.dart` | **As regras** (o arquivo que cresce). 3 camadas — ver abaixo. |
 | `ocr_km.dart` | Extração de quilometragem (odômetro). |
+| `ocr_data.dart` | Extração da **data do serviço** (dd/MM/aa com `/`, `-` ou `.`). |
 | `ocr_engine.dart` | `OcrEngine.analisar(texto)` — o parser puro (sem câmera). |
 | `../ocr_service.dart` | Só a "cola" com câmera/ML Kit; reexporta os modelos. |
 
-Testes: `app/test/ocr_km_test.dart`, `ocr_casos_test.dart`, `ocr_filtro_test.dart`.
+Testes: `app/test/ocr_km_test.dart`, `ocr_data_test.dart`, `ocr_casos_test.dart`,
+`ocr_filtro_test.dart`.
 Rodar: `cd app && /root/flutter/bin/flutter test test/ocr_*`.
 
 ## As 3 camadas do filtro (`ocr_filtros.dart`)
@@ -39,6 +41,13 @@ Rodar: `cd app && /root/flutter/bin/flutter test test/ocr_*`.
 Km e total têm tratamento próprio no engine (não viram item):
 - **km** = a **maior** leitura associada a um rótulo de km (odômetro tem 5–6 dígitos).
 - **total** = o maior valor numa linha que menciona "total".
+
+**Data do serviço (`ocr_data.dart`).** O engine também varre o texto por datas numéricas
+(`dd/MM/aaaa`, aceitando `-`/`.` e ano de 2 dígitos), valida dia/mês, **descarta futuras**
+(ex.: "Validade") e antigas demais (> 3 anos) e devolve a **mais recente** — emissão,
+serviço e impressão ficam próximas do reparo. O `OcrResultado.dataServico` chega ao form
+de revisão, que a aplica **só quando o campo ainda está em HOJE** (lançamento novo); edição
+preserva a data original.
 
 ## Como melhorar quando o OCR trouxe algo errado (o fluxo)
 1. Reproduza: copie o texto do orçamento (ou destile 5–10 linhas) para um teste em
@@ -88,3 +97,8 @@ Km e total têm tratamento próprio no engine (não viram item):
     `previs*`, `requis*`, `peca*`, `disp*`, `dispon*`, `liberad*`, `impress*`,
     `oficina*`). Filosofia mantida: só peça cai se **todas** palavras forem rótulo —
     "Entrada de ar" e "Chave de contato" seguem preservadas.
+- **2026-09-13 — ler foto na revisão (usuário).**
+  - **data vinha sempre "hoje":** o km era lido certo, mas a data não. → novo
+    `ocr_data.dart` + `OcrResultado.dataServico` no engine; o form de revisão aplica a
+    data lida quando o campo ainda está em hoje. Coberto por `ocr_data_test.dart`
+    (rótulo, ano de 2 dígitos, separadores, futura/antiga, valores/km/hora, 31/02).

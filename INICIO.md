@@ -25,6 +25,8 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 
 ## ⭐ ESTADO ATUAL (2026-09-13) — ler primeiro pós-/clear
 
+**v0.38.0 — PAINEL COM DATA + DATA DO SERVIÇO NO OCR** (`analyze` limpo, 41 testes). (1) `TopoPainel` mostra a **data** prevista da revisão (barra continua com "faltam km"). (2) "Ler foto" lê a **data do serviço** (`services/ocr/ocr_data.dart` + `OcrResultado.dataServico`) e preenche o campo quando ainda está em hoje; `test/ocr_data_test.dart` (7 casos) + log no `OCR.md`. Base anterior:
+
 **v0.37.0 — LOGO INTERNO CARRO NEON + VALOR TOTAL PADRÃO** (`analyze` limpo, 34 testes). (1) Logo do AppBar virou o carro neon (`carlog_logo.png` gerado da nova arte; ícone do launcher intacto). (2) Abastecimento novo abre em "Valor total" (`_modoTotal = o == null`); edição abre em Preço/Litro. Preview: `adm-projetos-design/carlog-logo-carro.html`. Base anterior:
 
 **v0.36.0 — ABASTECIMENTO SIMPLES + ODÔMETRO POR RITMO** (`analyze` limpo, 34 testes). (1) "Repetir último" removido do abastecimento. (2) `sugestaoOdometro` agora estima `último + km/dia × max(1, dias)` e exige ≥2 leituras (sem ritmo → sem chip). (3) Chips "Valor total" (esquerda) / "Preço/Litro" (direita), sem "Informar". (4) Frase sob "Enchi o tanque" removida. Base anterior:

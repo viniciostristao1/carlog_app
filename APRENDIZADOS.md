@@ -2,6 +2,11 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-13 — Painel com data + data do serviço no OCR (v0.38.0)
+
+- **`TopoPainel` (Painel digital):** o item de revisão passou a mostrar `dataCurta(prev.data)` (e `t.vencida` quando atrasada); o "faltam X km" ficou só no `TopoProgresso` (modo com a barra).
+- **OCR de data do serviço:** novo `services/ocr/ocr_data.dart` (`dataDoServico`) — pega datas `dd/MM/aa` aceitando `/`, `-` ou `.` e ano de 2–4 dígitos; valida dia/mês (rejeita 31/02), descarta futuras (+1 dia de tolerância) e antigas (>3 anos) e escolhe a **mais recente**. `OcrResultado` ganhou `dataServico` como parâmetro **nomeado** (não quebra chamadas) e o engine preenche a partir do texto completo. O form de revisão aplica apenas quando `_data` ainda é HOJE — edição de revisão antiga preserva a data. Novo teste `test/ocr_data_test.dart` (7 casos) + log em `OCR.md`.
+
 ## 2026-09-13 — Logo interno (carro neon) + Valor total padrão (v0.37.0)
 
 - **Logo de DENTRO do app ≠ ícone do launcher:** `tools/gerar_icone.py` agora aceita duas artes — `ORIGEM` (ícone/launcher: carro+velocímetro+atalhos) e `LOGO_ORIGEM` (logo do AppBar/Sobre: só o carro). As duas usam o mesmo `_quadrado_autocrop`. O resize do `carlog_fg.png` voltou a ser em **uma etapa** a partir do quadrado natural (duas etapas mudava o fg e sujaria os mipmaps do launcher sem necessidade). Só `carlog_logo.png` muda; ícone/fg/mipmaps intactos.

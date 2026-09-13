@@ -1,3 +1,4 @@
+import 'ocr_data.dart';
 import 'ocr_filtros.dart';
 import 'ocr_km.dart';
 import 'ocr_models.dart';
@@ -78,7 +79,8 @@ class OcrEngine {
       linhasLimpas.add(l);
       itens.add(ItemLido(desc, null));
     }
-    return OcrResultado(linhasLimpas.join('\n'), itens, total, km);
+    return OcrResultado(linhasLimpas.join('\n'), itens, total, km,
+        dataServico: dataDoServico(texto));
   }
 
   static double? _parseValor(String s) {
