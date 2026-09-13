@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-09-13 — v0.36.0.** **Abastecimento mais simples e odômetro esperto.** (1) Saiu o atalho **"Repetir último"**. (2) O **"Sugerido"** do odômetro agora é uma **estimativa pelo seu ritmo** (último km + km/dia desde a última leitura); sem ritmo ainda, ele não aparece — antes repetia o último km. (3) Os botões viraram **"Valor total"** (esquerda) e **"Preço/Litro"** (direita), sem a palavra "Informar". (4) Removida a frase "Necessário para o cálculo…" embaixo de **"Enchi o tanque"**.
+
 - **2026-09-13 — v0.35.0.** **Revisões mais simples + mais peças.** (1) Os **kits sugeridos** saíram do formulário de revisão (menos poluição na tela). (2) Novas sugestões de peças: **articulação da direção, barra axial, bucha da barra estabilizadora, ponteira de direção** e, de embreagem, **rolamento, disco e platô**.
 
 - **2026-09-13 — v0.34.0.** **Logo azul novo + combustível junto do ano.** (1) O ícone do app agora é a arte **neon azul** enviada (carro, velocímetro e 5 atalhos), também no logo do topo. (2) No cartão do veículo, o combustível subiu para a linha da marca: **"2022 · Flex"** à direita, antes da placa.

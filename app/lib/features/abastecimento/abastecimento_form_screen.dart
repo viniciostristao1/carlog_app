@@ -33,17 +33,9 @@ class _AbastecimentoFormScreenState
   late DateTime _data;
   late bool _cheio;
   bool _modoTotal = false; // false = informar preço/L; true = informar valor total
-  bool _ocultarRepetir = false;
   bool _ocultarSugestao = false;
   bool _mostrarDesfazerOdo = false;
   String? _backupOdo;
-  bool _mostrarDesfazerRepetir = false;
-  String? _backupLitros;
-  String? _backupPreco;
-  String? _backupTotal;
-  String? _backupPosto;
-  bool? _backupCheio;
-  bool? _backupModoTotal;
 
   @override
   void initState() {
@@ -175,49 +167,6 @@ class _AbastecimentoFormScreenState
     return sugestaoOdometro(ab, revs);
   }
 
-  Abastecimento? _ultimo() {
-    if (_ocultarRepetir) return null;
-    if (widget.original != null) return null;
-    final lista = ref.watch(abastecimentosDoVeiculoProvider);
-    if (lista.isEmpty) return null;
-    final ord = [...lista]..sort((a, b) => b.data.compareTo(a.data));
-    return ord.first;
-  }
-
-  void _aplicarUltimo(Abastecimento u) {
-    setState(() {
-      _backupLitros = _litros.text;
-      _backupPreco = _preco.text;
-      _backupTotal = _total.text;
-      _backupPosto = _posto.text;
-      _backupCheio = _cheio;
-      _backupModoTotal = _modoTotal;
-      _mostrarDesfazerRepetir = true;
-      _ocultarRepetir = true;
-      if (u.litros != null) _litros.text = n1(u.litros!);
-      if (u.precoLitro != null) {
-        _modoTotal = false;
-        _preco.text = n2(u.precoLitro!);
-        _total.clear();
-      }
-      if (u.posto.trim().isNotEmpty) _posto.text = u.posto;
-      _cheio = u.tanqueCheio;
-    });
-  }
-
-  void _desfazerUltimo() {
-    setState(() {
-      _litros.text = _backupLitros ?? '';
-      _preco.text = _backupPreco ?? '';
-      _total.text = _backupTotal ?? '';
-      _posto.text = _backupPosto ?? '';
-      if (_backupCheio != null) _cheio = _backupCheio!;
-      if (_backupModoTotal != null) _modoTotal = _backupModoTotal!;
-      _mostrarDesfazerRepetir = false;
-      _ocultarRepetir = false;
-    });
-  }
-
   void _aplicarSugestaoOdo(int v) {
     setState(() {
       _backupOdo = _odometro.text;
@@ -256,8 +205,6 @@ class _AbastecimentoFormScreenState
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
           _linhaData(t),
-          if (_ultimo() != null) _chipRepetirUltimo(_ultimo()!),
-          if (_mostrarDesfazerRepetir) _chipDesfazerRepetir(),
           const SizedBox(height: 12),
           _campo(_odometro, t.odometroKmOpc,
               teclado: TextInputType.number, soDigitos: true),
@@ -282,9 +229,6 @@ class _AbastecimentoFormScreenState
             activeThumbColor: AppColors.accent,
             title: Text(t.enchiTanque,
                 style: TextStyle(color: AppColors.text)),
-            subtitle: Text(
-                t.enchiTanqueSub,
-                style: TextStyle(color: AppColors.dim, fontSize: 12.5)),
           ),
           const SizedBox(height: 4),
           CampoSugestoes(
@@ -360,8 +304,8 @@ class _AbastecimentoFormScreenState
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(children: [
-        chip(t.informarPrecoLitro, false),
         chip(t.informarValorTotal, true),
+        chip(t.informarPrecoLitro, false),
       ]),
     );
   }
@@ -387,38 +331,6 @@ class _AbastecimentoFormScreenState
                   fontSize: 20,
                   fontWeight: FontWeight.w800)),
         ],
-      ),
-    );
-  }
-
-  Widget _chipRepetirUltimo(Abastecimento u) {
-    final jaPreenchido =
-        _litros.text.trim().isNotEmpty || _posto.text.trim().isNotEmpty;
-    if (jaPreenchido) return const SizedBox.shrink();
-    final desc = [
-      if (u.litros != null) '${n1(u.litros!)}L',
-      if (u.precoLitro != null) 'R\$ ${n2(u.precoLitro!)}',
-      if (u.posto.trim().isNotEmpty) u.posto,
-    ].join(' · ');
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: InputChip(
-          label: Text('Repetir último: $desc',
-              style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
-          avatar: const Icon(Icons.history, size: 16),
-          deleteIcon: const Icon(Icons.close, size: 16),
-          onDeleted: () => setState(() => _ocultarRepetir = true),
-          deleteIconColor: AppColors.dim,
-          deleteButtonTooltipMessage: 'Dispensar',
-          backgroundColor: AppColors.leg(AppColors.catAbastecimento)
-              .withValues(alpha: 0.14),
-          side: BorderSide(
-              color: AppColors.leg(AppColors.catAbastecimento)
-                  .withValues(alpha: 0.4)),
-          onPressed: () => _aplicarUltimo(u),
-        ),
       ),
     );
   }
@@ -456,23 +368,6 @@ class _AbastecimentoFormScreenState
           backgroundColor: AppColors.surface2,
           side: BorderSide(color: AppColors.line),
           onPressed: _desfazerSugestaoOdo,
-        ),
-      ),
-    );
-  }
-
-  Widget _chipDesfazerRepetir() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: ActionChip(
-          label: const Text('Desfazer',
-              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
-          avatar: const Icon(Icons.undo, size: 16),
-          backgroundColor: AppColors.surface2,
-          side: BorderSide(color: AppColors.line),
-          onPressed: _desfazerUltimo,
         ),
       ),
     );

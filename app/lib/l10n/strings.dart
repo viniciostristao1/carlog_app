@@ -220,15 +220,12 @@ class AppStrings {
       _s('Valor total (R\$)', 'Total amount', 'Importe total');
   String get precoLitro => _s('Preço / litro', 'Price / liter', 'Precio / litro');
   String get total => _s('Total', 'Total', 'Total');
-  String get informarPrecoLitro => _s('Informar preço/litro',
-      'Enter price/liter', 'Indicar precio/litro');
-  String get informarValorTotal => _s('Informar valor total',
-      'Enter total amount', 'Indicar importe total');
+  String get informarPrecoLitro =>
+      _s('Preço/Litro', 'Price/L', 'Precio/L');
+  String get informarValorTotal =>
+      _s('Valor total', 'Total amount', 'Importe total');
   String get enchiTanque =>
       _s('Enchi o tanque', 'Filled the tank', 'Llené el tanque');
-  String get enchiTanqueSub => _s('Necessário para o cálculo de média confiável',
-      'Needed for a reliable mileage calculation',
-      'Necesario para un cálculo de consumo fiable');
   String get postoOpc => _s('Posto (opcional)', 'Station (optional)',
       'Estación (opcional)');
   String get postoHint => _s('Ex.: Shell da avenida', 'e.g. Shell on Main St',

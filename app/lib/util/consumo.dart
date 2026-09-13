@@ -167,11 +167,14 @@ double? ultimoOdometro(List<Abastecimento> abastecimentos) {
   return odos.reduce((a, b) => a > b ? a : b);
 }
 
-/// Sugestão de odômetro = último + ritmo * dias desde a última leitura.
-/// Usa abastecimentos + revisões juntos (mesma base da previsão).
+/// Sugestão de odômetro = último + ritmo (km/dia) × dias desde a última leitura.
+/// Usa abastecimentos + revisões juntos (mesma base da previsão de revisão).
+/// Sem pelo menos 2 leituras não existe ritmo → não sugere (null), em vez de
+/// repetir o último odômetro. Mesmo no mesmo dia da última leitura, projeta
+/// 1 dia de rodagem — é uma ESTIMATIVA de onde o carro provavelmente está.
 int? sugestaoOdometro(List<Abastecimento> ab, List<Revisao> revs) {
   final leituras = _leituras(ab, revs);
-  if (leituras.isEmpty) return null;
+  if (leituras.length < 2) return null;
   double odo = leituras.first.$2;
   DateTime dataOdo = leituras.first.$1;
   for (final l in leituras) {
@@ -181,19 +184,15 @@ int? sugestaoOdometro(List<Abastecimento> ab, List<Revisao> revs) {
     }
     if (l.$1.isAfter(dataOdo) && l.$2 == odo) dataOdo = l.$1;
   }
+  final corte = DateTime.now().subtract(const Duration(days: 365));
+  var jan = leituras.where((l) => !l.$1.isBefore(corte)).toList();
+  if (jan.length < 2) jan = leituras;
+  final dist = jan.last.$2 - jan.first.$2;
+  final ndias = jan.last.$1.difference(jan.first.$1).inDays;
+  if (dist <= 0 || ndias <= 0) return null;
+  final kmDia = dist / ndias;
   final dias = DateTime.now().difference(dataOdo).inDays;
-  if (dias <= 0) return odo.round();
-  double? kmDia;
-  if (leituras.length >= 2) {
-    final corte = DateTime.now().subtract(const Duration(days: 365));
-    var jan = leituras.where((l) => !l.$1.isBefore(corte)).toList();
-    if (jan.length < 2) jan = leituras;
-    final dist = jan.last.$2 - jan.first.$2;
-    final ndias = jan.last.$1.difference(jan.first.$1).inDays;
-    if (dist > 0 && ndias > 0) kmDia = dist / ndias;
-  }
-  if (kmDia == null || kmDia <= 0) return odo.round();
-  final est = odo + kmDia * dias;
+  final est = odo + kmDia * (dias < 1 ? 1 : dias);
   return est.round();
 }
 
