@@ -2,6 +2,10 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-12 — Ano na linha da marca (v0.33.0)
+
+- **Cabeçalho do cartão:** a linha 1 virou `Row(crossAxisAlignment: baseline, [Expanded(marca), ano])` — marca à esquerda e ano à direita, antes da placa (que fica no canto). O `infoExtra` perdeu o ano (agora só apelido + combustível). No fallback sem marca/modelo, o ano também aparece na mesma linha do título.
+
 ## 2026-09-12 — Editar pelo nome do carro (v0.32.0)
 
 - **Lápis removido** do cabeçalho do cartão do veículo (`home_screen.dart`): a coluna de identificação (marca/modelo/info) virou um `InkWell` que chama `onEditar`, liberando ~48 px para o nome (que era cortado com frequência). Acessibilidade via `Semantics(button: true, label: t.editar)`.
