@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Gera os assets do ícone/logo do CarLog a partir da arte do usuário.
 
-Aprofunda o âmbar, RECORTA na borda do conteúdo (autocrop, para os desenhos
-ficarem grandes, sem a margem âmbar sobrando) e produz:
+A arte atual é o desenho NEON (azul + velocímetro âmbar) sobre fundo preto:
+RECORTA na borda do conteúdo (autocrop pelo brilho, para o desenho ficar grande
+sem a margem preta sobrando) e produz:
   - app/assets/icon/carlog_icon.png  (1024, legacy / image_path)
   - app/assets/icon/carlog_fg.png    (1024, adaptive foreground, arte ~92%)
   - app/assets/icon/carlog_logo.png  (256, logo do AppBar/Sobre)
@@ -16,23 +17,21 @@ import sys
 
 from PIL import Image, ImageEnhance
 
-# Arte enviada pelo usuário (carro + velocímetro + 5 ícones, fundo preto).
+# Arte enviada pelo usuário (carro + velocímetro + 5 ícones, neon azul, fundo preto).
 ORIGEM = sys.argv[1] if len(sys.argv) > 1 \
-    else 'file_000000005e94820e9ffd7d6feec8260a.png'
+    else 'file_00000000c22c820e8d17f9cdb5a0d15b.png'
 DEST = 'app/assets/icon'
 
 img = Image.open(ORIGEM).convert('RGB')
-img = ImageEnhance.Color(img).enhance(1.15)
-img = ImageEnhance.Brightness(img).enhance(0.90)
-img = ImageEnhance.Contrast(img).enhance(1.03)
+img = ImageEnhance.Contrast(img).enhance(1.04)  # leve; a arte já vem pronta
 
 bg = img.getpixel((6, 6))
 print('origem', ORIGEM, img.size)
-print('amber bg', bg, '#%02X%02X%02X' % bg)
+print('bg', bg, '#%02X%02X%02X' % bg)
 
-# Autocrop: bbox do conteúdo escuro (navy) sobre o âmbar.
+# Autocrop: bbox do conteúdo CLARO (neon) sobre o fundo preto.
 gray = img.convert('L')
-mask = gray.point(lambda p: 255 if p < 100 else 0)
+mask = gray.point(lambda p: 255 if p > 40 else 0)
 bbox = mask.getbbox()
 if bbox:
     m = 24  # margem em px ao redor do conteúdo
@@ -50,7 +49,7 @@ sq.paste(img, ((side - w) // 2, (side - h) // 2))
 
 sq.resize((1024, 1024), Image.LANCZOS).save(f'{DEST}/carlog_icon.png')
 
-# Foreground do adaptive: arte grande (a máscara circular corta os cantos âmbar).
+# Foreground do adaptive: arte grande (a máscara circular corta os cantos).
 FG = 944  # ~92% do canvas
 fg = Image.new('RGB', (1024, 1024), bg)
 art = sq.resize((FG, FG), Image.LANCZOS)
@@ -62,3 +61,4 @@ sq.resize((256, 256), Image.LANCZOS).save(f'{DEST}/carlog_logo.png')
 
 print('ok -> carlog_icon.png, carlog_fg.png, carlog_logo.png')
 print('AGORA: cd app && dart run flutter_launcher_icons')
+

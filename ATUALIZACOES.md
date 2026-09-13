@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-09-13 — v0.34.0.** **Logo azul novo + combustível junto do ano.** (1) O ícone do app agora é a arte **neon azul** enviada (carro, velocímetro e 5 atalhos), também no logo do topo. (2) No cartão do veículo, o combustível subiu para a linha da marca: **"2022 · Flex"** à direita, antes da placa.
+
 - **2026-09-12 — v0.33.0.** **Ano na linha da marca.** A primeira linha do cartão do veículo agora é **marca (esquerda) + ano (direita)**, com a placa no canto — ordem marca → ano → placa. O modelo segue logo abaixo.
 
 - **2026-09-12 — v0.32.0.** **Editar pelo nome do carro.** O ícone de lápis saiu do cartão do veículo — agora **toque no nome do carro** para abrir a edição. O nome ganhou o espaço do ícone e fica menos cortado.

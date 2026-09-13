@@ -23,7 +23,9 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 > usuário (`ATUALIZACOES`) · futuro (`IDEIAS`) · nuvem (`FIREBASE`) · **motor "Ler foto" + log de casos
 > (`OCR.md`)**.
 
-## ⭐ ESTADO ATUAL (2026-09-12) — ler primeiro pós-/clear
+## ⭐ ESTADO ATUAL (2026-09-13) — ler primeiro pós-/clear
+
+**v0.34.0 — LOGO NEON AZUL + COMBUSTÍVEL NO ANO** (`analyze` limpo, 28 testes). (1) Ícone/launcher e logo do topo regenerados da arte neon azul (`file_00000000c22c820e8d17f9cdb5a0d15b.png`; `tools/gerar_icone.py` adaptado + `flutter_launcher_icons`). (2) Linha da marca agora tem **"ano · combustível"** à direita (ex.: "2022 · Flex"). Preview: `adm-projetos-design/carlog-placa-mercosul.html`. Base anterior:
 
 **v0.33.0 — ANO NA LINHA DA MARCA** (`analyze` limpo, 28 testes). Primeira linha do cartão: **marca à esquerda + ano à direita**, placa no canto (marca → ano → placa); modelo abaixo. Preview: `adm-projetos-design/carlog-placa-mercosul.html`. Base anterior:
 

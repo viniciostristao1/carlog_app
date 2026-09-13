@@ -2,6 +2,11 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-13 — Logo neon azul + combustível no ano (v0.34.0)
+
+- **Ícone/logo novo:** `tools/gerar_icone.py` foi adaptado para a arte atual (neon claro sobre preto): o autocrop agora pega o bbox do conteúdo **claro** (`gray > 40`, antes era escuro `< 100` no fundo âmbar) e o realce virou só `Contrast(1.04)` — o `Color/Brightness` era para o âmbar. Gera `carlog_icon.png`/`carlog_fg.png`/`carlog_logo.png`; depois `cd app && dart run flutter_launcher_icons` (mipmaps + adaptive com fundo `#000000`).
+- **Layout:** o combustível saiu do `infoExtra` e entrou na linha da marca junto do ano (`'${ano} · ${rotuloCombustivel}'`); a linha de baixo agora só mostra o apelido (se houver).
+
 ## 2026-09-12 — Ano na linha da marca (v0.33.0)
 
 - **Cabeçalho do cartão:** a linha 1 virou `Row(crossAxisAlignment: baseline, [Expanded(marca), ano])` — marca à esquerda e ano à direita, antes da placa (que fica no canto). O `infoExtra` perdeu o ano (agora só apelido + combustível). No fallback sem marca/modelo, o ano também aparece na mesma linha do título.
