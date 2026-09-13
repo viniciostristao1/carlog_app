@@ -205,12 +205,13 @@ class _CabecalhoVeiculo extends ConsumerWidget {
     // (ano/combustível) ficam na linha de baixo.
     final marca = v.marca.trim();
     final modelo = v.modelo.trim();
-    // Ano agora fica na linha da marca (antes da placa); aqui só apelido e
-    // combustível.
-    final infoExtra = [
-      if (v.apelido.trim().isNotEmpty) v.apelido.trim(),
+    // Linha da marca: ano + combustível à direita (ex.: "2022 · Flex").
+    final anoCombustivel = [
+      if (v.ano != null) '${v.ano}',
       t.rotuloCombustivel(v.combustivel),
     ].where((s) => s.isNotEmpty).join(' · ');
+    // Sobrou só o apelido para a linha de baixo (se houver).
+    final infoExtra = v.apelido.trim();
 
     void abrir(Widget tela) => Navigator.of(context)
         .push(MaterialPageRoute(builder: (_) => tela));
@@ -272,10 +273,10 @@ class _CabecalhoVeiculo extends ConsumerWidget {
                                             fontSize: 18,
                                             fontWeight: FontWeight.w700)),
                                   ),
-                                  if (v.ano != null)
+                                  if (anoCombustivel.isNotEmpty)
                                     Padding(
                                       padding: const EdgeInsets.only(left: 8),
-                                      child: Text('${v.ano}',
+                                      child: Text(anoCombustivel,
                                           style: TextStyle(
                                               color: AppColors.dim,
                                               fontSize: 13,
@@ -301,10 +302,10 @@ class _CabecalhoVeiculo extends ConsumerWidget {
                                             fontWeight: FontWeight.w600,
                                             letterSpacing: 0.2)),
                                   ),
-                                  if (v.ano != null)
+                                  if (anoCombustivel.isNotEmpty)
                                     Padding(
                                       padding: const EdgeInsets.only(left: 8),
-                                      child: Text('${v.ano}',
+                                      child: Text(anoCombustivel,
                                           style: TextStyle(
                                               color: AppColors.dim,
                                               fontSize: 13,
