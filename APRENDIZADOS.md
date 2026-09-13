@@ -2,6 +2,12 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-13 — Abastecimento: sem "Repetir último" + odômetro por ritmo (v0.36.0)
+
+- **"Repetir último" removido** do form de abastecimento: chips (`_chipRepetirUltimo`/`_chipDesfazerRepetir`), métodos (`_ultimo/_aplicarUltimo/_desfazerUltimo`), estado (`_ocultarRepetir`, `_mostrarDesfazerRepetir`) e os `_backup*` correspondentes. O **Desfazer do odômetro** ficou; o "Repetir última" da revisão continua (não foi pedido).
+- **`sugestaoOdometro` (`util/consumo.dart`) agora exige ≥2 leituras** (abastecimentos+revisões) para calcular o ritmo e projeta `último + km/dia × max(1, dias)`. Antes, sem ritmo ou com leitura de hoje, devolvia o próprio último km (parecia "repetir"). 4 casos novos em `consumo_test.dart` (1 leitura → null; ritmo × dias; hoje → 1 dia; revisão como base).
+- **UI do valor:** chips do modo invertidos — "Valor total" à esquerda e "Preço/Litro" à direita, sem "Informar" (`informarPrecoLitro`/`informarValorTotal` encurtados). `enchiTanqueSub` removida (o SwitchListTile ficou só com o título).
+
 ## 2026-09-13 — Revisões sem kits + peças de direção/embreagem (v0.35.0)
 
 - Removidos `KitSugerido`/`kitsRevisao` (`itens_sugeridos.dart`) e a fileira de chips de kits em `revisao_form_screen.dart` (método `_aplicarKit` também saiu). O chip **Repetir última** e o **Desfazer** continuam funcionando — usam `_ultimosAutoItens`, que NÃO era exclusivo dos kits (por isso o `_desfazerAutoItens` ficou).

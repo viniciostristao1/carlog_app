@@ -168,4 +168,48 @@ void main() {
       expect(progressoRevisao(v, const [], const []).fracao, isNull);
     });
   });
+
+  group('sugestaoOdometro', () {
+    test('sem ritmo (1 leitura) não sugere — não repete o último odômetro', () {
+      final ab = [_ab('1', DateTime(2026, 9, 10), 45000, 40)];
+      expect(sugestaoOdometro(ab, const []), isNull);
+    });
+
+    test('último + ritmo (km/dia) × dias desde a última leitura', () {
+      final agora = DateTime.now();
+      final ab = [
+        _ab('1', agora.subtract(const Duration(days: 30)), 44000, 40),
+        _ab('2', agora.subtract(const Duration(days: 10)), 45000, 40),
+      ];
+      // ritmo = 1000 km / 20 dias = 50 km/dia; 10 dias após a última → 45.500.
+      expect(sugestaoOdometro(ab, const []), 45500);
+    });
+
+    test('leitura de hoje projeta 1 dia de rodagem (não repete o valor)', () {
+      final agora = DateTime.now();
+      final ab = [
+        _ab('1', agora.subtract(const Duration(days: 30)), 44000, 40),
+        _ab('2', agora, 45000, 40),
+      ];
+      final r = sugestaoOdometro(ab, const []);
+      expect(r, isNotNull);
+      expect(r, greaterThan(45000));
+      expect(r, lessThanOrEqualTo(45034));
+    });
+
+    test('leitura de revisão conta como base do ritmo', () {
+      final agora = DateTime.now();
+      final ab = [
+        _ab('1', agora.subtract(const Duration(days: 20)), 50000, 40),
+      ];
+      final revs = [
+        Revisao(
+            id: 'r',
+            data: agora.subtract(const Duration(days: 10)),
+            odometro: 51000),
+      ];
+      // ritmo = 1000/10 = 100 km/dia; 10 dias após a revisão → 52.000.
+      expect(sugestaoOdometro(ab, revs), 52000);
+    });
+  });
 }

@@ -25,6 +25,8 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 
 ## ⭐ ESTADO ATUAL (2026-09-13) — ler primeiro pós-/clear
 
+**v0.36.0 — ABASTECIMENTO SIMPLES + ODÔMETRO POR RITMO** (`analyze` limpo, 34 testes). (1) "Repetir último" removido do abastecimento. (2) `sugestaoOdometro` agora estima `último + km/dia × max(1, dias)` e exige ≥2 leituras (sem ritmo → sem chip). (3) Chips "Valor total" (esquerda) / "Preço/Litro" (direita), sem "Informar". (4) Frase sob "Enchi o tanque" removida. Base anterior:
+
 **v0.35.0 — REVISÕES SEM KITS + MAIS PEÇAS** (`analyze` limpo, 30 testes). Kits sugeridos removidos do form de revisão (chips + `_aplicarKit`); `itensSugeridos` ganhou articulação da direção, barra axial, bucha da barra estabilizadora, ponteira de direção e embreagem (rolamento, disco, platô) — teste novo em `test/itens_sugeridos_test.dart`. Base anterior:
 
 **v0.34.0 — LOGO NEON AZUL + COMBUSTÍVEL NO ANO** (`analyze` limpo, 28 testes). (1) Ícone/launcher e logo do topo regenerados da arte neon azul (`file_00000000c22c820e8d17f9cdb5a0d15b.png`; `tools/gerar_icone.py` adaptado + `flutter_launcher_icons`). (2) Linha da marca agora tem **"ano · combustível"** à direita (ex.: "2022 · Flex"). Preview: `adm-projetos-design/carlog-placa-mercosul.html`. Base anterior:
