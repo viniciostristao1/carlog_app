@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-09-13 — v0.35.0.** **Revisões mais simples + mais peças.** (1) Os **kits sugeridos** saíram do formulário de revisão (menos poluição na tela). (2) Novas sugestões de peças: **articulação da direção, barra axial, bucha da barra estabilizadora, ponteira de direção** e, de embreagem, **rolamento, disco e platô**.
+
 - **2026-09-13 — v0.34.0.** **Logo azul novo + combustível junto do ano.** (1) O ícone do app agora é a arte **neon azul** enviada (carro, velocímetro e 5 atalhos), também no logo do topo. (2) No cartão do veículo, o combustível subiu para a linha da marca: **"2022 · Flex"** à direita, antes da placa.
 
 - **2026-09-12 — v0.33.0.** **Ano na linha da marca.** A primeira linha do cartão do veículo agora é **marca (esquerda) + ano (direita)**, com a placa no canto — ordem marca → ano → placa. O modelo segue logo abaixo.

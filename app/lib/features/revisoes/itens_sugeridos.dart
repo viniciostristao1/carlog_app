@@ -28,6 +28,10 @@ const itensSugeridos = <ItemSugerido>[
   ItemSugerido('Cambagem', 0),
   ItemSugerido('Bieleta (estabilizador)', 0),
   ItemSugerido('Bucha da suspensão', 0),
+  ItemSugerido('Articulação da direção', 0),
+  ItemSugerido('Barra axial', 0),
+  ItemSugerido('Bucha da barra estabilizadora', 0),
+  ItemSugerido('Ponteira de direção', 0),
   ItemSugerido('Polia (tensor/alternador)', 0),
   ItemSugerido('Amortecedores dianteiros', 60000),
   ItemSugerido('Amortecedores traseiros', 60000),
@@ -38,45 +42,15 @@ const itensSugeridos = <ItemSugerido>[
   ItemSugerido('Lâmpada da lanterna/freio', 0),
   ItemSugerido('Óleo do câmbio (manual)', 60000),
   ItemSugerido('Óleo do câmbio automático', 60000),
+  ItemSugerido('Rolamento de embreagem', 0),
+  ItemSugerido('Disco de embreagem', 0),
+  ItemSugerido('Platô de embreagem', 0),
   ItemSugerido('Fluido da direção hidráulica', 40000),
   ItemSugerido('Palhetas do limpador', 15000),
   ItemSugerido('Sonda lambda (sensor de oxigênio)', 80000),
   ItemSugerido('Vela de aquecimento (diesel)', 60000),
   ItemSugerido('Rolamento de roda dianteira', 60000),
   ItemSugerido('Rolamento de roda traseira', 60000),
-];
-
-class KitSugerido {
-  final String nome;
-  final List<String> itens;
-  const KitSugerido(this.nome, this.itens);
-}
-
-const kitsRevisao = <KitSugerido>[
-  KitSugerido('Kit Óleo', ['Óleo do motor', 'Filtro de óleo']),
-  KitSugerido('Kit Filtros', [
-    'Filtro de óleo',
-    'Filtro de ar',
-    'Filtro de combustível',
-    'Filtro do ar-condicionado (cabine)'
-  ]),
-  KitSugerido('Kit Freios', [
-    'Pastilhas de freio (dianteiras)',
-    'Discos de freio',
-    'Fluido de freio'
-  ]),
-  KitSugerido('Kit Correias', [
-    'Correia dentada',
-    'Correia dos acessórios (alternador)',
-    'Polia (tensor/alternador)'
-  ]),
-  KitSugerido('Kit Revisão 10k', [
-    'Óleo do motor',
-    'Filtro de óleo',
-    'Filtro de ar',
-    'Rodízio dos pneus',
-    'Alinhamento e balanceamento'
-  ]),
 ];
 
 /// Sugestões que combinam com o texto digitado (sem acento/caixa), até [max].
