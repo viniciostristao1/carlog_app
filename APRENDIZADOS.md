@@ -2,6 +2,11 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-13 — Logo interno (carro neon) + Valor total padrão (v0.37.0)
+
+- **Logo de DENTRO do app ≠ ícone do launcher:** `tools/gerar_icone.py` agora aceita duas artes — `ORIGEM` (ícone/launcher: carro+velocímetro+atalhos) e `LOGO_ORIGEM` (logo do AppBar/Sobre: só o carro). As duas usam o mesmo `_quadrado_autocrop`. O resize do `carlog_fg.png` voltou a ser em **uma etapa** a partir do quadrado natural (duas etapas mudava o fg e sujaria os mipmaps do launcher sem necessidade). Só `carlog_logo.png` muda; ícone/fg/mipmaps intactos.
+- **Abastecimento:** `_modoTotal = o == null` no `initState` — novo abre em **Valor total**; edição abre em Preço/Litro (evita derivar `total/litros` e arredondar o preço salvo).
+
 ## 2026-09-13 — Abastecimento: sem "Repetir último" + odômetro por ritmo (v0.36.0)
 
 - **"Repetir último" removido** do form de abastecimento: chips (`_chipRepetirUltimo`/`_chipDesfazerRepetir`), métodos (`_ultimo/_aplicarUltimo/_desfazerUltimo`), estado (`_ocultarRepetir`, `_mostrarDesfazerRepetir`) e os `_backup*` correspondentes. O **Desfazer do odômetro** ficou; o "Repetir última" da revisão continua (não foi pedido).

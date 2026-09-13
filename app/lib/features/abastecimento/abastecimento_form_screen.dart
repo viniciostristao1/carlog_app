@@ -32,7 +32,7 @@ class _AbastecimentoFormScreenState
   late final TextEditingController _obs;
   late DateTime _data;
   late bool _cheio;
-  bool _modoTotal = false; // false = informar preço/L; true = informar valor total
+  bool _modoTotal = true; // false = informar preço/L; true = informar valor total
   bool _ocultarSugestao = false;
   bool _mostrarDesfazerOdo = false;
   String? _backupOdo;
@@ -41,6 +41,9 @@ class _AbastecimentoFormScreenState
   void initState() {
     super.initState();
     final o = widget.original;
+    // Novo abastecimento abre em "Valor total" (mais comum no posto). Ao
+    // editar, mantém "Preço/Litro" para não arredondar o valor salvo.
+    _modoTotal = o == null;
     // Dígitos puros (campo digitsOnly): n0 poria "45.000", que parseNumero
     // leria como 45,0 ao re-salvar.
     _odometro = TextEditingController(
