@@ -205,9 +205,10 @@ class _CabecalhoVeiculo extends ConsumerWidget {
     // (ano/combustível) ficam na linha de baixo.
     final marca = v.marca.trim();
     final modelo = v.modelo.trim();
+    // Ano agora fica na linha da marca (antes da placa); aqui só apelido e
+    // combustível.
     final infoExtra = [
       if (v.apelido.trim().isNotEmpty) v.apelido.trim(),
-      if (v.ano != null) '${v.ano}',
       t.rotuloCombustivel(v.combustivel),
     ].where((s) => s.isNotEmpty).join(' · ');
 
@@ -258,23 +259,60 @@ class _CabecalhoVeiculo extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (marca.isEmpty && modelo.isEmpty)
-                              Text(v.titulo,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      color: AppColors.text,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700))
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: [
+                                  Expanded(
+                                    child: Text(v.titulo,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                            color: AppColors.text,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700)),
+                                  ),
+                                  if (v.ano != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 8),
+                                      child: Text('${v.ano}',
+                                          style: TextStyle(
+                                              color: AppColors.dim,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              letterSpacing: 0.2)),
+                                    ),
+                                ],
+                              )
                             else ...[
-                              if (marca.isNotEmpty)
-                                Text(marca,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                        color: AppColors.dim,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        letterSpacing: 0.2)),
+                              // Linha 1: marca à esquerda e ANO à direita (antes
+                              // da placa). Linha 2: modelo. Linha 3: apelido/comb.
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: [
+                                  Expanded(
+                                    child: Text(marca,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                            color: AppColors.dim,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 0.2)),
+                                  ),
+                                  if (v.ano != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 8),
+                                      child: Text('${v.ano}',
+                                          style: TextStyle(
+                                              color: AppColors.dim,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                              letterSpacing: 0.2)),
+                                    ),
+                                ],
+                              ),
                               if (modelo.isNotEmpty)
                                 Text(modelo,
                                     maxLines: 1,

@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-09-12 — v0.33.0.** **Ano na linha da marca.** A primeira linha do cartão do veículo agora é **marca (esquerda) + ano (direita)**, com a placa no canto — ordem marca → ano → placa. O modelo segue logo abaixo.
+
 - **2026-09-12 — v0.32.0.** **Editar pelo nome do carro.** O ícone de lápis saiu do cartão do veículo — agora **toque no nome do carro** para abrir a edição. O nome ganhou o espaço do ícone e fica menos cortado.
 
 - **2026-09-12 — v0.31.0.** **Placa Mercosul compacta.** A placa do cartão do veículo ficou **mais estreita** (cabe melhor ao lado do nome) e os **cantos de cima agora são arredondados** iguais aos de baixo.
