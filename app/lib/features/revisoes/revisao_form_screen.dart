@@ -131,16 +131,6 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
     });
   }
 
-  void _aplicarKit(KitSugerido k) {
-    setState(() {
-      final added = k.itens.where((e) => !_itens.contains(e)).toList();
-      if (added.isNotEmpty) {
-        _ultimosAutoItens = added;
-        _itens.addAll(added);
-      }
-    });
-  }
-
   void _desfazerAutoItens() {
     setState(() {
       for (final it in _ultimosAutoItens) {
@@ -526,26 +516,6 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
                     onPressed: () => _aplicarRepetir(u),
                   );
                 }),
-              ),
-            ),
-          if (_itens.isEmpty)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: kitsRevisao
-                    .map((k) => ActionChip(
-                          avatar: Icon(Icons.build_outlined,
-                              size: 16,
-                              color: AppColors.leg(AppColors.catRevisoes)),
-                          label: Text('${k.nome} (${k.itens.length})',
-                              style: const TextStyle(fontSize: 12)),
-                          backgroundColor: AppColors.surface2,
-                          side: BorderSide(color: AppColors.line),
-                          onPressed: () => _aplicarKit(k),
-                        ))
-                    .toList(),
               ),
             ),
           if (_ultimosAutoItens.isNotEmpty)

@@ -2,6 +2,11 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-13 — Revisões sem kits + peças de direção/embreagem (v0.35.0)
+
+- Removidos `KitSugerido`/`kitsRevisao` (`itens_sugeridos.dart`) e a fileira de chips de kits em `revisao_form_screen.dart` (método `_aplicarKit` também saiu). O chip **Repetir última** e o **Desfazer** continuam funcionando — usam `_ultimosAutoItens`, que NÃO era exclusivo dos kits (por isso o `_desfazerAutoItens` ficou).
+- `itensSugeridos` ganhou 7 itens com intervalo 0 (= sem auto-preenchimento de km): articulação da direção, barra axial, bucha da barra estabilizadora, ponteira de direção, rolamento de embreagem, disco de embreagem e platô de embreagem. Teste novo `test/itens_sugeridos_test.dart` cobre a busca por "ponteira", "barra axial", "bucha" e "embreagem".
+
 ## 2026-09-13 — Logo neon azul + combustível no ano (v0.34.0)
 
 - **Ícone/logo novo:** `tools/gerar_icone.py` foi adaptado para a arte atual (neon claro sobre preto): o autocrop agora pega o bbox do conteúdo **claro** (`gray > 40`, antes era escuro `< 100` no fundo âmbar) e o realce virou só `Contrast(1.04)` — o `Color/Brightness` era para o âmbar. Gera `carlog_icon.png`/`carlog_fg.png`/`carlog_logo.png`; depois `cd app && dart run flutter_launcher_icons` (mipmaps + adaptive com fundo `#000000`).
