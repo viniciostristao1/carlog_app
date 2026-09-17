@@ -25,6 +25,22 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 
 ## ⭐ ESTADO ATUAL (2026-09-13) — ler primeiro pós-/clear
 
+### 🚀 LANÇAMENTO PLAY STORE — em preparação (2026-09-17)
+Pacote de loja pronto (colável em [`LANCAMENTO.md`](LANCAMENTO.md)):
+- **AAB assinado:** novo workflow **`build-aab.yml`** (workflow_dispatch, só AAB — o build-apk
+  seguia só-APK por OOM). Roda `gh workflow run build-aab.yml` → AAB em `ci-latest/app-release.aab`
+  (v0.38.0 / versionCode 48, assinado c/ upload key SHA-1 `3E:DA:91:…:CB:21`).
+- **Política + Termos** no ar: https://viniciostristao1.github.io/carlog-privacidade/ (+ `/termos.html`),
+  repo público `carlog-privacidade`.
+- **store/**: `icon_512.png` + `feature_graphic.png` (1024×500, gerado) + 4 screenshots
+  formatados (`store/screenshots/`, ≈1,98:1 RGB; crus em `originais/`).
+- **Ficha** (nome `CarLog: gastos do carro`, descrições), **Data Safety**, **classificação**,
+  **declaração de alarmes exatos** (lembretes) e roteiro do Console → tudo em `LANCAMENTO.md`.
+- ⚠️ **Senha da keystore** só existe no secret `KEYSTORE_PASSWORD` (não há cópia em doc) → usuário
+  precisa recuperar/anotar; Play App Signing mitiga. Keystore local em `app/android/app/upload-keystore.jks`.
+- **Falta (só o usuário, no Console):** criar app → ficha → subir AAB+gráficos+prints → App content
+  → teste fechado ≥12/14d → produção. Conta dev = a mesma (aprovada) do Save List.
+
 **v0.38.0 — PAINEL COM DATA + DATA DO SERVIÇO NO OCR** (`analyze` limpo, 41 testes). (1) `TopoPainel` mostra a **data** prevista da revisão (barra continua com "faltam km"). (2) "Ler foto" lê a **data do serviço** (`services/ocr/ocr_data.dart` + `OcrResultado.dataServico`) e preenche o campo quando ainda está em hoje; `test/ocr_data_test.dart` (7 casos) + log no `OCR.md`. Base anterior:
 
 **v0.37.0 — LOGO INTERNO CARRO NEON + VALOR TOTAL PADRÃO** (`analyze` limpo, 34 testes). (1) Logo do AppBar virou o carro neon (`carlog_logo.png` gerado da nova arte; ícone do launcher intacto). (2) Abastecimento novo abre em "Valor total" (`_modoTotal = o == null`); edição abre em Preço/Litro. Preview: `adm-projetos-design/carlog-logo-carro.html`. Base anterior:
