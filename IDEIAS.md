@@ -2,6 +2,14 @@
 
 Datar e marcar status. Ideias saem daqui para virar versão.
 
+## 💰 Monetização — Premium (desbloqueio único) — `[FUTURO]` decidido 2026-09-17
+Modelo escolhido pelo usuário: **freemium com desbloqueio ÚNICO vitalício ~R$ 19,90** (não
+assinatura), igual ao Save List. Lança **grátis**; Premium entra em atualização (sem refazer o
+teste de 14 dias; Play Billing só testa após o app numa trilha). **Grátis = 1 veículo**; Premium
+**adiciona** valor: **múltiplos veículos** (até 3), **gráficos/estatísticas avançadas**, **backup
+automático**, **exportar histórico** (CSV/PDF). Impl. sugerida = RevenueCat + `PremiumGate`
+(Riverpod) + produto no Console; ao ativar, atualizar Data Safety p/ "contém compras no app".
+
 ## Prioridade alta (pedidas na origem, adiadas por dependência)
 - **[ ] OCR do orçamento de revisão.** Tirar foto do orçamento → extrair peças/serviços automaticamente,
   virar itens buscáveis pela lupa. Plano: **Google ML Kit Text Recognition** (on-device, offline, grátis)

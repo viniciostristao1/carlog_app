@@ -165,10 +165,13 @@ Pré-requisito ✅: conta de desenvolvedor paga **e aprovada** (a mesma do Save 
   Signing** ligado, mesmo perdendo a chave de upload dá pra **resetar** — mas o ideal é anotar
   a senha em lugar seguro (gerenciador de senhas).
 
-## Monetização (futuro, se quiser)
-- Hoje: **grátis, sem anúncios**. Se quiser, dá pra seguir o mesmo modelo do Save List depois:
-  **Premium por desbloqueio único** (ex.: gráficos avançados, mais de 3 veículos, backup
-  automático). Entra como atualização, sem refazer o teste de 14 dias.
+## Monetização — DECIDIDO (2026-09-17)
+- Lança **grátis, sem anúncios** (grátis = **1 veículo**). **Premium = desbloqueio ÚNICO
+  vitalício ~R$ 19,90** (não assinatura), igual ao Save List. Features Premium: **múltiplos
+  veículos** (até 3), **gráficos/estatísticas avançadas**, **backup automático**, **exportar
+  histórico**. Entra em **atualização** (v1.1),
+  sem refazer o teste de 14 dias (Play Billing só testa após o app numa trilha). Detalhe/plano
+  em `IDEIAS.md`.
 
 ## Futuro — App Store (iOS)
 - Conta Apple Developer (US$99/ano) + Mac (ou build em nuvem tipo Codemagic) + ícones/prints no
