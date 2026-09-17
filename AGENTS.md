@@ -80,7 +80,8 @@ Rodar como root só emite um aviso; funciona. **Não** rode `flutter build apk` 
 - ⛔ **Heap do Gradle** fica em `-Xmx4G` (`app/android/gradle.properties`) — 8G estourava o runner.
 - ✅ **ML Kit exige** as regras `-dontwarn` em `app/android/app/proguard-rules.pro` (idiomas não usados)
   E `kotlin.jvm.target.validation.mode=warning` no `gradle.properties`.
-- ✅ **CI compila só o APK** (o passo do AAB era cancelado por OOM); AAB só no lançamento.
+- ✅ **`build-apk.yml` (push) compila só o APK** (APK+AAB juntos dava OOM). O **AAB da Play Store**
+  sai por um workflow separado, **`build-aab.yml`** (manual/`workflow_dispatch`) — ver §8.
 - ✅ Ao adicionar **plugin nativo novo**: espere possível quebra de build na nuvem; teste com um push e
   leia o log (`gh run view <id> --log-failed`). `analyze` local NÃO pega erro de Gradle/R8/memória.
 
@@ -92,3 +93,17 @@ Rodar como root só emite um aviso; funciona. **Não** rode `flutter build apk` 
 - [ ] Nenhum gotcha do §6 reintroduzido.
 - [ ] 1 linha em `ATUALIZACOES.md` (se visível) + nota técnica em `APRENDIZADOS.md`.
 - [ ] Branch `deepseek/<assunto>` (não commitou no main; não mexeu em versão/release).
+
+## 8. Lançamento na Play Store (AAB) — NÃO é o fluxo normal de melhoria
+> **Melhoria/bugfix do dia a dia NÃO precisa mexer no AAB.** O ciclo normal é §5 (push → APK no
+> GitHub → usuário testa). O AAB só entra quando se quer **publicar na Play Store**.
+
+- **Pacote de loja pronto:** ver [`LANCAMENTO.md`](LANCAMENTO.md) (ficha, Data Safety, screenshots
+  em `store/`, política/termos no repo `viniciostristao1/carlog-privacidade`).
+- **Gerar/atualizar o AAB:** `gh workflow run build-aab.yml` (só sob demanda). Compila
+  `flutter build appbundle --release` assinado e publica em `ci-latest/app-release.aab`
+  (repo público → baixa sem login). **Cada upload novo na Play exige `versionCode` (o `+N`) maior**
+  — o bump do §5 já cuida disso.
+- **Publicar de fato = passo manual do usuário** no Play Console (subir o AAB na trilha; Play
+  revisa). Uma IA **não** publica na loja; no máximo gera o AAB e avisa o usuário.
+- **Screenshots/descrição** trocam direto no Console (não precisam de AAB novo).
