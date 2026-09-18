@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../l10n/strings.dart';
 import '../../models/lembrete.dart';
 import '../../models/programacao.dart';
 import '../../models/revisao.dart';
@@ -465,18 +466,23 @@ class _CartaoRevisao extends ConsumerWidget {
       required this.onEditar,
       required this.onExcluir});
 
+  /// Itens mostrados na caixa (8) e colunas por linha (3). Com mais de 8 itens
+  /// o 9º chip é o "+N" (quantidade restante) — ex.: 8 itens + "+12".
+  static const _maxItens = 8;
+  static const _porLinha = 3;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(stringsProvider);
-    // Encurta a lista de peças (caixa não cresce demais) e, ao buscar, joga o
-    // item que casa para a frente e o destaca — assim dá para achá-lo na revisão.
-    const maxChips = 4;
+    // Mostra até 8 itens em linhas de 3 (altura máxima fixa da caixa). Ao
+    // buscar, joga o item que casa para a frente e o destaca — e aí não encurta
+    // o texto, para o resultado da busca ficar visível.
     final temBusca = termo.isNotEmpty;
     bool casa(String it) => temBusca && semAcento(it).contains(termo);
     final ordenados = temBusca
         ? [...r.itens.where(casa), ...r.itens.where((it) => !casa(it))]
         : r.itens;
-    final mostrados = ordenados.take(maxChips).toList();
+    final mostrados = ordenados.take(_maxItens).toList();
     final extra = r.itens.length - mostrados.length;
 
     return Dismissible(
@@ -538,56 +544,89 @@ class _CartaoRevisao extends ConsumerWidget {
                   ),
                   if (r.itens.isNotEmpty) ...[
                     const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: [
-                        ...mostrados.map((it) {
-                          final destaque = casa(it);
-                          return Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: destaque
-                                  ? AppColors.accent.withValues(alpha: 0.20)
-                                  : AppColors.surface2,
-                              borderRadius: BorderRadius.circular(7),
-                              border: destaque
-                                  ? Border.all(color: AppColors.accent)
-                                  : null,
-                            ),
-                            child: Text(it,
-                                style: TextStyle(
-                                    color: destaque
-                                        ? AppColors.text
-                                        : AppColors.dim,
-                                    fontSize: 11.5,
-                                    fontWeight: destaque
-                                        ? FontWeight.w700
-                                        : FontWeight.w400)),
-                          );
-                        }),
-                        if (extra > 0)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: AppColors.surface2,
-                              borderRadius: BorderRadius.circular(7),
-                            ),
-                            child: Text(t.maisItens(extra),
-                                style: TextStyle(
-                                    color: AppColors.dim2,
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.w700)),
-                          ),
-                      ],
-                    ),
+                    _gradeItens(t, mostrados, extra, temBusca, casa),
                   ],
                 ],
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  /// Grade de 3 colunas: os itens (encurtados p/ caber) e, se sobrar, o chip
+  /// "+N" como 9º — no máximo 3 linhas.
+  Widget _gradeItens(
+    AppStrings t,
+    List<String> mostrados,
+    int extra,
+    bool temBusca,
+    bool Function(String) casa,
+  ) {
+    final chips = <Widget>[
+      for (final it in mostrados)
+        _ItemChip(
+          texto: temBusca ? it : resumo(it),
+          destaque: casa(it),
+        ),
+      if (extra > 0) _ItemChip(texto: t.maisItens(extra), contador: true),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (var i = 0; i < chips.length; i += _porLinha) ...[
+          if (i > 0) const SizedBox(height: 6),
+          Row(
+            children: [
+              for (var j = 0; j < _porLinha; j++) ...[
+                if (j > 0) const SizedBox(width: 6),
+                Expanded(
+                  child: i + j < chips.length
+                      ? chips[i + j]
+                      : const SizedBox.shrink(),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// Chip de item do histórico: ocupa 1/3 da linha e corta com "…" o que não
+/// couber (o texto já vem resumido pela `resumo` fora da busca).
+class _ItemChip extends StatelessWidget {
+  final String texto;
+  final bool destaque; // item que casa com a busca
+  final bool contador; // chip "+N"
+  const _ItemChip(
+      {required this.texto, this.destaque = false, this.contador = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: destaque
+            ? AppColors.accent.withValues(alpha: 0.20)
+            : AppColors.surface2,
+        borderRadius: BorderRadius.circular(7),
+        border: destaque ? Border.all(color: AppColors.accent) : null,
+      ),
+      child: Text(
+        texto,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: destaque
+              ? AppColors.text
+              : (contador ? AppColors.dim2 : AppColors.dim),
+          fontSize: 11.5,
+          fontWeight:
+              destaque || contador ? FontWeight.w700 : FontWeight.w400,
         ),
       ),
     );
