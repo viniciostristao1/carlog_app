@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-09-18 — v0.41.0.** **Ajustes no histórico.** O **"+N"** agora fica centralizado na caixinha, e o **nome da oficina** subiu para a linha do título (mesmo tamanho/fonte de antes) — a linha de baixo fica só com data e km.
+
 - **2026-09-18 — v0.40.0.** **Histórico com até 8 itens.** A caixa de cada revisão/reparo agora mostra **8 itens** (antes 4), em **3 por linha** com o nome encurtado; se houver mais, o 9º espaço vira **"+N"** com o que sobrou. Ao buscar, o item casado aparece inteiro e destacado.
 
 - **2026-09-18 — v0.39.0.** **Revisão × reparo.** No formulário de serviço entrou a caixinha **Revisão** na barra de cima (ao lado da lixeira): marcada, o serviço conta para a **próxima revisão**; desmarcada, é um **reparo** e não mexe na previsão (mas o km informado continua valendo). O texto fixo "Revisão" acima do campo Título saiu. No histórico, registro sem título aparece como "Revisão" ou "Reparo". Seus registros antigos continuam contando como revisão — desmarque os que forem reparo.

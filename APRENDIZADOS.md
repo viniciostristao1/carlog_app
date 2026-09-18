@@ -2,6 +2,11 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-18 — Ajustes no card do histórico (v0.41.0)
+
+- **Oficina na linha do título:** o `Expanded` do título virou `Text.rich` — `TextSpan` do `local` com o estilo que ele já tinha na linha de baixo (12.5/dim/w400), separado por dois espaços. Saiu do join `data · km` (a linha de baixo ficou só com data e odômetro); o custo continua à direita. `maxLines: 1` + ellipsis no conjunto.
+- **"+N" centralizado:** `_ItemChip` ganhou `textAlign: contador ? TextAlign.center : null`. Como todo chip é filho de `Expanded`, o `Container`/`Text` recebem largura fixa e o `TextAlign.center` centraliza de fato.
+
 ## 2026-09-18 — Histórico: 8 itens em grade de 3 (v0.40.0)
 
 - **`_CartaoRevisao` (`revisoes_screen.dart`):** `_maxItens = 8` + `_porLinha = 3`; o `Wrap` saiu (quebrava conforme o tamanho do texto) e entrou `_gradeItens()` — `Row`s de 3 `Expanded` (slot vazio = `SizedBox.shrink`), garantindo 3 colunas e no máximo 3 linhas. Com mais de 8 itens, o 9º chip é o "+N" (`t.maisItens`).
