@@ -41,6 +41,8 @@ Pacote de loja pronto (colável em [`LANCAMENTO.md`](LANCAMENTO.md)):
 - **Falta (só o usuário, no Console):** criar app → ficha → subir AAB+gráficos+prints → App content
   → teste fechado ≥12/14d → produção. Conta dev = a mesma (aprovada) do Save List.
 
+**v0.40.0 — HISTÓRICO COM 8 ITENS EM GRADE** (`analyze` limpo, 50 testes). A caixa de cada revisão/reparo mostra até **8 itens** (antes 4), **3 por linha** via `_gradeItens()` (Rows de `Expanded`; o `Wrap` saiu) e o 9º chip vira o **"+N"** quando passa de 8. Fora da busca o nome passa por `resumo()` (10 letras + "…", em `util/format.dart` + `test/format_test.dart`); na busca fica inteiro p/ o destaque. Base anterior:
+
 **v0.39.0 — REVISÃO × REPARO** (`analyze` limpo, 46 testes). Caixinha **Revisão** na AppBar do form de serviço (novo já vem marcado; edição preserva): `Revisao.ehRevisao` (default/legado sem o campo = revisão) e `preverRevisao` usa só revisões na base do alvo e da data — o odômetro de reparos continua valendo como leitura do km atual/ritmo. Título fixo "Revisão" do topo removido a pedido; card sem título mostra Revisão/Reparo. Testes: 2 casos em `consumo_test.dart` + `test/revisao_test.dart`. Base anterior:
 
 **v0.38.0 — PAINEL COM DATA + DATA DO SERVIÇO NO OCR** (`analyze` limpo, 41 testes). (1) `TopoPainel` mostra a **data** prevista da revisão (barra continua com "faltam km"). (2) "Ler foto" lê a **data do serviço** (`services/ocr/ocr_data.dart` + `OcrResultado.dataServico`) e preenche o campo quando ainda está em hoje; `test/ocr_data_test.dart` (7 casos) + log no `OCR.md`. Base anterior:
