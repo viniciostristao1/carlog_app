@@ -2,6 +2,14 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-18 — Revisão × reparo no cálculo da próxima (v0.39.0)
+
+- **Modelo:** `Revisao.ehRevisao` — default `true` e, no `fromJson`, `(j['ehRevisao'] as bool?) ?? true`: registros antigos (sem o campo) seguem contando como revisão; o usuário desmarca o que for reparo. `toJson` grava o campo.
+- **Lógica (`util/consumo.dart`):** `preverRevisao` filtra `revisoes.where((r) => r.ehRevisao)` em `revsBase`, usado tanto no **alvo** (última revisão + intervalo do cadastro) quanto na **data** (base da última revisão + ritmo). As leituras de odômetro dos reparos continuam em `_leituras` (km atual e ritmo) — reparo informa o km do carro, mas não antecipa a revisão. Só reparos → `baseOdo = odoAtual`, `data == null` (card cai no "faltam X km").
+- **Form (`revisao_form_screen.dart`):** `_ehRevisao` (novo = `true`; edição = valor salvo) + `_marcadorRevisao()` nas `actions` da AppBar (Checkbox + label "Revisão" + tooltip), **no lugar** do título fixo ("Revisão"/"Nova revisão") que foi removido a pedido. Checkbox e label com gestos separados (evita duplo toggle do `InkWell` em volta do `Checkbox`); o valor entra no `Revisao(...)` ao salvar.
+- **Histórico:** fallback do card sem título agora é `t.revisao`/`t.reparo` conforme a flag.
+- **Testes:** 2 casos novos no grupo `preverRevisao` (`consumo_test.dart`): reparo não entra no alvo/data; só reparos → alvo = km atual + intervalo e sem data. Novo `test/revisao_test.dart`: default `true`, roundtrip `toJson/fromJson` e legado sem o campo = revisão.
+
 ## 2026-09-13 — Painel com data + data do serviço no OCR (v0.38.0)
 
 - **`TopoPainel` (Painel digital):** o item de revisão passou a mostrar `dataCurta(prev.data)` (e `t.vencida` quando atrasada); o "faltam X km" ficou só no `TopoProgresso` (modo com a barra).

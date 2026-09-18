@@ -126,6 +126,47 @@ void main() {
       const v = Veiculo(id: 'v', apelido: 'x');
       expect(preverRevisao(v, const [], const []).alvoKm, isNull);
     });
+
+    test('reparo não entra no alvo nem na data (só revisão conta)', () {
+      final agora = DateTime.now();
+      const v = Veiculo(id: 'v', apelido: 'x'); // intervalo do cadastro = 10000
+      final revs = [
+        Revisao(
+            id: 'r',
+            data: agora.subtract(const Duration(days: 100)),
+            odometro: 40000),
+        Revisao(
+            id: 'p',
+            data: agora.subtract(const Duration(days: 10)),
+            odometro: 48000,
+            ehRevisao: false), // reparo: não deve virar base
+      ];
+      final ab = [_ab('a', agora, 49000, 40)];
+      final p = preverRevisao(v, ab, revs);
+      // alvo = revisão (40000) + 10000 — não 48000 (reparo) + 10000.
+      expect(p.alvoKm, closeTo(50000, 1));
+      // data = revisão (há 100 dias) + 10.000 km no ritmo (9000 km / 100 dias
+      // = 90 km/dia) → ≈ 11 dias à frente. Se o reparo fosse a base, seria
+      // ≈ 101 dias à frente.
+      expect(p.data, isNotNull);
+      expect(p.data!.difference(agora).inDays, inInclusiveRange(10, 12));
+    });
+
+    test('só reparos: alvo cai no km atual + intervalo e sem data prevista', () {
+      final agora = DateTime.now();
+      const v = Veiculo(id: 'v', apelido: 'x');
+      final revs = [
+        Revisao(
+            id: 'p',
+            data: agora.subtract(const Duration(days: 10)),
+            odometro: 48000,
+            ehRevisao: false),
+      ];
+      final ab = [_ab('a', agora, 49000, 40)];
+      final p = preverRevisao(v, ab, revs);
+      expect(p.alvoKm, closeTo(59000, 1)); // 49000 (km atual) + 10000
+      expect(p.data, isNull);
+    });
   });
 
   group('progressoRevisao', () {

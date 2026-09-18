@@ -276,6 +276,10 @@ class AppStrings {
   String get registrar => _s('Registrar', 'Log', 'Registrar');
   String get novaRevisao => _s('Nova revisão', 'New service', 'Nueva revisión');
   String get revisao => _s('Revisão', 'Service', 'Revisión');
+  String get reparo => _s('Reparo', 'Repair', 'Reparación');
+  String get contaParaProxima => _s('Marcar como revisão — conta para a próxima',
+      'Mark as service — counts toward the next one',
+      'Marcar como revisión — cuenta para la próxima');
   String get excluirRevisao =>
       _s('Excluir revisão?', 'Delete service?', '¿Eliminar revisión?');
   String get nadaProgramado =>

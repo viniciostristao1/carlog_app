@@ -231,10 +231,13 @@ List<(DateTime, double)> _leituras(
   return r;
 }
 
-/// Estima a próxima revisão. **Alvo (km) = última revisão + intervalo do CADASTRO**
-/// (fixo). O que melhora é a **DATA**: km atual = maior leitura de abastecimentos
-/// + revisões; ritmo = km/dia dos últimos 12 meses juntando as duas fontes. Se não
-/// der por km, cai para o tempo (última revisão + intervalo de meses do cadastro).
+/// Estima a próxima revisão. **Alvo (km) = última REVISÃO + intervalo do
+/// CADASTRO** (fixo). Reparos (`ehRevisao == false`) não entram na base do alvo
+/// nem da data — só as revisões contam; o odômetro deles, porém, continua
+/// valendo como leitura do km atual. O que melhora é a **DATA**: km atual =
+/// maior leitura de abastecimentos + revisões; ritmo = km/dia dos últimos 12
+/// meses juntando as duas fontes. Se não der por km, cai para o tempo (última
+/// revisão + intervalo de meses do cadastro).
 PrevisaoRevisao preverRevisao(
     Veiculo v, List<Abastecimento> abastecimentos, List<Revisao> revisoes) {
   final leituras = _leituras(abastecimentos, revisoes);
@@ -257,8 +260,11 @@ PrevisaoRevisao preverRevisao(
   }
   final media12 = kmDia != null ? kmDia * 30 : null;
 
+  // Só revisões entram na base do cálculo (reparo fica de fora).
+  final revsBase = revisoes.where((r) => r.ehRevisao).toList();
+
   // Alvo (km) = odômetro da ÚLTIMA revisão + o intervalo do CADASTRO (fixo).
-  final revsOdo = revisoes.where((r) => r.odometro != null).toList()
+  final revsOdo = revsBase.where((r) => r.odometro != null).toList()
     ..sort((a, b) => a.odometro!.compareTo(b.odometro!));
   final baseOdo = revsOdo.isNotEmpty ? revsOdo.last.odometro! : odoAtual;
   final alvoKm = baseOdo + v.revisaoIntervaloKm;
@@ -267,7 +273,7 @@ PrevisaoRevisao preverRevisao(
   // DATA = data da última revisão + o tempo para rodar UM intervalo no ritmo dos
   // últimos 12 meses (método do usuário — robusto a odômetro desatualizado). Sem
   // ritmo: última revisão + o intervalo de meses do cadastro.
-  final revsData = [...revisoes]..sort((a, b) => a.data.compareTo(b.data));
+  final revsData = [...revsBase]..sort((a, b) => a.data.compareTo(b.data));
   DateTime? data;
   if (revsData.isNotEmpty) {
     final ult = revsData.last.data;
