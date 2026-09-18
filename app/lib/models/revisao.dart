@@ -14,6 +14,11 @@ class Revisao {
   final String textoBruto; // texto de OCR do orçamento (buscável)
   final String observacao; // anotações livres do usuário
 
+  /// `true` = revisão (ex.: troca de óleo) → entra no cálculo da próxima
+  /// revisão. `false` = reparo (ex.: lâmpada, geometria) → fica só no
+  /// histórico; o odômetro ainda serve de leitura do km atual.
+  final bool ehRevisao;
+
   const Revisao({
     required this.id,
     this.veiculoId,
@@ -25,6 +30,7 @@ class Revisao {
     this.local = '',
     this.textoBruto = '',
     this.observacao = '',
+    this.ehRevisao = true,
   });
 
   /// Concatena tudo que é buscável (título + itens + local + texto + obs.),
@@ -48,6 +54,7 @@ class Revisao {
         'local': local,
         'textoBruto': textoBruto,
         'observacao': observacao,
+        'ehRevisao': ehRevisao,
       };
 
   factory Revisao.fromJson(Map<String, dynamic> j) => Revisao(
@@ -61,5 +68,8 @@ class Revisao {
         local: (j['local'] ?? '') as String,
         textoBruto: (j['textoBruto'] ?? '') as String,
         observacao: (j['observacao'] ?? '') as String,
+        // Registros antigos (antes do campo) contam como revisão — mantém a
+        // previsão que já existia; o usuário desmarca o que for reparo.
+        ehRevisao: (j['ehRevisao'] as bool?) ?? true,
       );
 }

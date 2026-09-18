@@ -34,6 +34,7 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
   final _precoItem = TextEditingController();
   late DateTime _data;
   late List<String> _itens;
+  late bool _ehRevisao;
   bool _ocrLoading = false;
   bool _ocultarSugestaoOdo = false;
   bool _ocultarRepetir = false;
@@ -57,6 +58,7 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
     _observacao = TextEditingController(text: o?.observacao ?? '');
     _data = o?.data ?? DateTime.now();
     _itens = [...(o?.itens ?? const [])];
+    _ehRevisao = o?.ehRevisao ?? true;
     _itemCtrl.addListener(() => setState(() {}));
     _texto.addListener(() => setState(() {})); // mostra/oculta o botão "Limpar"
   }
@@ -392,6 +394,7 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
       local: _local.text.trim(),
       textoBruto: _texto.text.trim(),
       observacao: _observacao.text.trim(),
+      ehRevisao: _ehRevisao,
     );
     await ref.read(revisoesProvider.notifier).salvar(r);
     if (mounted) Navigator.of(context).pop();
@@ -412,8 +415,8 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
     final sugOdo = _sugestaoOdo();
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.original == null ? t.novaRevisao : t.revisao),
         actions: [
+          _marcadorRevisao(t),
           if (widget.original != null)
             IconButton(
               tooltip: t.excluir,
@@ -672,6 +675,45 @@ class _RevisaoFormScreenState extends ConsumerState<RevisaoFormScreen> {
           ),
           const SizedBox(height: 24),
           FilledButton(onPressed: _salvar, child: Text(t.salvar)),
+        ],
+      ),
+    );
+  }
+
+  /// Caixinha "Revisão" da barra de cima (ao lado da lixeira): marcada, o
+  /// serviço conta para a próxima revisão; desmarcada, é um reparo e fica só no
+  /// histórico. Fica no lugar do antigo título fixo "Revisão".
+  Widget _marcadorRevisao(AppStrings t) {
+    void alternar() => setState(() => _ehRevisao = !_ehRevisao);
+    return Tooltip(
+      message: t.contaParaProxima,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Checkbox(
+            value: _ehRevisao,
+            onChanged: (v) => setState(() => _ehRevisao = v ?? false),
+            visualDensity: VisualDensity.compact,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            activeColor: AppColors.catRevisoes,
+            side: BorderSide(
+                color: _ehRevisao ? AppColors.catRevisoes : AppColors.dim,
+                width: 1.5),
+          ),
+          const SizedBox(width: 2),
+          InkWell(
+            onTap: alternar,
+            borderRadius: BorderRadius.circular(6),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
+              child: Text(t.revisao,
+                  style: TextStyle(
+                      color: AppColors.text,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600)),
+            ),
+          ),
+          const SizedBox(width: 6),
         ],
       ),
     );

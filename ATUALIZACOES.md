@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-09-18 — v0.39.0.** **Revisão × reparo.** No formulário de serviço entrou a caixinha **Revisão** na barra de cima (ao lado da lixeira): marcada, o serviço conta para a **próxima revisão**; desmarcada, é um **reparo** e não mexe na previsão (mas o km informado continua valendo). O texto fixo "Revisão" acima do campo Título saiu. No histórico, registro sem título aparece como "Revisão" ou "Reparo". Seus registros antigos continuam contando como revisão — desmarque os que forem reparo.
+
 - **2026-09-13 — v0.38.0.** **Previsão pela data no painel + data do serviço no "Ler foto".** (1) No modo **Painel digital** (a caixa escura), a previsão de revisão agora mostra a **data** prevista (como na grade) — o "faltam X km" fica só no modo com a barra. (2) Ao usar **"Ler foto"** numa revisão, além do km, o app agora **lê a data do orçamento/nota** e preenche a data do serviço automaticamente (no lançamento novo).
 
 - **2026-09-13 — v0.37.0.** **Novo símbolo dentro do app + Valor total pré-selecionado.** (1) No topo, o logo ao lado de "CarLog" agora é o **carro neon** (o ícone do aplicativo na tela do celular continua o mesmo). (2) No abastecimento, o formulário abre com **"Valor total"** selecionado (antes era "Preço/Litro"); ao editar um registro, continua abrindo em Preço/Litro para não arredondar o valor salvo.

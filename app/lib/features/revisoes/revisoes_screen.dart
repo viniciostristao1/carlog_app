@@ -510,7 +510,9 @@ class _CartaoRevisao extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          r.titulo.isNotEmpty ? r.titulo : t.revisao,
+                          r.titulo.isNotEmpty
+                              ? r.titulo
+                              : (r.ehRevisao ? t.revisao : t.reparo),
                           style: TextStyle(
                               color: AppColors.text,
                               fontSize: 15.5,
