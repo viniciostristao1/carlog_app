@@ -515,10 +515,26 @@ class _CartaoRevisao extends ConsumerWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(
-                          r.titulo.isNotEmpty
-                              ? r.titulo
-                              : (r.ehRevisao ? t.revisao : t.reparo),
+                        // Título + oficina na mesma linha (oficina com o
+                        // tamanho/fonte que já tinha na linha de baixo).
+                        child: Text.rich(
+                          TextSpan(
+                            text: r.titulo.isNotEmpty
+                                ? r.titulo
+                                : (r.ehRevisao ? t.revisao : t.reparo),
+                            children: [
+                              if (r.local.isNotEmpty)
+                                TextSpan(
+                                  text: '  ${r.local}',
+                                  style: TextStyle(
+                                      color: AppColors.dim,
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w400),
+                                ),
+                            ],
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                               color: AppColors.text,
                               fontSize: 15.5,
@@ -538,7 +554,6 @@ class _CartaoRevisao extends ConsumerWidget {
                     [
                       dataCurta(r.data),
                       if (r.odometro != null) km(r.odometro!),
-                      if (r.local.isNotEmpty) r.local,
                     ].join(' · '),
                     style: TextStyle(color: AppColors.dim, fontSize: 12.5),
                   ),
@@ -616,10 +631,12 @@ class _ItemChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(7),
         border: destaque ? Border.all(color: AppColors.accent) : null,
       ),
+      // O "+N" fica centralizado na caixinha; os itens seguem à esquerda.
       child: Text(
         texto,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
+        textAlign: contador ? TextAlign.center : null,
         style: TextStyle(
           color: destaque
               ? AppColors.text
