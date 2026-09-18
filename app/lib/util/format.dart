@@ -49,6 +49,15 @@ extension StringFallback on String {
   String ou(String fallback) => isEmpty ? fallback : this;
 }
 
+/// Primeiras [max] letras de um texto, com "…" quando corta (espaços nas pontas
+/// somem). Para exibir em espaços estreitos — ex.: chips do histórico de
+/// revisões, que precisam de 3 por linha.
+String resumo(String s, {int max = 10}) {
+  final t = s.trim();
+  if (t.length <= max) return t;
+  return '${t.substring(0, max).trimRight()}…';
+}
+
 /// Minúsculas sem acento — para buscas/sugestões que ignoram acento e caixa.
 String semAcento(String s) {
   const de = 'áàâãäéèêëíìîïóòôõöúùûüç';

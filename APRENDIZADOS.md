@@ -2,6 +2,12 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-18 — Histórico: 8 itens em grade de 3 (v0.40.0)
+
+- **`_CartaoRevisao` (`revisoes_screen.dart`):** `_maxItens = 8` + `_porLinha = 3`; o `Wrap` saiu (quebrava conforme o tamanho do texto) e entrou `_gradeItens()` — `Row`s de 3 `Expanded` (slot vazio = `SizedBox.shrink`), garantindo 3 colunas e no máximo 3 linhas. Com mais de 8 itens, o 9º chip é o "+N" (`t.maisItens`).
+- **`_ItemChip`:** chip extraído (1/3 da linha, `maxLines: 1` + `ellipsis`). Fora da busca o texto passa por `resumo()` (10 primeiras letras + "…"); durante a busca fica inteiro — senão o destaque do match não apareceria.
+- **`util/format.dart`:** novo `resumo(s, {max = 10})` (trim + corte com "…", sem sobrar espaço antes) com `test/format_test.dart` (4 casos).
+
 ## 2026-09-18 — Revisão × reparo no cálculo da próxima (v0.39.0)
 
 - **Modelo:** `Revisao.ehRevisao` — default `true` e, no `fromJson`, `(j['ehRevisao'] as bool?) ?? true`: registros antigos (sem o campo) seguem contando como revisão; o usuário desmarca o que for reparo. `toJson` grava o campo.
