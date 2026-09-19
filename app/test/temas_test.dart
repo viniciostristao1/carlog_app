@@ -11,6 +11,20 @@ void main() {
           AppColors.fundoDoTema(TemaApp.neonDrift), const Color(0xFF05080A));
     });
 
+    test('Daylight é claro e branco/azul', () {
+      expect(
+          AppColors.accentDoTema(TemaApp.daylight), const Color(0xFF1F6FEB));
+      expect(
+          AppColors.fundoDoTema(TemaApp.daylight), const Color(0xFFF2F6FB));
+      AppColors.aplicarTema(TemaApp.daylight);
+      expect(AppColors.brilho, Brightness.light);
+      AppColors.aplicarTema(TemaApp.terracota); // restaura o padrão
+    });
+
+    test('Expresso saiu do app', () {
+      expect(TemaApp.values.map((t) => t.name), isNot(contains('espresso')));
+    });
+
     test('todos os temas têm accents distintos', () {
       final accents = TemaApp.values.map(AppColors.accentDoTema).toSet();
       expect(accents.length, TemaApp.values.length);

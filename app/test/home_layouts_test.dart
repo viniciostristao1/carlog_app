@@ -2,6 +2,7 @@ import 'package:carlog/features/home/layouts_home.dart';
 import 'package:carlog/features/home/topo_veiculo.dart';
 import 'package:carlog/l10n/strings.dart';
 import 'package:carlog/models/veiculo.dart';
+import 'package:carlog/theme/app_colors.dart';
 import 'package:carlog/util/consumo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -93,5 +94,14 @@ void main() {
     await monta(t,
         LayoutLista(d: dados(consumo: null), t: const AppStrings(Idioma.pt)));
     expect(t.takeException(), isNull);
+  });
+
+  testWidgets('layouts no tema Daylight (claro) não estouram', (t) async {
+    AppColors.aplicarTema(TemaApp.daylight);
+    addTearDown(() => AppColors.aplicarTema(TemaApp.terracota));
+    for (final build in layouts.values) {
+      await monta(t, build());
+      expect(t.takeException(), isNull);
+    }
   });
 }

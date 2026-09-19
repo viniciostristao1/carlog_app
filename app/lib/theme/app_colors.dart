@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 /// Temas do CarLog. Terracota (padrão) = azul-marinho "prancheta de oficina"
 /// com destaque coral e hairlines azuladas; Âmbar e Azul = grafite escuro
-/// "painel de carro" (muda só o accent); Espresso = marrom escuro; Madeira =
-/// claro (madeira); Neon Drift = preto esverdeado com verde ácido. O usuário
+/// "painel de carro" (muda só o accent); Madeira = claro (madeira); Neon Drift =
+/// preto esverdeado com verde ácido; Daylight = claro branco/azul. O usuário
 /// escolhe nas Configurações.
-/// ⚠️ [terracota] e os temas novos entram no FIM do enum de propósito (índices
-/// 0–3 estáveis para `AppStrings.nomeTema`); só adicione novos temas no fim.
+/// A escolha é persistida pelo `name` do enum e `AppStrings.nomeTema` recebe o
+/// próprio enum — não existe mais dependência da POSIÇÃO no enum.
 /// Legado: o valor antigo `blueprint` foi renomeado para `terracota` (mesma paleta).
-enum TemaApp { ambar, azul, espresso, madeira, terracota, neonDrift }
+enum TemaApp { ambar, azul, madeira, terracota, neonDrift, daylight }
 
 /// Uma paleta completa (tokens de cor de um tema). Fundo, superfícies, texto e
 /// accent mudam por tema — por isso [AppColors] os expõe como getters que lêem
@@ -100,10 +100,10 @@ abstract final class AppColors {
           _grafite(const Color(0xFFF5A524), const Color(0xFF231402)),
         TemaApp.azul =>
           _grafite(const Color(0xFF4C9BFF), const Color(0xFF06121F)),
-        TemaApp.espresso => _espresso,
         TemaApp.madeira => _madeira,
         TemaApp.terracota => _terracota,
         TemaApp.neonDrift => _neonDrift,
+        TemaApp.daylight => _daylight,
       };
 
   /// Terracota (padrão): azul-marinho "prancheta", accent coral, linhas azuladas.
@@ -151,18 +151,19 @@ abstract final class AppColors {
         brilho: Brightness.dark,
       );
 
-  static const Paleta _espresso = Paleta(
-    bg: Color(0xFF241F19),
-    surface: Color(0xFF2E2820),
-    surface2: Color(0xFF382F26),
-    line: Color(0x12FFFFFF),
-    lineStrong: Color(0x24FFFFFF),
-    text: Color(0xFFEFE8DC),
-    dim: Color(0xFFB0A390),
-    dim2: Color(0xFF7A6F5E),
-    accent: Color(0xFFEBA84C),
-    onAccent: Color(0xFF241700),
-    brilho: Brightness.dark,
+  /// Daylight: claro branco/azul (limpo, para uso de dia).
+  static const Paleta _daylight = Paleta(
+    bg: Color(0xFFF2F6FB),
+    surface: Color(0xFFFFFFFF),
+    surface2: Color(0xFFE8EEF7),
+    line: Color(0xFFD8E2EF),
+    lineStrong: Color(0xFFC3D2E5),
+    text: Color(0xFF16202E),
+    dim: Color(0xFF61748C),
+    dim2: Color(0xFF94A6BA),
+    accent: Color(0xFF1F6FEB),
+    onAccent: Color(0xFFFFFFFF),
+    brilho: Brightness.light,
   );
 
   static const Paleta _madeira = Paleta(

@@ -370,7 +370,7 @@ class _TemaCard extends ConsumerWidget {
                   color: AppColors.text,
                   fontSize: 15,
                   fontWeight: FontWeight.w700)),
-          subtitle: Text(s.nomeTema(atual.index),
+          subtitle: Text(s.nomeTema(atual),
               style: TextStyle(color: AppColors.dim, fontSize: 12.5)),
           children: [
             const SizedBox(height: 4),
@@ -380,7 +380,7 @@ class _TemaCard extends ConsumerWidget {
                   Expanded(
                     child: _TemaSwatch(
                       tema: tval,
-                      nome: s.nomeTema(tval.index),
+                      nome: s.nomeTema(tval),
                       selecionado: tval == atual,
                       onTap: () =>
                           ref.read(temaProvider.notifier).definir(tval),

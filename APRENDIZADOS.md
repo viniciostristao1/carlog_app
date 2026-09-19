@@ -2,6 +2,13 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-19 — Tema Daylight (claro) + remoção do Expresso (v0.45.0)
+
+- **Daylight:** `TemaApp.daylight` (fim do enum) com paleta clara (`bg #F2F6FB`, `surface #FFF`, `accent #1F6FEB`, `brilho light`). `AppColors.leg()` já escurece os pastéis no tema claro, então botões/layouts funcionam sem ajuste.
+- **Expresso removido:** saiu do enum e a paleta `_espresso` foi apagada. A preferência é persistida pelo `name`; quem tinha `'espresso'` cai no `orElse: terracota` do `TemaNotifier` — sem migração.
+- **`nomeTema` agora recebe `TemaApp`** (antes `int`, mapeando por índice — quebraria ao remover um tema do meio do enum). Ajustado em `config_screen.dart` (subtitle + swatches). O aviso de "índices 0–3 estáveis" no `AppColors` saiu: não há mais dependência de posição.
+- **Testes:** `temas_test.dart` ganhou Daylight (paleta + brilho claro) e "Expresso saiu"; `home_layouts_test.dart` renderiza os 3 modos no tema Daylight (sem estouro). Preview: `adm-projetos-design/carlog-tema-daylight.html`.
+
 ## 2026-09-19 — Tema Neon Drift + modos Racing/Lista/Teclas (v0.44.0)
 
 - **Tema:** `TemaApp.neonDrift` appendado no FIM do enum (índices antigos estáveis) + paleta `_neonDrift` (`bg #05080A`, accent `#39FF88`) + `nomeTema(5)`. O seletor de Config itera `TemaApp.values` — o swatch novo aparece sozinho (6 na linha). Preview: `adm-projetos-design/carlog-tema-neon-3-modos.html`.
