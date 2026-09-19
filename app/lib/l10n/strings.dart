@@ -102,6 +102,13 @@ class AppStrings {
   String get modoPainel => _s('Painel', 'Panel', 'Panel');
   String get modoGrade => _s('Grade', 'Grid', 'Cuadrícula');
   String get modoProgresso => _s('Progresso', 'Progress', 'Progreso');
+  String get modoRacing => _s('Racing', 'Racing', 'Racing');
+  String get modoLista => _s('Lista', 'List', 'Lista');
+  String get modoTeclas => _s('Teclas', 'Keys', 'Teclas');
+  String get atalhos => _s('Atalhos', 'Shortcuts', 'Atajos');
+  String get emDia => _s('em dia', 'up to date', 'al día');
+  String vencidos(int n) =>
+      _s('$n vencidos', '$n overdue', '$n vencidos');
   String get meta => _s('meta', 'target', 'meta');
   String get unidadeDias => _s('dias', 'days', 'días');
   String get vencida => _s('Vencida', 'Overdue', 'Vencida');
@@ -156,7 +163,8 @@ class AppStrings {
         1 => _s('Azul', 'Blue', 'Azul'),
         2 => _s('Expresso', 'Espresso', 'Espresso'),
         3 => _s('Madeira', 'Wood', 'Madera'),
-        _ => _s('Terracota', 'Terracota', 'Terracota'),
+        4 => _s('Terracota', 'Terracota', 'Terracota'),
+        _ => _s('Neon Drift', 'Neon Drift', 'Neon Drift'),
       };
   String get tamanhoFonte =>
       _s('Tamanho da fonte', 'Font size', 'Tamaño de fuente');

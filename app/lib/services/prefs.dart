@@ -37,10 +37,11 @@ class TemaNotifier extends AsyncNotifier<TemaApp> {
 
 // ─────────────────────────── Modo do topo (home) ───────────────────────────
 
-/// Como os indicadores do veículo aparecem na home: painel digital, grade de
-/// tiles nas cores das categorias ou barra de progresso da revisão.
-/// Preferência local (não sincroniza).
-enum ModoTopo { painel, grade, progresso }
+/// Como a home mostra o veículo e os atalhos: painel digital, grade de tiles,
+/// barra de progresso (os 3 primeiros mudam só o topo) ou os layouts completos
+/// Racing (odômetro em destaque), Lista (guiada, com resumo) e Teclas (painel de
+/// teclas). Preferência local (não sincroniza).
+enum ModoTopo { painel, grade, progresso, racing, lista, teclas }
 
 const _kModoTopo = 'modoTopo_v1';
 

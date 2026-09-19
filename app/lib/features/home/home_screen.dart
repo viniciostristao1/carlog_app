@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../l10n/strings.dart';
 import '../../models/veiculo.dart';
 import '../../services/alertas.dart';
 import '../../services/prefs.dart';
@@ -17,6 +18,7 @@ import '../lembretes/lembretes_screen.dart';
 import '../media/media_screen.dart';
 import '../revisoes/revisoes_screen.dart';
 import '../veiculo/veiculo_form_screen.dart';
+import 'layouts_home.dart';
 import 'topo_veiculo.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -32,6 +34,17 @@ class HomeScreen extends ConsumerWidget {
     final t = ref.watch(stringsProvider);
     // Com fonte maior, dá mais altura aos botões p/ o rótulo não estourar.
     final escala = ref.watch(fonteProvider).value?.fator ?? 1.0;
+    final modo = ref.watch(modoTopoProvider).value ?? ModoTopo.painel;
+    // Os 3 primeiros modos mudam só o topo do cartão; os novos (Racing, Lista e
+    // Teclas) são layouts completos da home.
+    final classico = modo == ModoTopo.painel ||
+        modo == ModoTopo.grade ||
+        modo == ModoTopo.progresso;
+    final dados =
+        (veiculo != null && !classico) ? _dadosTopo(context, ref, veiculo) : null;
+
+    void editarVeiculo() =>
+        _abrir(context, VeiculoFormScreen(veiculo: veiculo));
 
     return Scaffold(
       appBar: AppBar(
@@ -61,77 +74,135 @@ class HomeScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
           children: [
-            _CabecalhoVeiculo(
-              veiculo: veiculo,
-              onEditar: () =>
-                  _abrir(context, VeiculoFormScreen(veiculo: veiculo)),
-            ),
-            const _OutrosCarros(),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.only(left: 4, bottom: 4),
-              child: Text(
-                t.oQueRegistrar,
-                style: TextStyle(
-                  color: AppColors.dim,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            GridView.count(
-              crossAxisCount: 3,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 20,
-              crossAxisSpacing: 8,
-              childAspectRatio: (0.82 / escala).clamp(0.6, 0.82),
-              children: [
-                BotaoRedondo(
-                  icone: Icons.local_gas_station,
-                  rotulo: t.catAbastecimento,
-                  cor: AppColors.leg(AppColors.catAbastecimento),
-                  onTap: () => _abrir(context, const AbastecimentoScreen()),
-                ),
-                BotaoRedondo(
-                  icone: Icons.speed,
-                  rotulo: t.catConsumo,
-                  cor: AppColors.leg(AppColors.catConsumo),
-                  onTap: () => _abrir(context, const MediaScreen()),
-                ),
-                BotaoRedondo(
-                  icone: Icons.build_circle_outlined,
-                  rotulo: t.catRevisoes,
-                  cor: AppColors.leg(AppColors.catRevisoes),
-                  onTap: () => _abrir(context, const RevisoesScreen()),
-                ),
-                BotaoRedondo(
-                  icone: Icons.request_quote_outlined,
-                  rotulo: t.catFipe,
-                  cor: AppColors.leg(AppColors.catFipe),
-                  onTap: () => _abrir(context, const FipeScreen()),
-                ),
-                BotaoRedondo(
-                  icone: Icons.tire_repair,
-                  rotulo: t.catCalibragem,
-                  cor: AppColors.leg(AppColors.catCalibragem),
-                  onTap: () => _abrir(context, const CalibragemScreen()),
-                ),
-                BotaoRedondo(
-                  icone: Icons.event_available_outlined,
-                  rotulo: t.catLembretes,
-                  cor: AppColors.leg(AppColors.catLembretes),
-                  badge: ref.watch(alertasNaoLidosProvider),
-                  onTap: () => _abrir(context, const LembretesScreen()),
-                ),
-              ],
-            ),
+            if (veiculo == null) ...[
+              _CabecalhoVeiculo(veiculo: null, onEditar: editarVeiculo),
+              ..._atalhosClassicos(context, ref, t, escala),
+            ] else if (classico) ...[
+              _CabecalhoVeiculo(veiculo: veiculo, onEditar: editarVeiculo),
+              const _OutrosCarros(),
+              ..._atalhosClassicos(context, ref, t, escala),
+            ] else ...[
+              switch (modo) {
+                ModoTopo.racing => LayoutRacing(d: dados!, t: t),
+                ModoTopo.lista => LayoutLista(d: dados!, t: t),
+                ModoTopo.teclas => LayoutTeclas(d: dados!, t: t),
+                _ => const SizedBox.shrink(),
+              },
+              const _OutrosCarros(),
+            ],
           ],
         ),
       ),
     );
   }
+
+  /// Rótulo + grade 3×2 de atalhos dos modos clássicos (também vale sem carro
+  /// cadastrado — era o comportamento antes dos layouts novos).
+  List<Widget> _atalhosClassicos(
+          BuildContext context, WidgetRef ref, AppStrings t, double escala) =>
+      [
+        const SizedBox(height: 20),
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 4),
+          child: Text(
+            t.oQueRegistrar,
+            style: TextStyle(
+              color: AppColors.dim,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        GridView.count(
+          crossAxisCount: 3,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 20,
+          crossAxisSpacing: 8,
+          childAspectRatio: (0.82 / escala).clamp(0.6, 0.82),
+          children: [
+            BotaoRedondo(
+              icone: Icons.local_gas_station,
+              rotulo: t.catAbastecimento,
+              cor: AppColors.leg(AppColors.catAbastecimento),
+              onTap: () => _abrir(context, const AbastecimentoScreen()),
+            ),
+            BotaoRedondo(
+              icone: Icons.speed,
+              rotulo: t.catConsumo,
+              cor: AppColors.leg(AppColors.catConsumo),
+              onTap: () => _abrir(context, const MediaScreen()),
+            ),
+            BotaoRedondo(
+              icone: Icons.build_circle_outlined,
+              rotulo: t.catRevisoes,
+              cor: AppColors.leg(AppColors.catRevisoes),
+              onTap: () => _abrir(context, const RevisoesScreen()),
+            ),
+            BotaoRedondo(
+              icone: Icons.request_quote_outlined,
+              rotulo: t.catFipe,
+              cor: AppColors.leg(AppColors.catFipe),
+              onTap: () => _abrir(context, const FipeScreen()),
+            ),
+            BotaoRedondo(
+              icone: Icons.tire_repair,
+              rotulo: t.catCalibragem,
+              cor: AppColors.leg(AppColors.catCalibragem),
+              onTap: () => _abrir(context, const CalibragemScreen()),
+            ),
+            BotaoRedondo(
+              icone: Icons.event_available_outlined,
+              rotulo: t.catLembretes,
+              cor: AppColors.leg(AppColors.catLembretes),
+              badge: ref.watch(alertasNaoLidosProvider),
+              onTap: () => _abrir(context, const LembretesScreen()),
+            ),
+          ],
+        ),
+      ];
+}
+
+/// Monta os dados da home (topo clássico e layouts novos) para um veículo.
+DadosTopo _dadosTopo(BuildContext context, WidgetRef ref, Veiculo v) {
+  final abastecimentos = ref.watch(abastecimentosDoVeiculoProvider);
+  final revisoes = ref.watch(revisoesDoVeiculoProvider);
+  final calibragens = ref.watch(calibragemDoVeiculoProvider);
+  final agora = DateTime.now();
+
+  final odo = ultimoOdometro(abastecimentos);
+  final kmMes = kmRodadosNoMes(abastecimentos, agora.year, agora.month);
+  final gastoMes = abastecimentos
+      .where((a) => a.data.year == agora.year && a.data.month == agora.month)
+      .fold<double>(0, (s, a) => s + a.total);
+  final ultimaCalib = calibragens.isEmpty
+      ? null
+      : (calibragens.map((c) => c.data).reduce((a, b) => a.isAfter(b) ? a : b));
+
+  void abrir(Widget tela) =>
+      Navigator.of(context).push(MaterialPageRoute(builder: (_) => tela));
+
+  return DadosTopo(
+    veiculo: v,
+    odo: odo,
+    kmMes: kmMes,
+    gastoMes: gastoMes,
+    ultimaCalib: ultimaCalib,
+    prev: preverRevisao(v, abastecimentos, revisoes),
+    progresso: progressoRevisao(v, abastecimentos, revisoes),
+    agora: agora,
+    escala: ref.watch(fonteProvider).value?.fator ?? 1.0,
+    consumo: calcularConsumo(abastecimentos).mediaGeral,
+    alertas: ref.watch(alertasNaoLidosProvider),
+    onAbastecimento: () => abrir(const AbastecimentoScreen()),
+    onConsumo: () => abrir(const MediaScreen()),
+    onFipe: () => abrir(const FipeScreen()),
+    onCalibragem: () => abrir(const CalibragemScreen()),
+    onRevisoes: () => abrir(const RevisoesScreen()),
+    onLembretes: () => abrir(const LembretesScreen()),
+    onEditarVeiculo: () => abrir(VeiculoFormScreen(veiculo: v)),
+  );
 }
 
 class _CabecalhoVeiculo extends ConsumerWidget {
@@ -179,22 +250,7 @@ class _CabecalhoVeiculo extends ConsumerWidget {
       );
     }
 
-    final abastecimentos = ref.watch(abastecimentosDoVeiculoProvider);
-    final revisoes = ref.watch(revisoesDoVeiculoProvider);
-    final calibragens = ref.watch(calibragemDoVeiculoProvider);
-    final agora = DateTime.now();
-
-    final odo = ultimoOdometro(abastecimentos);
-    final kmMes = kmRodadosNoMes(abastecimentos, agora.year, agora.month);
-    final gastoMes = abastecimentos
-        .where((a) => a.data.year == agora.year && a.data.month == agora.month)
-        .fold<double>(0, (s, a) => s + a.total);
-    final ultimaCalib = calibragens.isEmpty
-        ? null
-        : (calibragens.map((c) => c.data).reduce((a, b) => a.isAfter(b) ? a : b));
-    final prev = preverRevisao(v, abastecimentos, revisoes);
-    // Fonte maior → tiles mais altos, para o valor/rótulo não estourarem.
-    final escala = ref.watch(fonteProvider).value?.fator ?? 1.0;
+    final dados = _dadosTopo(context, ref, v);
     // No tema claro (Madeira), inverte a caixa do carro: fundo bege mais escuro
     // (pedido do usuário — melhora a leitura). Nos temas escuros, o padrão.
     final claro = AppColors.brilho == Brightness.light;
@@ -213,26 +269,7 @@ class _CabecalhoVeiculo extends ConsumerWidget {
     // Sobrou só o apelido para a linha de baixo (se houver).
     final infoExtra = v.apelido.trim();
 
-    void abrir(Widget tela) => Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => tela));
-
     final modo = ref.watch(modoTopoProvider).value ?? ModoTopo.painel;
-    final dados = DadosTopo(
-      veiculo: v,
-      odo: odo,
-      kmMes: kmMes,
-      gastoMes: gastoMes,
-      ultimaCalib: ultimaCalib,
-      prev: prev,
-      progresso: progressoRevisao(v, abastecimentos, revisoes),
-      agora: agora,
-      escala: escala,
-      onAbastecimento: () => abrir(const AbastecimentoScreen()),
-      onConsumo: () => abrir(const MediaScreen()),
-      onFipe: () => abrir(const FipeScreen()),
-      onCalibragem: () => abrir(const CalibragemScreen()),
-      onRevisoes: () => abrir(const RevisoesScreen()),
-    );
 
     return Card(
       color: corCard,
@@ -347,10 +384,12 @@ class _CabecalhoVeiculo extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 12),
+            // Este cartão só é montado nos modos clássicos (os novos têm
+            // layouts próprios em `layouts_home.dart`).
             switch (modo) {
-              ModoTopo.painel => TopoPainel(d: dados),
               ModoTopo.grade => TopoGrade(d: dados),
               ModoTopo.progresso => TopoProgresso(d: dados),
+              _ => TopoPainel(d: dados),
             },
           ],
         ),
