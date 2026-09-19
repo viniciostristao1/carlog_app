@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-09-19 — v0.46.0.** **Logo de dentro do app atualizado.** O logo ao lado de "CarLog", no topo da tela inicial, agora é o **mesmo do ícone do aplicativo** (hexágono azul/âmbar com carro e ferramentas).
+
 - **2026-09-19 — v0.45.0.** **Tema Daylight (claro branco/azul) e saída do Expresso.** (1) Em **Configurações → Aparência** entrou o tema **Daylight** — claro, branco/azul, ideal para usar de dia (com o modo **Lista** fica igual à ideia 4 do preview). (2) O tema **Expresso saiu**: quem o usava cai automaticamente no **Terracota** (padrão) — só muda a cor.
 
 - **2026-09-19 — v0.44.0.** **Tema Neon Drift + 3 modos novos na tela inicial.** (1) Em **Configurações → Aparência** entrou o tema **Neon Drift** (preto esverdeado + verde ácido). (2) O **botão de modo** (ao lado da engrenagem) agora também alterna: **Racing** (odômetro em destaque com barra da revisão e atalhos com anel), **Lista** (cada categoria com o resumo no subtítulo) e **Teclas** (painel de teclas grandes + resumo embaixo). Os modos usam as cores do **tema** escolhido — ex.: Lista no tema Madeira fica clara; no Neon Drift, verde.
