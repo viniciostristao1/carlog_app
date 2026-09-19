@@ -59,9 +59,9 @@ flutter:
   assets:
     - assets/icon/carlog_logo.png
 
-# Ícone do app (logo do usuário: carro + velocímetro + 5 ícones, neon azul).
-# Arte processada por tools/gerar_icone.py a partir de
-# file_00000000c22c820e8d17f9cdb5a0d15b.png.
+# Ícone do app (arte do usuário: hexágono azul/âmbar com carro, ferramentas,
+# checklist e bomba de combustível). Arte processada por tools/gerar_icone.py a
+# partir de file_00000000acb0820e81c5c909b92a0586.png.
 # Após alterar a arte: `dart run flutter_launcher_icons`.
 flutter_launcher_icons:
   android: true
