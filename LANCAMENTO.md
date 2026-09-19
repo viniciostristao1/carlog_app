@@ -1,7 +1,7 @@
 # Pacote de lançamento — Play Store (CarLog)
 
 Tudo pronto pra preencher o Google Play Console. **Copie e cole daqui.** Criado em 2026-09-17
-(v0.38.0). Mesmo padrão do `lista_app`/Save List.
+(v0.38.0) e **atualizado em 2026-09-19 (v0.45.0)**. Mesmo padrão do `lista_app`/Save List.
 
 > **Como ler:** a parte de cima é **material** (textos e respostas prontos pra colar). A parte
 > de baixo (**"② No Play Console"**) é o **roteiro do que só você faz** logado na sua conta.
@@ -15,9 +15,11 @@ A Play Store recebe um **AAB** (Android App Bundle), não o APK. O CI do CarLog 
 APK; criei um workflow dedicado **`build-aab.yml`** (roda sob demanda) que gera o **AAB
 assinado** com a chave de upload.
 
-- **Arquivo:** `app-release.aab` (te entrego renomeado como `CarLog-v0.38.0.aab`).
-- **Versão embutida:** `versionName 0.38.0`, `versionCode 48`. (Serve pra estrear; o Google só
-  exige que **cada nova subida tenha versionCode maior** que a anterior.)
+- **Arquivo:** `app-release.aab` (renomear como `CarLog-v0.45.0.aab`).
+- **Versão embutida:** `versionName 0.45.0`, `versionCode 55` (versão atual do `main`).
+  ⚠️ **Regerar o AAB imediatamente antes de subir** (`gh workflow run build-aab.yml`): ele sai do
+  `main` do momento e **cada upload exige versionCode maior** que o anterior — não reaproveitar um
+  AAB antigo do `ci-latest` sem conferir a versão.
 - **Assinatura:** chave de upload oficial (SHA-1
   `3E:DA:91:3A:E2:8B:B0:5E:C3:9E:64:94:1E:9B:45:BF:80:3B:CB:21`, registrada no Firebase → o
   Login Google segue funcionando).
@@ -54,7 +56,7 @@ Controle gastos, consumo, revisões e FIPE do seu carro. Simples e offline.
 ```
 CarLog é o diário do seu carro: em poucos toques você registra tudo e sabe quanto gasta, quanto anda e quando é a próxima revisão.
 
-A tela inicial é toda atalho — abastecimento, consumo, revisões, FIPE, calibragem e lembretes a um toque.
+A tela inicial é toda atalho — abastecimento, consumo, revisões, FIPE, calibragem e lembretes a um toque, com temas (inclusive claro) e 6 modos de exibição.
 
 O que você pode fazer:
 • Abastecimento: anote litros e preço (ou o valor total) e veja o gasto do mês.
@@ -65,6 +67,7 @@ O que você pode fazer:
 • Calibragem: pressão recomendada e quando você calibrou pela última vez.
 • Lembretes: IPVA, seguro, licenciamento… com aviso de "faltam X dias".
 • Vários veículos: gerencie até 3 carros.
+• Temas e modos: escolha o visual (tem tema claro) e como a tela inicial mostra os atalhos.
 • Backup: exporte e importe seus dados quando quiser.
 
 Funciona 100% offline. Se quiser, entre com o Google para sincronizar seus dados entre aparelhos — sem anúncios.
@@ -76,18 +79,31 @@ Funciona 100% offline. Se quiser, entre com o Google para sincronizar seus dados
 
 | Item | Especificação | Status |
 |---|---|---|
-| **Ícone** | 512×512 PNG, RGB | ✅ `store/icon_512.png` |
-| **Feature graphic** | 1024×500 PNG | ✅ `store/feature_graphic.png` |
-| **Screenshots (telefone)** | 2–8, PNG 24-bit s/ alpha, ≤2:1 | ✅ 4 (16/09), formatados |
+| **Ícone** | 512×512 PNG, RGB | ✅ `store/icon_512.png` — **regerado em 19/09** com o ícone novo (hexágono, v0.43.0) |
+| **Feature graphic** | 1024×500 PNG | ⚠️ `store/feature_graphic.png` é de **17/09** (arte antiga do ícone) → **refazer com a arte nova** antes de subir |
+| **Screenshots (telefone)** | 2–8, PNG 24-bit s/ alpha, ≤2:1 | ⚠️ 4 prints de **16/09** (antes das v0.43–0.45) — válidos, mas sem os temas/modos novos; refazer é opcional |
 
-**Screenshots** em `store/screenshots/` (app atual, ≈1,98:1, RGB):
+**Screenshots** em `store/screenshots/` (≈1,98:1, RGB):
 1. `01-home.png` — tela inicial (card do veículo com placa Mercosul + 6 stats + 6 atalhos)
 2. `02-abastecimentos.png` — histórico de abastecimento + gasto/litros do mês
 3. `03-revisoes.png` — histórico de revisões buscável (peças/serviços, do OCR)
 4. `04-meu-carro.png` — cadastro do carro pela FIPE
 
+> **Novidades desde o pacote inicial (v0.39 → v0.45)** — resumo em [`ATUALIZACOES.md`](ATUALIZACOES.md):
+> revisão × reparo, histórico com 8 itens, check/previsão na Programar, **ícone novo (hexágono)**,
+> temas **Neon Drift** e **Daylight** (Expresso saiu) e 3 **modos de home** (Racing/Lista/Teclas).
+> Prints de conferência: https://viniciostristao1.github.io/adm-projetos-design/carlog-tema-neon-3-modos.html
+> e https://viniciostristao1.github.io/adm-projetos-design/carlog-tema-daylight.html
+>
 > Crus do celular em `store/screenshots/originais/` (pra artes caprichadas depois). Trocar
 > screenshots é edição de ficha: **não** exige novo AAB nem reinicia o teste de 14 dias.
+
+## ✅ Checklist antes de publicar (revisado em 19/09)
+- [ ] Regerar o **AAB** (`gh workflow run build-aab.yml`) e conferir `versionName 0.45.0+` / `versionCode 55+`.
+- [ ] Refazer o **feature graphic** com o ícone novo (hexágono) — o atual ainda tem a arte antiga.
+- [ ] (Opcional) Refazer os **screenshots** no celular com a v0.45 (mostram os temas e os modos novos).
+- [ ] Conferir a **ficha** — as descrições abaixo já citam os temas/modos.
+- [ ] Data Safety, classificação IARC, alarmes exatos e política/termos: **respostas abaixo seguem valendo**.
 
 ---
 

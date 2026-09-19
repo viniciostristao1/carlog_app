@@ -25,15 +25,17 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 
 ## ⭐ ESTADO ATUAL (2026-09-19) — ler primeiro pós-/clear
 
-### 🚀 LANÇAMENTO PLAY STORE — em preparação (2026-09-17)
+### 🚀 LANÇAMENTO PLAY STORE — em preparação (revisado 2026-09-19 / v0.45.0)
 Pacote de loja pronto (colável em [`LANCAMENTO.md`](LANCAMENTO.md)):
-- **AAB assinado:** novo workflow **`build-aab.yml`** (workflow_dispatch, só AAB — o build-apk
-  seguia só-APK por OOM). Roda `gh workflow run build-aab.yml` → AAB em `ci-latest/app-release.aab`
-  (v0.38.0 / versionCode 48, assinado c/ upload key SHA-1 `3E:DA:91:…:CB:21`).
+- **AAB assinado:** workflow **`build-aab.yml`** (workflow_dispatch, só AAB). Roda
+  `gh workflow run build-aab.yml` → AAB em `ci-latest/app-release.aab`, assinado c/ upload key
+  SHA-1 `3E:DA:91:…:CB:21`. O AAB que está no `ci-latest` é de **v0.38.0 / versionCode 48** →
+  **regerar antes de subir** (o `main` está em **v0.45.0 / 55**; cada upload exige versionCode maior).
 - **Política + Termos** no ar: https://viniciostristao1.github.io/carlog-privacidade/ (+ `/termos.html`),
   repo público `carlog-privacidade`.
-- **store/**: `icon_512.png` + `feature_graphic.png` (1024×500, gerado) + 4 screenshots
-  formatados (`store/screenshots/`, ≈1,98:1 RGB; crus em `originais/`).
+- **store/**: `icon_512.png` **regerado** com o ícone novo (hexágono) + `feature_graphic.png`
+  (1024×500, ⚠️ ainda com a arte antiga → refazer) + 4 screenshots de 16/09 formatados
+  (`store/screenshots/`, ≈1,98:1 RGB; crus em `originais/`; opcional refazer com os temas/modos).
 - **Ficha** (nome `CarLog: gastos do carro`, descrições), **Data Safety**, **classificação**,
   **declaração de alarmes exatos** (lembretes) e roteiro do Console → tudo em `LANCAMENTO.md`.
 - ⚠️ **Senha da keystore** só existe no secret `KEYSTORE_PASSWORD` (não há cópia em doc) → usuário
