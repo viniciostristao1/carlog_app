@@ -1,6 +1,7 @@
 import '../models/lembrete.dart';
 import '../models/media_manual.dart';
 import '../models/veiculo.dart';
+import '../theme/app_colors.dart';
 
 /// Idiomas do app.
 enum Idioma { pt, en, es }
@@ -158,13 +159,13 @@ class AppStrings {
   String get backupFalhou => _s('Não foi possível ler o arquivo.',
       "Couldn't read the file.", 'No se pudo leer el archivo.');
   String get tema => _s('Tema', 'Theme', 'Tema');
-  String nomeTema(int i) => switch (i) {
-        0 => _s('Âmbar', 'Amber', 'Ámbar'),
-        1 => _s('Azul', 'Blue', 'Azul'),
-        2 => _s('Expresso', 'Espresso', 'Espresso'),
-        3 => _s('Madeira', 'Wood', 'Madera'),
-        4 => _s('Terracota', 'Terracota', 'Terracota'),
-        _ => _s('Neon Drift', 'Neon Drift', 'Neon Drift'),
+  String nomeTema(TemaApp tema) => switch (tema) {
+        TemaApp.ambar => _s('Âmbar', 'Amber', 'Ámbar'),
+        TemaApp.azul => _s('Azul', 'Blue', 'Azul'),
+        TemaApp.madeira => _s('Madeira', 'Wood', 'Madera'),
+        TemaApp.terracota => _s('Terracota', 'Terracota', 'Terracota'),
+        TemaApp.neonDrift => _s('Neon Drift', 'Neon Drift', 'Neon Drift'),
+        TemaApp.daylight => _s('Daylight', 'Daylight', 'Daylight'),
       };
   String get tamanhoFonte =>
       _s('Tamanho da fonte', 'Font size', 'Tamaño de fuente');
