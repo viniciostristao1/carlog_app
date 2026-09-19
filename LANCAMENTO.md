@@ -106,7 +106,7 @@ Funciona 100% offline. Se quiser, entre com o Google para sincronizar seus dados
 - **Localização:** não coleta.
 - **Consulta FIPE:** envia só marca/modelo/ano (dado não-pessoal) → não é coleta de dado do usuário.
 - Dados **criptografados em trânsito**? **Sim** (HTTPS/Firebase).
-- Usuário pode **pedir exclusão**? **Sim** (apaga no app + por e-mail).
+- Usuário pode **pedir exclusão**? **Sim** — página dedicada: https://viniciostristao1.github.io/carlog-privacidade/exclusao.html (cobre conta E dados sem apagar conta; serve os dois campos de URL do Data Safety).
 - **Compartilhados com terceiros**? **Não** (Firebase = infraestrutura).
 - Coleta para **publicidade**? **Não.** App para **crianças**? **Não.**
 
@@ -125,6 +125,7 @@ exatas. É um caso de uso permitido — só declarar.
 ## Política de privacidade e Termos
 - **Política (obrigatória):** https://viniciostristao1.github.io/carlog-privacidade/
 - **Termos de uso (opcional na Play, já criados):** https://viniciostristao1.github.io/carlog-privacidade/termos.html
+- **Exclusão de conta e dados (Data Safety):** https://viniciostristao1.github.io/carlog-privacidade/exclusao.html
 - Repo público `viniciostristao1/carlog-privacidade` (GitHub Pages).
 
 ---
