@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Gera os assets do ícone/logo do CarLog a partir das artes do usuário.
 
-Duas artes (neon azul, fundo preto):
-  - ÍCONE do app (launcher): carro + velocímetro + 5 ícones;
+Duas artes (neon, fundo escuro):
+  - ÍCONE do app (launcher): hexágono com carro, ferramentas, checklist e bomba;
   - LOGO dentro do app (AppBar/Sobre): carro neon sozinho.
 Ambas passam pelo mesmo tratamento: autocrop pelo brilho (para o desenho ficar
 grande, sem a margem preta sobrando) e padding até virar quadrado. Produz:
@@ -19,9 +19,9 @@ import sys
 
 from PIL import Image, ImageEnhance
 
-# ÍCONE do app (launcher): carro + velocímetro + 5 atalhos, neon azul.
+# ÍCONE do app (launcher): hexágono azul/âmbar com carro e ferramentas.
 ORIGEM = sys.argv[1] if len(sys.argv) > 1 \
-    else 'file_00000000c22c820e8d17f9cdb5a0d15b.png'
+    else 'file_00000000acb0820e81c5c909b92a0586.png'
 # LOGO dentro do app (AppBar/Sobre): carro neon sozinho.
 LOGO_ORIGEM = sys.argv[2] if len(sys.argv) > 2 \
     else 'file_00000000b310820e851735f48cd3d02e.png'

@@ -2,6 +2,13 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-19 — Novo ícone do launcher: hexágono (v0.43.0)
+
+- **Arte:** `file_00000000acb0820e81c5c909b92a0586.png` (hexágono azul/âmbar com carro, chave, pneu, checklist e bomba) virou o ícone do app. Default `ORIGEM` do `tools/gerar_icone.py` atualizado; o **logo de dentro** (carro neon, `file_00000000b310…png`) não mudou — `carlog_logo.png` saiu idêntico.
+- **Processo:** `_quadrado_autocrop` (limiar 40, margem 24) cortou de 1254→1173 de largura (glow lateral) e padronizou no fundo do canto (`#00061F`); gerou `carlog_icon.png`/`carlog_fg.png` (1024). Depois `cd app && dart run flutter_launcher_icons` reescreveu os mipmaps + `drawable-*/ic_launcher_foreground.png`. Não existe `ic_launcher_round`; o manifest usa só `@mipmap/ic_launcher` (+ adaptive `mipmap-anydpi-v26`).
+- **Play Store:** `store/icon_512.png` regerado do `carlog_icon.png` (Pillow, LANCZOS 512) para a ficha bater com o ícone do app.
+- **Observação:** `adaptive_icon_background` segue `#000000` — a arte antiga também tinha fundo navy e o foreground opaco cobre a camada de fundo; sem regressão visual.
+
 ## 2026-09-18 — Programar: check só marca + lembrete-previsão ligado (v0.42.0)
 
 - **Check (`_alternarFeito`):** removido o "fiz agora → reagenda" (`base + intervalo` a cada toque, que nunca marcava feito — o km subia 10.000 por clique). Agora só `copyWith(feito: !feito)` para todo item; o alvo/intervalo fica como o usuário digitou. Sem snackbar (o check verde já dá o feedback).
