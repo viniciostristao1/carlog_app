@@ -41,6 +41,8 @@ Pacote de loja pronto (colável em [`LANCAMENTO.md`](LANCAMENTO.md)):
 - **Falta (só o usuário, no Console):** criar app → ficha → subir AAB+gráficos+prints → App content
   → teste fechado ≥12/14d → produção. Conta dev = a mesma (aprovada) do Save List.
 
+**v0.42.0 — PROGRAMAR + LEMBRETES** (`analyze` limpo, 54 testes). (1) O check da Programar só marca/desmarca `feito` — saiu o reagendamento que somava o intervalo a cada toque. (2) `Lembrete.programacaoId` liga o lembrete-previsão ao item: criado/atualizado ao salvar (novo **e** edição), removido com o item ou switch off; `previsaoLembreteProgramado()` (4 testes) usa o km-alvo ou `odo + intervalo` e o ritmo; vencido → hoje 9h. (3) Histórico: oficina na linha do título com ` • `. Base anterior:
+
 **v0.41.0 — AJUSTES NO HISTÓRICO** (`analyze` limpo, 50 testes). Chip **"+N"** centralizado (`textAlign` só no contador) e **oficina na linha do título** — o `local` virou `TextSpan` (12.5/dim) no `Text.rich` do título e saiu da linha `data · km`. Base anterior:
 
 **v0.40.0 — HISTÓRICO COM 8 ITENS EM GRADE** (`analyze` limpo, 50 testes). A caixa de cada revisão/reparo mostra até **8 itens** (antes 4), **3 por linha** via `_gradeItens()` (Rows de `Expanded`; o `Wrap` saiu) e o 9º chip vira o **"+N"** quando passa de 8. Fora da busca o nome passa por `resumo()` (10 letras + "…", em `util/format.dart` + `test/format_test.dart`); na busca fica inteiro p/ o destaque. Base anterior:
