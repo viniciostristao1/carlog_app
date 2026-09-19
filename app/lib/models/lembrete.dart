@@ -46,6 +46,10 @@ class Lembrete {
   final bool pago;
   final String observacao;
 
+  /// Id do item da Programar que gerou este lembrete (previsão automática).
+  /// `null` = lembrete manual — nunca é mexido pela Programar.
+  final String? programacaoId;
+
   const Lembrete({
     required this.id,
     this.veiculoId,
@@ -56,6 +60,7 @@ class Lembrete {
     this.recorrencia = Recorrencia.nenhuma,
     this.pago = false,
     this.observacao = '',
+    this.programacaoId,
   });
 
   Lembrete copyWith({
@@ -77,6 +82,7 @@ class Lembrete {
         recorrencia: recorrencia ?? this.recorrencia,
         pago: pago ?? this.pago,
         observacao: observacao ?? this.observacao,
+        programacaoId: programacaoId, // preserva o vínculo com a Programar
       );
 
   Map<String, dynamic> toJson() => {
@@ -89,6 +95,7 @@ class Lembrete {
         'recorrencia': recorrencia.name,
         'pago': pago,
         'observacao': observacao,
+        'programacaoId': programacaoId,
       };
 
   factory Lembrete.fromJson(Map<String, dynamic> j) => Lembrete(
@@ -107,5 +114,6 @@ class Lembrete {
         ),
         pago: (j['pago'] ?? false) as bool,
         observacao: (j['observacao'] ?? '') as String,
+        programacaoId: j['programacaoId'] as String?,
       );
 }

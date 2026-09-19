@@ -2,6 +2,13 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-18 — Programar: check só marca + lembrete-previsão ligado (v0.42.0)
+
+- **Check (`_alternarFeito`):** removido o "fiz agora → reagenda" (`base + intervalo` a cada toque, que nunca marcava feito — o km subia 10.000 por clique). Agora só `copyWith(feito: !feito)` para todo item; o alvo/intervalo fica como o usuário digitou. Sem snackbar (o check verde já dá o feedback).
+- **Lembrete-previsão:** `Lembrete.programacaoId` (novo, opcional; `copyWith` preserva) liga o lembrete ao item da Programar. `_sincronizarLembrete()` (topo de `revisoes_screen.dart`) cria/atualiza ao salvar — **novo e edição** (antes só no novo, por isso "não aparecia" ao editar) —, remove quando o item perde km/intervalo ou o switch "Criar lembrete" desliga, e `_excluirItem()` remove junto. Se a data muda, volta `pago: false` (nova ocorrência).
+- **Data prevista:** `previsaoLembreteProgramado()` (`util/consumo.dart`, 4 testes): alvo = `kmAlvo` ou `odo + intervaloKm` (só intervalo deixou de cair no prazo fixo de meses); converte em data pelo ritmo de rodagem; alvo já vencido → hoje às 9h (alerta na hora); sem leitura de km → meses do cadastro.
+- **Histórico:** o `local` na linha do título agora usa separador ` • ` (ex.: "Revisão • Oficina").
+
 ## 2026-09-18 — Ajustes no card do histórico (v0.41.0)
 
 - **Oficina na linha do título:** o `Expanded` do título virou `Text.rich` — `TextSpan` do `local` com o estilo que ele já tinha na linha de baixo (12.5/dim/w400), separado por dois espaços. Saiu do join `data · km` (a linha de baixo ficou só com data e odômetro); o custo continua à direita. `maxLines: 1` + ellipsis no conjunto.

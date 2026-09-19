@@ -1,4 +1,5 @@
 import '../models/abastecimento.dart';
+import '../models/programacao.dart';
 import '../models/revisao.dart';
 import '../models/veiculo.dart';
 
@@ -336,3 +337,27 @@ ProgressoRevisao progressoRevisao(
     faltamKm: prev.faltamKm,
   );
 }
+
+// ──────────────────── Lembrete do item da Programar ────────────────────
+
+/// Data prevista do lembrete de um item da Programar: pelo **km-alvo** do item
+/// ou, sem alvo, pelo **próximo ciclo** a partir do km atual (`odo + intervalo`),
+/// convertendo a distância em data pelo ritmo de rodagem (km/dia). Alvo já
+/// vencido → hoje às 9h (aparece como alerta na hora). Sem leitura de km, cai no
+/// intervalo de meses do cadastro ([mesesFallback]).
+DateTime previsaoLembreteProgramado(
+    ItemProgramado item, List<Abastecimento> abastecimentos, int mesesFallback) {
+  final odo = ultimoOdometro(abastecimentos);
+  final ritmo = ritmoKmPorDia(abastecimentos);
+  final alvo = item.kmAlvo ??
+      (odo != null && item.intervaloKm != null ? odo + item.intervaloKm! : null);
+  if (alvo != null && odo != null) {
+    final falta = alvo - odo;
+    if (falta <= 0) return _as9(DateTime.now());
+    final d = previsaoData(falta, ritmo);
+    if (d != null) return _as9(d);
+  }
+  return _as9(DateTime.now().add(Duration(days: mesesFallback * 30)));
+}
+
+DateTime _as9(DateTime d) => DateTime(d.year, d.month, d.day, 9);
