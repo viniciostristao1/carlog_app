@@ -43,6 +43,8 @@ Pacote de loja pronto (colável em [`LANCAMENTO.md`](LANCAMENTO.md)):
 - **Falta (só o usuário, no Console):** criar app → ficha → subir AAB+gráficos+prints → App content
   → teste fechado ≥12/14d → produção. Conta dev = a mesma (aprovada) do Save List.
 
+**v0.46.0 — LOGO INTERNO = ÍCONE NOVO (HEXÁGONO)** (`analyze` limpo, 68 testes). O logo ao lado de "CarLog" no topo da home agora é a arte do hexágono (mesma do launcher): `gerar_icone.py` com `LOGO_ORIGEM` = arte do ícone; `carlog_logo.png` regerado (256) e mipmaps intactos. Base anterior:
+
 **v0.45.0 — TEMA DAYLIGHT (CLARO) + EXPRESSO FORA** (`analyze` limpo, 68 testes). `TemaApp.daylight` (claro branco/azul, `brilho light`) no seletor de Config; `_espresso` removida do enum/paleta (quem usava cai no Terracota — preferência é por `name`). `nomeTema` passou a receber `TemaApp` (não depende mais de índice). Com o modo **Lista** fica igual à ideia 4. Preview: `adm-projetos-design/carlog-tema-daylight.html`. Base anterior:
 
 **v0.44.0 — TEMA NEON DRIFT + MODOS RACING/LISTA/TECLAS** (`analyze` limpo, 65 testes). `TemaApp.neonDrift` (fim do enum; preto + verde ácido) no seletor de Config; `ModoTopo` ganhou `racing/lista/teclas` (ciclo do botão ao lado da engrenagem) com layouts puros em `features/home/layouts_home.dart` (DadosTopo + AppStrings, sem Riverpod), usando as cores do tema. `DadosTopo` ganhou consumo/alertas/onLembretes/onEditarVeiculo; `_dadosTopo()` extraído no home. Preview: `adm-projetos-design/carlog-tema-neon-3-modos.html`. Base anterior:

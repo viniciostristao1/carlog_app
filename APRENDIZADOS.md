@@ -2,6 +2,12 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-19 — Logo interno = arte do ícone (v0.46.0)
+
+- `tools/gerar_icone.py`: `LOGO_ORIGEM` agora usa a **mesma arte do ícone** (`file_00000000acb0820e81c5c909b92a0586.png`) por padrão — antes era o carro neon (`file_00000000b310…png`). O `carlog_logo.png` (256, logo DENTRO do app) saiu do hexágono.
+- `carlog_icon.png`/`carlog_fg.png` foram regerados a partir do mesmo `ORIGEM` da v0.43 e saíram **byte a byte iguais** → **não** foi preciso rodar `flutter_launcher_icons` (mipmaps/launcher intactos).
+- Único uso do logo interno: AppBar da home (`home_screen.dart`, `Image.asset('assets/icon/carlog_logo.png', width: 28)` com `ClipRRect` 7). Nada mais referencia o arquivo.
+
 ## 2026-09-19 — Tema Daylight (claro) + remoção do Expresso (v0.45.0)
 
 - **Daylight:** `TemaApp.daylight` (fim do enum) com paleta clara (`bg #F2F6FB`, `surface #FFF`, `accent #1F6FEB`, `brilho light`). `AppColors.leg()` já escurece os pastéis no tema claro, então botões/layouts funcionam sem ajuste.
