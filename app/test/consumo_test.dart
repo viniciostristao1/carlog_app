@@ -1,4 +1,5 @@
 import 'package:carlog/models/abastecimento.dart';
+import 'package:carlog/models/programacao.dart';
 import 'package:carlog/models/revisao.dart';
 import 'package:carlog/models/veiculo.dart';
 import 'package:carlog/util/consumo.dart';
@@ -207,6 +208,52 @@ void main() {
       expect(progressoRevisao(semIntervalo, const [], revs).fracao, isNull);
       const v = Veiculo(id: 'v', apelido: 'x');
       expect(progressoRevisao(v, const [], const []).fracao, isNull);
+    });
+  });
+
+  group('previsaoLembreteProgramado (lembrete dos itens da Programar)', () {
+    final agora = DateTime.now();
+    final ab = [
+      _ab('a1', agora.subtract(const Duration(days: 100)), 40000, 40),
+      _ab('a2', agora, 49000, 40),
+    ]; // ritmo = 9000 km / 100 dias = 90 km/dia
+
+    test('km-alvo à frente: data pelo ritmo', () {
+      final item = ItemProgramado(
+          id: 'i',
+          criadoEm: agora,
+          descricao: 'Óleo',
+          kmAlvo: 50000); // faltam 1000 km → ~11 dias
+      final venc = previsaoLembreteProgramado(item, ab, 12);
+      expect(venc.hour, 9);
+      expect(venc.difference(agora).inDays, inInclusiveRange(10, 12));
+    });
+
+    test('só intervalo: próximo ciclo a partir do km atual', () {
+      final item = ItemProgramado(
+          id: 'i', criadoEm: agora, descricao: 'Óleo', intervaloKm: 10000);
+      // 49000 + 10000 = 59000 → faltam 10000 km → ~111 dias.
+      final venc = previsaoLembreteProgramado(item, ab, 12);
+      expect(venc.hour, 9);
+      expect(venc.difference(agora).inDays, inInclusiveRange(110, 112));
+    });
+
+    test('alvo já vencido: vence hoje às 9h', () {
+      final item = ItemProgramado(
+          id: 'i', criadoEm: agora, descricao: 'Óleo', kmAlvo: 45000);
+      final venc = previsaoLembreteProgramado(item, ab, 12);
+      expect(venc.year, agora.year);
+      expect(venc.month, agora.month);
+      expect(venc.day, agora.day);
+      expect(venc.hour, 9);
+    });
+
+    test('sem leitura de km: cai no intervalo de meses', () {
+      final item = ItemProgramado(
+          id: 'i', criadoEm: agora, descricao: 'Óleo', kmAlvo: 50000);
+      final venc = previsaoLembreteProgramado(item, const [], 12);
+      expect(venc.hour, 9);
+      expect(venc.difference(agora).inDays, inInclusiveRange(359, 361));
     });
   });
 

@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-09-18 — v0.42.0.** **Programar e Lembretes.** (1) O **check** de um item da Programar agora só **marca/desmarca como feito** — não soma mais 10.000 km a cada toque. (2) O item programado passa a **aparecer nos Lembretes como previsão**, com a data estimada pelo km (alvo ou próximo ciclo pelo seu ritmo) — criado/atualizado ao salvar o item (inclusive ao **editar**) e removido junto se você apagar o item ou desligar o "Criar lembrete". (3) No histórico, a **oficina** aparece ao lado do título no formato **"Revisão • Oficina"**.
+
 - **2026-09-18 — v0.41.0.** **Ajustes no histórico.** O **"+N"** agora fica centralizado na caixinha, e o **nome da oficina** subiu para a linha do título (mesmo tamanho/fonte de antes) — a linha de baixo fica só com data e km.
 
 - **2026-09-18 — v0.40.0.** **Histórico com até 8 itens.** A caixa de cada revisão/reparo agora mostra **8 itens** (antes 4), em **3 por linha** com o nome encurtado; se houver mais, o 9º espaço vira **"+N"** com o que sobrou. Ao buscar, o item casado aparece inteiro e destacado.

@@ -165,10 +165,9 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
                 item: it,
                 odometroAtual: odo,
                 ritmoKmDia: ritmo,
-                onToggle: () => _alternarFeito(it, odo),
+                onToggle: () => _alternarFeito(it),
                 onEditar: () => _abrirItemSheet(original: it),
-                onExcluir: () =>
-                    ref.read(programacaoProvider.notifier).remover(it.id),
+                onExcluir: () => _excluirItem(it),
               )),
       ],
     );
@@ -179,18 +178,18 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
     return it.kmAlvo! - odo;
   }
 
-  void _alternarFeito(ItemProgramado it, double? odo) {
-    final notifier = ref.read(programacaoProvider.notifier);
-    final base = it.kmAlvo ?? odo;
-    if (it.intervaloKm != null && base != null) {
-      // Recorrente: "fiz agora" → reagenda para o próximo intervalo.
-      final proximo = base + it.intervaloKm!;
-      notifier.salvar(it.copyWith(kmAlvo: proximo, feito: false));
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content:
-              Text(ref.read(stringsProvider).feitoReagendado(km(proximo)))));
-    } else {
-      notifier.salvar(it.copyWith(feito: !it.feito));
+  /// O check só marca/desmarca como feito — o km (alvo/intervalo) não muda.
+  /// Se o usuário quiser reagendar, edita o item (o lembrete é atualizado lá).
+  void _alternarFeito(ItemProgramado it) {
+    ref.read(programacaoProvider.notifier).salvar(it.copyWith(feito: !it.feito));
+  }
+
+  /// Remove o item e o lembrete de previsão ligado a ele (se houver).
+  Future<void> _excluirItem(ItemProgramado it) async {
+    await ref.read(programacaoProvider.notifier).remover(it.id);
+    final lembretes = await ref.read(lembretesProvider.future);
+    for (final l in lembretes.where((l) => l.programacaoId == it.id)) {
+      await ref.read(lembretesProvider.notifier).remover(l.id);
     }
   }
 
@@ -250,6 +249,53 @@ class _RevisoesScreenState extends ConsumerState<RevisoesScreen>
               )),
       ],
     );
+  }
+}
+
+/// Mantém em dia o lembrete de previsão ligado a um item da Programar:
+/// - cria (ou atualiza data/título) quando o item tem km-alvo ou intervalo;
+/// - remove quando o item perdeu km/intervalo ou o usuário desligou o switch.
+/// O vínculo é pelo `programacaoId` — lembretes manuais nunca são tocados.
+Future<void> _sincronizarLembrete(
+  WidgetRef ref,
+  ItemProgramado item, {
+  required bool criar,
+}) async {
+  final atual = await ref.read(lembretesProvider.future);
+  final existentes =
+      atual.where((l) => l.programacaoId == item.id).toList();
+  final temPrevisao = item.kmAlvo != null || item.intervaloKm != null;
+
+  if (!criar || !temPrevisao) {
+    for (final l in existentes) {
+      await ref.read(lembretesProvider.notifier).remover(l.id);
+    }
+    return;
+  }
+
+  final ab = ref.read(abastecimentosDoVeiculoProvider);
+  final veic = ref.read(veiculoSelecionadoProvider);
+  final venc = previsaoLembreteProgramado(
+      item, ab, veic?.revisaoIntervaloMeses ?? 6);
+
+  if (existentes.isEmpty) {
+    await ref.read(lembretesProvider.notifier).salvar(Lembrete(
+          id: novoId(),
+          veiculoId: item.veiculoId,
+          tipo: TipoLembrete.revisao,
+          titulo: item.descricao,
+          vencimento: venc,
+          recorrencia: Recorrencia.nenhuma,
+          programacaoId: item.id,
+        ));
+  } else {
+    final l = existentes.first;
+    await ref.read(lembretesProvider.notifier).salvar(l.copyWith(
+          titulo: item.descricao,
+          vencimento: venc,
+          // Alvo novo = nova ocorrência: volta a avisar (desmarca o "pago").
+          pago: l.vencimento == venc ? l.pago : false,
+        ));
   }
 }
 
@@ -525,7 +571,7 @@ class _CartaoRevisao extends ConsumerWidget {
                             children: [
                               if (r.local.isNotEmpty)
                                 TextSpan(
-                                  text: '  ${r.local}',
+                                  text: ' • ${r.local}',
                                   style: TextStyle(
                                       color: AppColors.dim,
                                       fontSize: 12.5,
@@ -714,31 +760,8 @@ class _ItemSheetState extends ConsumerState<_ItemSheet> {
       limparIntervalo: _intervalo.text.trim().isEmpty,
     );
     await ref.read(programacaoProvider.notifier).salvar(item);
-    if (_criarLembrete &&
-        widget.original == null &&
-        (item.kmAlvo != null || item.intervaloKm != null)) {
-      final ab = ref.read(abastecimentosDoVeiculoProvider);
-      final odo = ultimoOdometro(ab);
-      final ritmo = ritmoKmPorDia(ab);
-      DateTime? venc;
-      if (item.kmAlvo != null && odo != null) {
-        final falta = item.kmAlvo! - odo;
-        venc = previsaoData(falta > 0 ? falta : 0, ritmo);
-      }
-      final veic = ref.read(veiculoSelecionadoProvider);
-      venc ??= DateTime.now().add(
-          Duration(days: (veic?.revisaoIntervaloMeses ?? 6) * 30));
-      venc = DateTime(venc.year, venc.month, venc.day, 9);
-      final lemb = Lembrete(
-        id: novoId(),
-        veiculoId: item.veiculoId,
-        tipo: TipoLembrete.revisao,
-        titulo: desc,
-        vencimento: venc,
-        recorrencia: Recorrencia.nenhuma,
-      );
-      await ref.read(lembretesProvider.notifier).salvar(lemb);
-    }
+    // O lembrete de previsão nasce/atualiza (ou sai) junto com o item.
+    await _sincronizarLembrete(ref, item, criar: _criarLembrete);
     if (mounted) Navigator.of(context).pop();
   }
 
