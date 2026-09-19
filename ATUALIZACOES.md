@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-09-19 — v0.44.0.** **Tema Neon Drift + 3 modos novos na tela inicial.** (1) Em **Configurações → Aparência** entrou o tema **Neon Drift** (preto esverdeado + verde ácido). (2) O **botão de modo** (ao lado da engrenagem) agora também alterna: **Racing** (odômetro em destaque com barra da revisão e atalhos com anel), **Lista** (cada categoria com o resumo no subtítulo) e **Teclas** (painel de teclas grandes + resumo embaixo). Os modos usam as cores do **tema** escolhido — ex.: Lista no tema Madeira fica clara; no Neon Drift, verde.
+
 - **2026-09-19 — v0.43.0.** **Novo ícone do aplicativo.** O ícone na tela do celular agora é a arte nova: hexágono azul/âmbar com carro, ferramentas, checklist e bomba de combustível. O logo de dentro do app (ao lado de "CarLog") continua o carro neon.
 
 - **2026-09-18 — v0.42.0.** **Programar e Lembretes.** (1) O **check** de um item da Programar agora só **marca/desmarca como feito** — não soma mais 10.000 km a cada toque. (2) O item programado passa a **aparecer nos Lembretes como previsão**, com a data estimada pelo km (alvo ou próximo ciclo pelo seu ritmo) — criado/atualizado ao salvar o item (inclusive ao **editar**) e removido junto se você apagar o item ou desligar o "Criar lembrete". (3) No histórico, a **oficina** aparece ao lado do título no formato **"Revisão • Oficina"**.

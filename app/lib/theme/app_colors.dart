@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 /// Temas do CarLog. Terracota (padrão) = azul-marinho "prancheta de oficina"
 /// com destaque coral e hairlines azuladas; Âmbar e Azul = grafite escuro
 /// "painel de carro" (muda só o accent); Espresso = marrom escuro; Madeira =
-/// claro (madeira). O usuário escolhe nas Configurações.
-/// ⚠️ [terracota] é appendado no FIM do enum de propósito (índices 0–3 estáveis
-/// para `AppStrings.nomeTema`); só adicione novos temas também no fim.
+/// claro (madeira); Neon Drift = preto esverdeado com verde ácido. O usuário
+/// escolhe nas Configurações.
+/// ⚠️ [terracota] e os temas novos entram no FIM do enum de propósito (índices
+/// 0–3 estáveis para `AppStrings.nomeTema`); só adicione novos temas no fim.
 /// Legado: o valor antigo `blueprint` foi renomeado para `terracota` (mesma paleta).
-enum TemaApp { ambar, azul, espresso, madeira, terracota }
+enum TemaApp { ambar, azul, espresso, madeira, terracota, neonDrift }
 
 /// Uma paleta completa (tokens de cor de um tema). Fundo, superfícies, texto e
 /// accent mudam por tema — por isso [AppColors] os expõe como getters que lêem
@@ -102,6 +103,7 @@ abstract final class AppColors {
         TemaApp.espresso => _espresso,
         TemaApp.madeira => _madeira,
         TemaApp.terracota => _terracota,
+        TemaApp.neonDrift => _neonDrift,
       };
 
   /// Terracota (padrão): azul-marinho "prancheta", accent coral, linhas azuladas.
@@ -116,6 +118,21 @@ abstract final class AppColors {
     dim2: Color(0xFF5A6E8C),
     accent: Color(0xFFFF6B4A),
     onAccent: Color(0xFF2A0A02),
+    brilho: Brightness.dark,
+  );
+
+  /// Neon Drift: preto esverdeado com verde ácido (visual gamer/tech).
+  static const Paleta _neonDrift = Paleta(
+    bg: Color(0xFF05080A),
+    surface: Color(0xFF0C1211),
+    surface2: Color(0xFF131C19),
+    line: Color(0xFF1E2B26),
+    lineStrong: Color(0xFF2A3C35),
+    text: Color(0xFFEAF7F1),
+    dim: Color(0xFF7C9B8F),
+    dim2: Color(0xFF52706A),
+    accent: Color(0xFF39FF88),
+    onAccent: Color(0xFF04220F),
     brilho: Brightness.dark,
   );
 

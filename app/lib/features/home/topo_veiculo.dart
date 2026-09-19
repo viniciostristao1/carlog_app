@@ -20,11 +20,15 @@ class DadosTopo {
   final ProgressoRevisao progresso;
   final DateTime agora;
   final double escala;
+  final double? consumo; // km/L médio (ResumoConsumo.mediaGeral)
+  final int alertas; // lembretes vencidos não lidos (badge)
   final VoidCallback onAbastecimento;
   final VoidCallback onConsumo;
   final VoidCallback onFipe;
   final VoidCallback onCalibragem;
   final VoidCallback onRevisoes;
+  final VoidCallback onLembretes;
+  final VoidCallback onEditarVeiculo;
 
   const DadosTopo({
     required this.veiculo,
@@ -36,11 +40,15 @@ class DadosTopo {
     required this.progresso,
     required this.agora,
     required this.escala,
+    required this.consumo,
+    required this.alertas,
     required this.onAbastecimento,
     required this.onConsumo,
     required this.onFipe,
     required this.onCalibragem,
     required this.onRevisoes,
+    required this.onLembretes,
+    required this.onEditarVeiculo,
   });
 
   /// Dias desde a última calibragem (null = nunca registrada).
@@ -62,6 +70,9 @@ class TopoModoBotao extends ConsumerWidget {
       ModoTopo.painel => (Icons.space_dashboard_outlined, t.modoPainel),
       ModoTopo.grade => (Icons.grid_view_rounded, t.modoGrade),
       ModoTopo.progresso => (Icons.linear_scale, t.modoProgresso),
+      ModoTopo.racing => (Icons.speed_outlined, t.modoRacing),
+      ModoTopo.lista => (Icons.format_list_bulleted, t.modoLista),
+      ModoTopo.teclas => (Icons.keyboard_alt_outlined, t.modoTeclas),
     };
     return IconButton(
       tooltip: '${t.modoExibicao}: $nome',

@@ -41,6 +41,8 @@ Pacote de loja pronto (colável em [`LANCAMENTO.md`](LANCAMENTO.md)):
 - **Falta (só o usuário, no Console):** criar app → ficha → subir AAB+gráficos+prints → App content
   → teste fechado ≥12/14d → produção. Conta dev = a mesma (aprovada) do Save List.
 
+**v0.44.0 — TEMA NEON DRIFT + MODOS RACING/LISTA/TECLAS** (`analyze` limpo, 65 testes). `TemaApp.neonDrift` (fim do enum; preto + verde ácido) no seletor de Config; `ModoTopo` ganhou `racing/lista/teclas` (ciclo do botão ao lado da engrenagem) com layouts puros em `features/home/layouts_home.dart` (DadosTopo + AppStrings, sem Riverpod), usando as cores do tema. `DadosTopo` ganhou consumo/alertas/onLembretes/onEditarVeiculo; `_dadosTopo()` extraído no home. Preview: `adm-projetos-design/carlog-tema-neon-3-modos.html`. Base anterior:
+
 **v0.43.0 — NOVO ÍCONE (HEXÁGONO)** (`analyze` limpo, 54 testes). Ícone do launcher regerado a partir de `file_00000000acb0820e81c5c909b92a0586.png` (hexágono azul/âmbar com carro, ferramentas, checklist e bomba) via `tools/gerar_icone.py` + `dart run flutter_launcher_icons`; `store/icon_512.png` regerado. O logo de dentro (carro neon) segue igual. Base anterior:
 
 **v0.42.0 — PROGRAMAR + LEMBRETES** (`analyze` limpo, 54 testes). (1) O check da Programar só marca/desmarca `feito` — saiu o reagendamento que somava o intervalo a cada toque. (2) `Lembrete.programacaoId` liga o lembrete-previsão ao item: criado/atualizado ao salvar (novo **e** edição), removido com o item ou switch off; `previsaoLembreteProgramado()` (4 testes) usa o km-alvo ou `odo + intervalo` e o ritmo; vencido → hoje 9h. (3) Histórico: oficina na linha do título com ` • `. Base anterior:

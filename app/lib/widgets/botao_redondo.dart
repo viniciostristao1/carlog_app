@@ -15,6 +15,12 @@ class BotaoRedondo extends StatelessWidget {
   /// 0 = sem selo.
   final int badge;
 
+  /// Diâmetro do círculo (74 = padrão da grade clássica).
+  final double tamanho;
+
+  /// Anel claro em volta do círculo (modo Racing).
+  final bool anel;
+
   const BotaoRedondo({
     super.key,
     required this.icone,
@@ -22,6 +28,8 @@ class BotaoRedondo extends StatelessWidget {
     required this.cor,
     required this.onTap,
     this.badge = 0,
+    this.tamanho = 74,
+    this.anel = false,
   });
 
   @override
@@ -43,8 +51,8 @@ class BotaoRedondo extends StatelessWidget {
             clipBehavior: Clip.none,
             children: [
               Container(
-                width: 74,
-                height: 74,
+                width: tamanho,
+                height: tamanho,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
@@ -52,8 +60,14 @@ class BotaoRedondo extends StatelessWidget {
                     end: Alignment.bottomRight,
                     colors: [cor, escura],
                   ),
+                  border: anel
+                      ? Border.all(
+                          color: AppColors.text.withValues(alpha: .85),
+                          width: 2)
+                      : null,
                 ),
-                child: Icon(icone, color: Colors.white, size: 32),
+                child:
+                    Icon(icone, color: Colors.white, size: tamanho * 0.43),
               ),
               if (badge > 0)
                 Positioned(
@@ -85,7 +99,7 @@ class BotaoRedondo extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           SizedBox(
-            width: 92,
+            width: tamanho + 18,
             child: Text(
               rotulo,
               textAlign: TextAlign.center,

@@ -2,6 +2,15 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-19 — Tema Neon Drift + modos Racing/Lista/Teclas (v0.44.0)
+
+- **Tema:** `TemaApp.neonDrift` appendado no FIM do enum (índices antigos estáveis) + paleta `_neonDrift` (`bg #05080A`, accent `#39FF88`) + `nomeTema(5)`. O seletor de Config itera `TemaApp.values` — o swatch novo aparece sozinho (6 na linha). Preview: `adm-projetos-design/carlog-tema-neon-3-modos.html`.
+- **Modos:** `ModoTopo` ganhou `racing, lista, teclas` no fim (persistidos por `name`, então `modoTopo_v1` antigo continua lendo os clássicos). `TopoModoBotao` cicla 6 (ícone + label por modo). `DadosTopo` ganhou `consumo` (`ResumoConsumo.mediaGeral`), `alertas`, `onLembretes` e `onEditarVeiculo`; `_dadosTopo()` foi extraído no `home_screen.dart` e é montado 1× (reusado pelo cartão clássico e pelos layouts novos).
+- **Layouts (`features/home/layouts_home.dart`):** widgets puros (recebem `DadosTopo` + `AppStrings`, sem Riverpod) para poderem ser testados com dados falsos; `_CarroCompacto`, `_grade3` (Rows de 3 `Expanded` em vez de GridView — a altura acompanha o conteúdo, sem overflow com fonte 1,3×), `_Tecla` e `_Mini`. `BotaoRedondo` ganhou `tamanho` e `anel` (usados no Racing).
+- **Decisão de cor:** o usuário separou **tema** (cor) de **modo** (distribuição), então os layouts usam `AppColors` (tema atual) — ex.: "Daylight" claro = modo Lista + tema Madeira; com Neon Drift ficam verdes.
+- **Sem carro cadastrado:** os atalhos clássicos continuam aparecendo (extraídos para `_atalhosClassicos`, usado também pelo caminho `veiculo == null`) — não regride a primeira abertura.
+- **Testes:** `test/temas_test.dart` (paleta Neon Drift + accents distintos) e `test/home_layouts_test.dart` (3 layouts × fonte 1,0/1,3 sem estouro + conteúdo esperado).
+
 ## 2026-09-19 — Novo ícone do launcher: hexágono (v0.43.0)
 
 - **Arte:** `file_00000000acb0820e81c5c909b92a0586.png` (hexágono azul/âmbar com carro, chave, pneu, checklist e bomba) virou o ícone do app. Default `ORIGEM` do `tools/gerar_icone.py` atualizado; o **logo de dentro** (carro neon, `file_00000000b310…png`) não mudou — `carlog_logo.png` saiu idêntico.
