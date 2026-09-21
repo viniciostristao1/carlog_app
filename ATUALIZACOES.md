@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-09-21 — v0.47.0.** **Botão "Atualizar FIPE".** Na tela **Minha FIPE**, abaixo de "Informar valor manualmente", entrou o botão **Atualizar FIPE**: com o carro já cadastrado, um toque rebusca o valor na tabela FIPE (sem refazer a escolha de marca/modelo/ano) e atualiza o valor e o mês de referência do cartão. Botão aparece só com carro cadastrado; sem internet, avisa e mantém o valor atual.
+
 - **2026-09-19 — v0.46.0.** **Logo de dentro do app atualizado.** O logo ao lado de "CarLog", no topo da tela inicial, agora é o **mesmo do ícone do aplicativo** (hexágono azul/âmbar com carro e ferramentas).
 
 - **2026-09-19 — v0.45.0.** **Tema Daylight (claro branco/azul) e saída do Expresso.** (1) Em **Configurações → Aparência** entrou o tema **Daylight** — claro, branco/azul, ideal para usar de dia (com o modo **Lista** fica igual à ideia 4 do preview). (2) O tema **Expresso saiu**: quem o usava cai automaticamente no **Terracota** (padrão) — só muda a cor.

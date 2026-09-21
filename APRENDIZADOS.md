@@ -2,6 +2,14 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-09-21 — Reconsulta da FIPE com o carro cadastrado (v0.47.0)
+
+- **Reuso do triênio salvo:** `Veiculo.fipeCodigoTabela` (gravado pela `FipeSelecao.codigoTabela` como `marcaCod/modeloCod/anoCod`) já bastava para a reconsulta — nenhum campo/store novo, logo **sem migração e sem mexer no sync**.
+- **Parser puro:** `codigosDaTabela(String?)` no topo de `features/fipe/fipe_service.dart` devolve as 3 partes só quando o formato está completo (null para vazio/2 partes/4 partes/espaços). Teste em `test/fipe_codigos_test.dart` (4 casos).
+- **Fluxo (`_atualizarFipe` em `fipe_screen.dart`):** lê o veículo selecionado → `FipeService().valor(...)` (mesma API/cascade `parallelum`) → `salvar(copyWith(fipeCodigo, fipeValor, fipeMesRef, fipeConsultadoEm))`. **Não** toca em marca/modelo/ano/combustível: a identidade do carro é a do usuário; só os dados de valor são atualizados.
+- **UI:** botão `FilledButton.icon` (mesmo visual de "Usar como meu carro", catFipe) **abaixo** de "Informar valor manualmente", visível só com veículo cadastrado; durante a chamada fica desabilitado com spinner (`_atualizando`) e o label vira "Carregando…". Falha de rede → `t.fipeIndisponivel`; carro sem código → `t.fipeSemCodigo`.
+- **Strings:** `atualizarFipe`, `fipeAtualizada(valor)` e `fipeSemCodigo` (pt/en/es) na seção "minha FIPE" de `strings.dart`.
+
 ## 2026-09-19 — Logo interno = arte do ícone (v0.46.0)
 
 - `tools/gerar_icone.py`: `LOGO_ORIGEM` agora usa a **mesma arte do ícone** (`file_00000000acb0820e81c5c909b92a0586.png`) por padrão — antes era o carro neon (`file_00000000b310…png`). O `carlog_logo.png` (256, logo DENTRO do app) saiu do hexágono.

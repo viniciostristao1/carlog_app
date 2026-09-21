@@ -9,6 +9,7 @@ import '../../theme/app_colors.dart';
 import '../../util/format.dart';
 import '../../util/ids.dart';
 import 'fipe_seletor.dart';
+import 'fipe_service.dart';
 
 class FipeScreen extends ConsumerStatefulWidget {
   const FipeScreen({super.key});
@@ -19,6 +20,7 @@ class FipeScreen extends ConsumerStatefulWidget {
 
 class _FipeScreenState extends ConsumerState<FipeScreen> {
   FipeSelecao? _sel;
+  bool _atualizando = false;
 
   Future<void> _salvarNoVeiculo() async {
     final sel = _sel;
@@ -90,6 +92,38 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
     }
   }
 
+  /// Reconsulta a FIPE com o triênio marca/modelo/ano já salvo no veículo —
+  /// sem repetir a cascata. Atualiza valor, mês de referência e data.
+  Future<void> _atualizarFipe() async {
+    final t = ref.read(stringsProvider);
+    final atual = ref.read(veiculoSelecionadoProvider);
+    final codigos = codigosDaTabela(atual?.fipeCodigoTabela);
+    if (atual == null || codigos == null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(t.fipeSemCodigo)));
+      return;
+    }
+    setState(() => _atualizando = true);
+    try {
+      final r = await FipeService().valor(codigos[0], codigos[1], codigos[2]);
+      await ref.read(veiculosProvider.notifier).salvar(atual.copyWith(
+            fipeCodigo: r.codigoFipe,
+            fipeValor: r.valor,
+            fipeMesRef: r.mesReferencia,
+            fipeConsultadoEm: DateTime.now(),
+          ));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(t.fipeAtualizada(moeda(r.valor)))));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(t.fipeIndisponivel)));
+    } finally {
+      if (mounted) setState(() => _atualizando = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = ref.watch(stringsProvider);
@@ -136,6 +170,26 @@ class _FipeScreenState extends ConsumerState<FipeScreen> {
             icon: const Icon(Icons.edit_outlined),
             label: Text(t.informarValorManual),
           ),
+          if (v != null) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _atualizando ? null : _atualizarFipe,
+                style: FilledButton.styleFrom(
+                    backgroundColor: AppColors.catFipe,
+                    foregroundColor: const Color(0xFF160A2B),
+                    padding: const EdgeInsets.symmetric(vertical: 14)),
+                icon: _atualizando
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.refresh),
+                label: Text(_atualizando ? t.carregando : t.atualizarFipe),
+              ),
+            ),
+          ],
         ],
       ),
     );

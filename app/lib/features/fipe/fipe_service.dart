@@ -2,6 +2,16 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+/// Quebra "marca/modelo/ano" (o `Veiculo.fipeCodigoTabela`, gravado pela
+/// `FipeSelecao.codigoTabela`) nos 3 códigos usados pela API. Devolve null se
+/// o texto não tiver exatamente as 3 partes preenchidas.
+List<String>? codigosDaTabela(String? tabela) {
+  if (tabela == null) return null;
+  final partes = tabela.split('/').map((p) => p.trim()).toList();
+  if (partes.length != 3 || partes.any((p) => p.isEmpty)) return null;
+  return partes;
+}
+
 /// Cliente da tabela FIPE via API pública gratuita (parallelum.com.br/fipe).
 /// Fluxo em cascata: marcas → modelos → anos → valor. Sem chave/token.
 class FipeService {
