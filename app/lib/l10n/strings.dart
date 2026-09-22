@@ -436,6 +436,14 @@ class AppStrings {
       _s('Usar como meu carro', 'Use as my car', 'Usar como mi auto');
   String get informarValorManual => _s('Informar valor manualmente',
       'Enter value manually', 'Indicar valor manualmente');
+  String get atualizarFipe =>
+      _s('Atualizar FIPE', 'Update FIPE', 'Actualizar FIPE');
+  String fipeAtualizada(String valor) => _s('FIPE atualizada: $valor',
+      'FIPE updated: $valor', 'FIPE actualizada: $valor');
+  String get fipeSemCodigo => _s(
+      'Este carro ainda não tem o código da FIPE. Consulte a tabela na parte de cima para poder atualizar.',
+      "This car has no FIPE code yet. Look it up above to enable updates.",
+      'Este auto aún no tiene el código FIPE. Consúltalo arriba para poder actualizar.');
   String get valorRs => _s('Valor (R\$)', 'Value', 'Valor');
   String get valorHint => _s('Ex.: 45000', 'e.g. 45000', 'Ej.: 45000');
   String get valorAtualVeiculo =>
