@@ -23,14 +23,14 @@ Design escuro "painel de carro". Meta futura: **Play Store**.
 > usuário (`ATUALIZACOES`) · futuro (`IDEIAS`) · nuvem (`FIREBASE`) · **motor "Ler foto" + log de casos
 > (`OCR.md`)**.
 
-## ⭐ ESTADO ATUAL (2026-09-19) — ler primeiro pós-/clear
+## ⭐ ESTADO ATUAL (2026-09-22) — ler primeiro pós-/clear
 
-### 🚀 LANÇAMENTO PLAY STORE — em preparação (revisado 2026-09-19 / v0.45.0)
+### 🚀 LANÇAMENTO PLAY STORE — em preparação (revisado 2026-09-22 / v0.47.0)
 Pacote de loja pronto (colável em [`LANCAMENTO.md`](LANCAMENTO.md)):
 - **AAB assinado:** workflow **`build-aab.yml`** (workflow_dispatch, só AAB). Roda
   `gh workflow run build-aab.yml` → AAB em `ci-latest/app-release.aab`, assinado c/ upload key
   SHA-1 `3E:DA:91:…:CB:21`. O AAB que está no `ci-latest` é de **v0.38.0 / versionCode 48** →
-  **regerar antes de subir** (o `main` está em **v0.45.0 / 55**; cada upload exige versionCode maior).
+  **regerar antes de subir** (o `main` está em **v0.47.0 / 57**; cada upload exige versionCode maior).
 - **Política + Termos** no ar: https://viniciostristao1.github.io/carlog-privacidade/ (+ `/termos.html`),
   repo público `carlog-privacidade`.
 - **store/**: `icon_512.png` **regerado** com o ícone novo (hexágono) + `feature_graphic.png`
@@ -42,6 +42,8 @@ Pacote de loja pronto (colável em [`LANCAMENTO.md`](LANCAMENTO.md)):
   precisa recuperar/anotar; Play App Signing mitiga. Keystore local em `app/android/app/upload-keystore.jks`.
 - **Falta (só o usuário, no Console):** criar app → ficha → subir AAB+gráficos+prints → App content
   → teste fechado ≥12/14d → produção. Conta dev = a mesma (aprovada) do Save List.
+
+**v0.47.0 — BOTÃO "ATUALIZAR FIPE"** (`analyze` limpo, 72 testes). Na tela **Minha FIPE**, abaixo de "Informar valor manualmente", botão **Atualizar FIPE** (só com veículo cadastrado): reconsulta a FIPE pelo triênio marca/modelo/ano já salvo (`codigosDaTabela`) sem refazer a cascata, atualiza valor/mês ref/data com spinner (`_atualizando`) e snackbar; falha de rede → `fipeIndisponivel`; sem código → `fipeSemCodigo`. Teste puro em `test/fipe_codigos_test.dart`. Base anterior:
 
 **v0.46.0 — LOGO INTERNO = ÍCONE NOVO (HEXÁGONO)** (`analyze` limpo, 68 testes). O logo ao lado de "CarLog" no topo da home agora é a arte do hexágono (mesma do launcher): `gerar_icone.py` com `LOGO_ORIGEM` = arte do ícone; `carlog_logo.png` regerado (256) e mipmaps intactos. Base anterior:
 
