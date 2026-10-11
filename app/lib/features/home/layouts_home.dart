@@ -622,3 +622,193 @@ class _Mini extends StatelessWidget {
     );
   }
 }
+
+// ───────────────────────── Modo Cartões ─────────────────────────
+
+/// Painel de CARTÕES: cada categoria num cartão (ícone + valor do momento +
+/// rótulo), em grade de 2 colunas. É o "dashboard" — mais visual que a Lista
+/// (linhas) e com mais contexto por categoria que as Teclas.
+class LayoutCartoes extends StatelessWidget {
+  final DadosTopo d;
+  final AppStrings t;
+  const LayoutCartoes({super.key, required this.d, required this.t});
+
+  String _subRevisao() {
+    if (d.prev.vencida) return t.vencida;
+    if (d.prev.data != null) return dataCurta(d.prev.data!);
+    final f = d.prev.faltamKm;
+    if (f != null && f > 0) return t.faltamKm(km(f));
+    return '—';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final v = d.veiculo;
+    // (ícone, cor, rótulo, valor do momento, badge, abrir)
+    final cards = <(IconData, Color, String, String, int, VoidCallback)>[
+      (
+        Icons.local_gas_station,
+        AppColors.catAbastecimento,
+        t.catAbastecimento,
+        d.gastoMes > 0 ? moeda(d.gastoMes) : '—',
+        0,
+        d.onAbastecimento
+      ),
+      (
+        Icons.speed,
+        AppColors.catConsumo,
+        t.catConsumo,
+        d.consumo != null ? kmL(d.consumo!) : '—',
+        0,
+        d.onConsumo
+      ),
+      (
+        Icons.build_circle_outlined,
+        AppColors.catRevisoes,
+        t.catRevisoes,
+        _subRevisao(),
+        0,
+        d.onRevisoes
+      ),
+      (
+        Icons.request_quote_outlined,
+        AppColors.catFipe,
+        t.catFipe,
+        v.fipeValor != null ? moeda(v.fipeValor!) : '—',
+        0,
+        d.onFipe
+      ),
+      (
+        Icons.tire_repair,
+        AppColors.catCalibragem,
+        t.catCalibragem,
+        d.ultimaCalib != null ? desdeAte(d.ultimaCalib!) : '—',
+        0,
+        d.onCalibragem
+      ),
+      (
+        Icons.event_available_outlined,
+        AppColors.catLembretes,
+        t.catLembretes,
+        d.alertas > 0 ? t.vencidos(d.alertas) : t.emDia,
+        d.alertas,
+        d.onLembretes
+      ),
+    ];
+
+    return Column(children: [
+      _CarroCompacto(d: d, t: t),
+      const SizedBox(height: 14),
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(children: [
+          for (var i = 0; i < cards.length; i += 2) ...[
+            if (i > 0) const SizedBox(height: 10),
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var j = 0; j < 2; j++) ...[
+                    if (j > 0) const SizedBox(width: 10),
+                    Expanded(
+                        child: i + j < cards.length
+                            ? _CartaoCategoria(c: cards[i + j])
+                            : const SizedBox.shrink()),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ]),
+      ),
+      const SizedBox(height: 16),
+    ]);
+  }
+}
+
+/// Um cartão de categoria (estilo "card grande"): ícone grande com leve brilho
+/// da cor da categoria, nome em destaque embaixo e o valor do momento como linha
+/// secundária; badge de alerta no canto. Toca → abre a categoria.
+class _CartaoCategoria extends StatelessWidget {
+  final (IconData, Color, String, String, int, VoidCallback) c;
+  const _CartaoCategoria({required this.c});
+
+  @override
+  Widget build(BuildContext context) {
+    final cor = AppColors.leg(c.$2);
+    final badge = c.$5;
+    return Material(
+      color: AppColors.surface,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        onTap: c.$6,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(16, 16, 14, 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: AppColors.line),
+            // Leve brilho da cor da categoria (sem foto, como as artes da
+            // referência): canto superior colorido esmaecendo na superfície.
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [cor.withValues(alpha: .20), AppColors.surface],
+              stops: const [0, .7],
+            ),
+          ),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                        color: cor.withValues(alpha: .18),
+                        borderRadius: BorderRadius.circular(15)),
+                    child: Icon(c.$1, color: cor, size: 28),
+                  ),
+                  const Spacer(),
+                  if (badge > 0)
+                    Container(
+                      constraints:
+                          const BoxConstraints(minWidth: 22, minHeight: 22),
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      decoration: BoxDecoration(
+                        color: AppColors.danger,
+                        borderRadius: BorderRadius.circular(11),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(badge > 99 ? '99+' : '$badge',
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              height: 1)),
+                    ),
+                ]),
+                const SizedBox(height: 16),
+                Text(c.$3,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        color: AppColors.text,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800)),
+                const SizedBox(height: 2),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(c.$4,
+                      style: TextStyle(
+                          color: AppColors.dim,
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600)),
+                ),
+              ]),
+        ),
+      ),
+    );
+  }
+}

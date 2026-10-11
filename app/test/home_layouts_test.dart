@@ -61,6 +61,7 @@ void main() {
     'Racing': () => LayoutRacing(d: dados(), t: const AppStrings(Idioma.pt)),
     'Lista': () => LayoutLista(d: dados(), t: const AppStrings(Idioma.pt)),
     'Teclas': () => LayoutTeclas(d: dados(), t: const AppStrings(Idioma.pt)),
+    'Cartões': () => LayoutCartoes(d: dados(), t: const AppStrings(Idioma.pt)),
   };
 
   layouts.forEach((nome, build) {
@@ -94,6 +95,16 @@ void main() {
     await monta(t,
         LayoutLista(d: dados(consumo: null), t: const AppStrings(Idioma.pt)));
     expect(t.takeException(), isNull);
+  });
+
+  testWidgets('Cartões mostra valor por categoria (cada um num cartão)',
+      (t) async {
+    await monta(t, LayoutCartoes(d: dados(), t: const AppStrings(Idioma.pt)));
+    expect(find.textContaining('414,55'), findsOneWidget); // gasto do mês
+    expect(find.textContaining('11,4'), findsOneWidget); // consumo km/L
+    expect(find.textContaining('32.818'), findsOneWidget); // FIPE
+    expect(find.text('2 vencidos'), findsOneWidget); // lembretes
+    expect(find.text('2'), findsOneWidget); // badge no cartão de lembretes
   });
 
   testWidgets('layouts no tema Daylight (claro) não estouram', (t) async {

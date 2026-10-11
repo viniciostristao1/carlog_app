@@ -73,6 +73,7 @@ class TopoModoBotao extends ConsumerWidget {
       ModoTopo.racing => (Icons.speed_outlined, t.modoRacing),
       ModoTopo.lista => (Icons.format_list_bulleted, t.modoLista),
       ModoTopo.teclas => (Icons.keyboard_alt_outlined, t.modoTeclas),
+      ModoTopo.cartoes => (Icons.view_agenda_outlined, t.modoCartoes),
     };
     return IconButton(
       tooltip: '${t.modoExibicao}: $nome',

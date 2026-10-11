@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-10-11 — v0.48.0.** **Novo modo de tela inicial: Cartões.** No botão de modo (ao lado da engrenagem), mais uma opção: **Cartões** — um painel com **cartões grandes e coloridos** em duas colunas, um por atalho (abastecimento, consumo, revisões, FIPE, calibragem, lembretes): ícone grande com o brilho da cor da categoria, nome em destaque e o número do momento embaixo (gasto do mês, km/L, próxima revisão, valor FIPE etc.). Lembretes vencidos mostram um selo vermelho no cartão. Funciona em todos os temas; a escolha fica salva.
+
 - **2026-09-21 — v0.47.0.** **Botão "Atualizar FIPE".** Na tela **Minha FIPE**, abaixo de "Informar valor manualmente", entrou o botão **Atualizar FIPE**: com o carro já cadastrado, um toque rebusca o valor na tabela FIPE (sem refazer a escolha de marca/modelo/ano) e atualiza o valor e o mês de referência do cartão. Botão aparece só com carro cadastrado; sem internet, avisa e mantém o valor atual.
 
 - **2026-09-19 — v0.46.0.** **Logo de dentro do app atualizado.** O logo ao lado de "CarLog", no topo da tela inicial, agora é o **mesmo do ícone do aplicativo** (hexágono azul/âmbar com carro e ferramentas).

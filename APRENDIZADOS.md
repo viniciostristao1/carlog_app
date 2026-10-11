@@ -2,6 +2,34 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-10-11 — Modo de home CARTÕES (6º `ModoTopo`) (v0.48.0)
+
+Finalização de trabalho interrompido na branch `claude/home-cartoes` (só o enum tinha
+sido mexido). Novo modo de exibição da home **Cartões** (ciclo do botão ao lado da
+engrenagem): **cartões grandes e coloridos** em **grade 2 colunas**, um por categoria
+(ícone grande no tile + gradiente diagonal da cor da categoria esmaecendo na superfície
++ nome em destaque + valor do momento; badge de lembretes vencidos no canto). Mesmas
+métricas da Lista (gastoMes/consumo/_subRevisao/fipeValor/ultimaCalib/alertas).
+**Design alinhado à referência** que o usuário subiu no repo
+(`Screenshot_...com.pinterest.png`, grade de cards tipo "Ride/Delivery/Travel/Food") —
+sem fotos, o "colorido" vem do gradiente da cor de cada categoria.
+
+- **Gotcha que travava o build:** `ModoTopo` é usado em **`switch` expression SEM wildcard**
+  em `topo_veiculo.dart` (`TopoModoBotao`, mapa modo→ícone+nome). Acrescentar um valor ao
+  enum **quebra a exaustividade** → erro de compilação. Ao adicionar um `ModoTopo`, atualizar
+  SEMPRE: (1) o switch de `topo_veiculo.dart`; (2) o switch de layout em `home_screen.dart`
+  (esse TEM `_ =>`, então compila mas renderiza vazio — fácil de esquecer); (3) a string
+  `modo<Nome>` em `strings.dart`. O ciclo em si é automático (`values[(i+1)%len]`).
+- **Implementação:** `LayoutCartoes` + `_CartaoCategoria` em `layouts_home.dart` (widgets
+  puros `DadosTopo`+`AppStrings`, sem Riverpod, como os outros). `IntrinsicHeight` por linha
+  p/ os dois cartões ficarem da mesma altura; `FittedBox` no valor p/ não estourar.
+- **Rótulo sem MAIÚSCULAS:** o teste compartilhado `home_layouts_test.dart` cobra
+  `find.text('Abastecimento')` em todos os layouts — usar o rótulo como-está (não
+  `toUpperCase()`), igual à Lista/Teclas.
+- **Testes:** `Cartões` entrou no mapa de `home_layouts_test.dart` (não-estouro em fonte
+  normal/1,3×/tema claro) + 1 caso de asserção das métricas. `analyze lib/` limpo, 75 testes.
+- Preview visual gerado por golden headless e conferido (descartado após).
+
 ## 2026-09-21 — Reconsulta da FIPE com o carro cadastrado (v0.47.0)
 
 - **Reuso do triênio salvo:** `Veiculo.fipeCodigoTabela` (gravado pela `FipeSelecao.codigoTabela` como `marcaCod/modeloCod/anoCod`) já bastava para a reconsulta — nenhum campo/store novo, logo **sem migração e sem mexer no sync**.

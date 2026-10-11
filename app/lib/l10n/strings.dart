@@ -106,6 +106,7 @@ class AppStrings {
   String get modoRacing => _s('Racing', 'Racing', 'Racing');
   String get modoLista => _s('Lista', 'List', 'Lista');
   String get modoTeclas => _s('Teclas', 'Keys', 'Teclas');
+  String get modoCartoes => _s('Cartões', 'Cards', 'Tarjetas');
   String get atalhos => _s('Atalhos', 'Shortcuts', 'Atajos');
   String get emDia => _s('em dia', 'up to date', 'al día');
   String vencidos(int n) =>

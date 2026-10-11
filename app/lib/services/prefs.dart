@@ -41,7 +41,7 @@ class TemaNotifier extends AsyncNotifier<TemaApp> {
 /// barra de progresso (os 3 primeiros mudam só o topo) ou os layouts completos
 /// Racing (odômetro em destaque), Lista (guiada, com resumo) e Teclas (painel de
 /// teclas). Preferência local (não sincroniza).
-enum ModoTopo { painel, grade, progresso, racing, lista, teclas }
+enum ModoTopo { painel, grade, progresso, racing, lista, teclas, cartoes }
 
 const _kModoTopo = 'modoTopo_v1';
 

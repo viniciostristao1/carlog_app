@@ -86,6 +86,7 @@ class HomeScreen extends ConsumerWidget {
                 ModoTopo.racing => LayoutRacing(d: dados!, t: t),
                 ModoTopo.lista => LayoutLista(d: dados!, t: t),
                 ModoTopo.teclas => LayoutTeclas(d: dados!, t: t),
+                ModoTopo.cartoes => LayoutCartoes(d: dados!, t: t),
                 _ => const SizedBox.shrink(),
               },
               const _OutrosCarros(),
