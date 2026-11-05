@@ -13,6 +13,12 @@ class Abastecimento {
   final String? combustivel; // rótulo livre (Gasolina comum, Etanol, ...)
   final String observacao;
 
+  /// Ignorado como ÂNCORA de trecho (ex.: um abastecimento esquecido antes dele
+  /// distorceu a média). Não fecha trecho nem entra no melhor/pior — mas os
+  /// litros e o custo continuam contando (somam no próximo trecho válido).
+  /// Retrocompatível: ausente = false.
+  final bool ignorado;
+
   const Abastecimento({
     required this.id,
     this.veiculoId,
@@ -24,34 +30,37 @@ class Abastecimento {
     this.posto = '',
     this.combustivel,
     this.observacao = '',
+    this.ignorado = false,
   });
 
   /// Total gasto (0 se litros/preço não informados).
   double get total => (litros ?? 0) * (precoLitro ?? 0);
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'veiculoId': veiculoId,
-        'data': data.toIso8601String(),
-        'odometro': odometro,
-        'litros': litros,
-        'precoLitro': precoLitro,
-        'tanqueCheio': tanqueCheio,
-        'posto': posto,
-        'combustivel': combustivel,
-        'observacao': observacao,
-      };
+    'id': id,
+    'veiculoId': veiculoId,
+    'data': data.toIso8601String(),
+    'odometro': odometro,
+    'litros': litros,
+    'precoLitro': precoLitro,
+    'tanqueCheio': tanqueCheio,
+    'posto': posto,
+    'combustivel': combustivel,
+    'observacao': observacao,
+    'ignorado': ignorado,
+  };
 
   factory Abastecimento.fromJson(Map<String, dynamic> j) => Abastecimento(
-        id: j['id'] as String,
-        veiculoId: j['veiculoId'] as String?,
-        data: DateTime.parse(j['data'] as String),
-        odometro: (j['odometro'] as num?)?.toDouble(),
-        litros: (j['litros'] as num?)?.toDouble(),
-        precoLitro: (j['precoLitro'] as num?)?.toDouble(),
-        tanqueCheio: (j['tanqueCheio'] ?? true) as bool,
-        posto: (j['posto'] ?? '') as String,
-        combustivel: j['combustivel'] as String?,
-        observacao: (j['observacao'] ?? '') as String,
-      );
+    id: j['id'] as String,
+    veiculoId: j['veiculoId'] as String?,
+    data: DateTime.parse(j['data'] as String),
+    odometro: (j['odometro'] as num?)?.toDouble(),
+    litros: (j['litros'] as num?)?.toDouble(),
+    precoLitro: (j['precoLitro'] as num?)?.toDouble(),
+    tanqueCheio: (j['tanqueCheio'] ?? true) as bool,
+    posto: (j['posto'] ?? '') as String,
+    combustivel: j['combustivel'] as String?,
+    observacao: (j['observacao'] ?? '') as String,
+    ignorado: (j['ignorado'] ?? false) as bool,
+  );
 }

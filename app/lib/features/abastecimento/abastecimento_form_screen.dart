@@ -32,7 +32,9 @@ class _AbastecimentoFormScreenState
   late final TextEditingController _obs;
   late DateTime _data;
   late bool _cheio;
-  bool _modoTotal = true; // false = informar preço/L; true = informar valor total
+  late bool _ignorado;
+  bool _modoTotal =
+      true; // false = informar preço/L; true = informar valor total
   bool _ocultarSugestao = false;
   bool _mostrarDesfazerOdo = false;
   String? _backupOdo;
@@ -47,17 +49,22 @@ class _AbastecimentoFormScreenState
     // Dígitos puros (campo digitsOnly): n0 poria "45.000", que parseNumero
     // leria como 45,0 ao re-salvar.
     _odometro = TextEditingController(
-        text: o?.odometro != null ? o!.odometro!.toStringAsFixed(0) : '');
-    _litros =
-        TextEditingController(text: o?.litros != null ? n1(o!.litros!) : '');
+      text: o?.odometro != null ? o!.odometro!.toStringAsFixed(0) : '',
+    );
+    _litros = TextEditingController(
+      text: o?.litros != null ? n1(o!.litros!) : '',
+    );
     _preco = TextEditingController(
-        text: o?.precoLitro != null ? n2(o!.precoLitro!) : '');
+      text: o?.precoLitro != null ? n2(o!.precoLitro!) : '',
+    );
     _total = TextEditingController(
-        text: (o?.litros != null && o?.precoLitro != null) ? n2(o!.total) : '');
+      text: (o?.litros != null && o?.precoLitro != null) ? n2(o!.total) : '',
+    );
     _posto = TextEditingController(text: o?.posto ?? '');
     _obs = TextEditingController(text: o?.observacao ?? '');
     _data = o?.data ?? DateTime.now();
     _cheio = o?.tanqueCheio ?? true;
+    _ignorado = o?.ignorado ?? false;
     for (final c in [_litros, _preco, _total]) {
       c.addListener(() => setState(() {}));
     }
@@ -115,14 +122,16 @@ class _AbastecimentoFormScreenState
     }
     // Tudo é opcional, mas ao menos um campo tem de existir.
     if (odo == null && litros == null && preco == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(ref.read(stringsProvider).preenchaUmCampo)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(ref.read(stringsProvider).preenchaUmCampo)),
+      );
       return;
     }
     final a = Abastecimento(
       id: widget.original?.id ?? novoId(),
       veiculoId:
-          widget.original?.veiculoId ?? ref.read(veiculoSelecionadoProvider)?.id,
+          widget.original?.veiculoId ??
+          ref.read(veiculoSelecionadoProvider)?.id,
       data: _data,
       odometro: odo,
       litros: litros,
@@ -130,6 +139,7 @@ class _AbastecimentoFormScreenState
       tanqueCheio: _cheio,
       posto: _posto.text.trim(),
       observacao: _obs.text.trim(),
+      ignorado: _ignorado,
     );
     await ref.read(abastecimentosProvider.notifier).salvar(a);
     if (mounted) Navigator.of(context).pop();
@@ -144,12 +154,16 @@ class _AbastecimentoFormScreenState
         content: Text(dataLonga(_data)),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(ref.read(stringsProvider).cancelar)),
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(ref.read(stringsProvider).cancelar),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(ref.read(stringsProvider).excluir,
-                  style: const TextStyle(color: AppColors.danger))),
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(
+              ref.read(stringsProvider).excluir,
+              style: const TextStyle(color: AppColors.danger),
+            ),
+          ),
         ],
       ),
     );
@@ -194,7 +208,8 @@ class _AbastecimentoFormScreenState
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            widget.original == null ? t.novoAbastecimento : t.abastecimento),
+          widget.original == null ? t.novoAbastecimento : t.abastecimento,
+        ),
         actions: [
           if (widget.original != null)
             IconButton(
@@ -209,20 +224,33 @@ class _AbastecimentoFormScreenState
         children: [
           _linhaData(t),
           const SizedBox(height: 12),
-          _campo(_odometro, t.odometroKmOpc,
-              teclado: TextInputType.number, soDigitos: true),
+          _campo(
+            _odometro,
+            t.odometroKmOpc,
+            teclado: TextInputType.number,
+            soDigitos: true,
+          ),
           if (sugOdo != null) _chipSugestaoOdo(sugOdo),
           if (_mostrarDesfazerOdo) _chipDesfazerOdo(),
-          _campo(_litros, t.litrosOpc,
-              teclado: const TextInputType.numberWithOptions(decimal: true)),
+          _campo(
+            _litros,
+            t.litrosOpc,
+            teclado: const TextInputType.numberWithOptions(decimal: true),
+          ),
           _seletorModo(t),
           const SizedBox(height: 12),
           if (_modoTotal)
-            _campo(_total, t.valorTotalRs,
-                teclado: const TextInputType.numberWithOptions(decimal: true))
+            _campo(
+              _total,
+              t.valorTotalRs,
+              teclado: const TextInputType.numberWithOptions(decimal: true),
+            )
           else
-            _campo(_preco, t.precoLitro,
-                teclado: const TextInputType.numberWithOptions(decimal: true)),
+            _campo(
+              _preco,
+              t.precoLitro,
+              teclado: const TextInputType.numberWithOptions(decimal: true),
+            ),
           _cartaoCalculado(t),
           const SizedBox(height: 12),
           SwitchListTile(
@@ -230,8 +258,21 @@ class _AbastecimentoFormScreenState
             onChanged: (v) => setState(() => _cheio = v),
             contentPadding: EdgeInsets.zero,
             activeThumbColor: AppColors.accent,
-            title: Text(t.enchiTanque,
-                style: TextStyle(color: AppColors.text)),
+            title: Text(t.enchiTanque, style: TextStyle(color: AppColors.text)),
+          ),
+          SwitchListTile(
+            value: _ignorado,
+            onChanged: (v) => setState(() => _ignorado = v),
+            contentPadding: EdgeInsets.zero,
+            activeThumbColor: AppColors.leg(AppColors.warn),
+            title: Text(
+              t.ignorarNoCalculo,
+              style: TextStyle(color: AppColors.text),
+            ),
+            subtitle: Text(
+              t.ignorarNoCalculoDica,
+              style: TextStyle(color: AppColors.dim, fontSize: 12),
+            ),
           ),
           const SizedBox(height: 4),
           CampoSugestoes(
@@ -264,12 +305,18 @@ class _AbastecimentoFormScreenState
           children: [
             Icon(Icons.event, color: AppColors.dim, size: 20),
             const SizedBox(width: 12),
-            Text(dataLonga(_data),
-                style: TextStyle(
-                    color: AppColors.text, fontWeight: FontWeight.w600)),
+            Text(
+              dataLonga(_data),
+              style: TextStyle(
+                color: AppColors.text,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const Spacer(),
-            Text(t.alterar,
-                style: TextStyle(color: AppColors.accent, fontSize: 13)),
+            Text(
+              t.alterar,
+              style: TextStyle(color: AppColors.accent, fontSize: 13),
+            ),
           ],
         ),
       ),
@@ -291,14 +338,18 @@ class _AbastecimentoFormScreenState
                   : AppColors.surface2,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                  color: sel ? AppColors.catAbastecimento : AppColors.line),
+                color: sel ? AppColors.catAbastecimento : AppColors.line,
+              ),
             ),
-            child: Text(txt,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: sel ? AppColors.catAbastecimento : AppColors.dim,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600)),
+            child: Text(
+              txt,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: sel ? AppColors.catAbastecimento : AppColors.dim,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ),
       );
@@ -306,10 +357,12 @@ class _AbastecimentoFormScreenState
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
-      child: Row(children: [
-        chip(t.informarValorTotal, true),
-        chip(t.informarPrecoLitro, false),
-      ]),
+      child: Row(
+        children: [
+          chip(t.informarValorTotal, true),
+          chip(t.informarPrecoLitro, false),
+        ],
+      ),
     );
   }
 
@@ -325,14 +378,16 @@ class _AbastecimentoFormScreenState
       ),
       child: Row(
         children: [
-          Text(rotulo,
-              style: TextStyle(color: AppColors.dim, fontSize: 14)),
+          Text(rotulo, style: TextStyle(color: AppColors.dim, fontSize: 14)),
           const Spacer(),
-          Text(moeda(valor),
-              style: TextStyle(
-                  color: AppColors.leg(AppColors.catAbastecimento),
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800)),
+          Text(
+            moeda(valor),
+            style: TextStyle(
+              color: AppColors.leg(AppColors.catAbastecimento),
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
         ],
       ),
     );
@@ -344,8 +399,10 @@ class _AbastecimentoFormScreenState
       child: Align(
         alignment: Alignment.centerLeft,
         child: InputChip(
-          label: Text('Sugerido: ${n0(v.toDouble())} km',
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+          label: Text(
+            'Sugerido: ${n0(v.toDouble())} km',
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          ),
           avatar: const Icon(Icons.auto_awesome, size: 16),
           deleteIcon: const Icon(Icons.close, size: 16),
           onDeleted: () => setState(() => _ocultarSugestao = true),
@@ -365,8 +422,10 @@ class _AbastecimentoFormScreenState
       child: Align(
         alignment: Alignment.centerLeft,
         child: ActionChip(
-          label: const Text('Desfazer',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+          label: const Text(
+            'Desfazer',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          ),
           avatar: const Icon(Icons.undo, size: 16),
           backgroundColor: AppColors.surface2,
           side: BorderSide(color: AppColors.line),
@@ -388,10 +447,12 @@ class _AbastecimentoFormScreenState
       child: TextField(
         controller: c,
         keyboardType: teclado,
-        textCapitalization:
-            capitalize ? TextCapitalization.sentences : TextCapitalization.none,
-        inputFormatters:
-            soDigitos ? [FilteringTextInputFormatter.digitsOnly] : null,
+        textCapitalization: capitalize
+            ? TextCapitalization.sentences
+            : TextCapitalization.none,
+        inputFormatters: soDigitos
+            ? [FilteringTextInputFormatter.digitsOnly]
+            : null,
         decoration: InputDecoration(labelText: label),
       ),
     );

@@ -2,6 +2,25 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-11-05 — Abastecimento "ignorado no cálculo" da média (v0.49.0)
+
+**Pedido:** um abastecimento esquecido ANTES de outro gera um trecho falso que distorce a média
+geral e o pior/melhor. Marcar um abastecimento como "ignorado" = ele não serve de ÂNCORA de trecho.
+
+**Chave (matemática):** o motor `calcularConsumo` JÁ carregava os litros de abastecimentos PARCIAIS
+(`tanqueCheio=false`) para o próximo trecho full-to-full (acumula `litros`/`custo` de todo item após
+a âncora; só os cheios FECHAM o trecho). Então "ignorado" é a MESMA mecânica: a condição de âncora
+virou `atual.tanqueCheio && !atual.ignorado`. Os litros/custo do ignorado já somam no trecho seguinte
+(**Opção A, correta**) — a "versão simples" (descartar os litros) daria km/L absurdo (ex.: **47** no
+cenário do usuário vs. **20,4** correto, porque jogaria fora 23 L realmente queimados).
+`TrechoConsumo.ignoradosNoMeio` conta quantos foram absorvidos (rótulo "inclui N ignorado").
+
+**Modelo:** `Abastecimento.ignorado` (bool, default false, retrocompat `?? false`). **UI:** toggle
+"Ignorar no cálculo da média" no form (marca/reverte); na lista o cartão fica em `Opacity 0.6` + selo
+"ignorado"; na média o trecho mesclado mostra "inclui N ignorado". **Teste:** `consumo_test.dart` —
+cenário 25/09→03/10→17/10→24/10(ignorado)→05/11 ⟹ trecho 17/10→05/11, 40,2 L, ≈20,4 km/L, pior=10
+(o 8,7 falso some).
+
 ## 2026-10-11 — Modo de home CARTÕES (6º `ModoTopo`) (v0.48.0)
 
 Finalização de trabalho interrompido na branch `claude/home-cartoes` (só o enum tinha

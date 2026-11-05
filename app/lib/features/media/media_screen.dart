@@ -21,8 +21,10 @@ class MediaScreen extends ConsumerWidget {
     final agora = DateTime.now();
     final kmMes = kmRodadosNoMes(abastecimentos, agora.year, agora.month);
     final kmMesAnt = kmRodadosNoMes(
-        abastecimentos, agora.month == 1 ? agora.year - 1 : agora.year,
-        agora.month == 1 ? 12 : agora.month - 1);
+      abastecimentos,
+      agora.month == 1 ? agora.year - 1 : agora.year,
+      agora.month == 1 ? 12 : agora.month - 1,
+    );
 
     return Scaffold(
       appBar: AppBar(title: Text(t.consumoMedia)),
@@ -45,11 +47,13 @@ class MediaScreen extends ConsumerWidget {
           _ResumoManual(medias: medias),
           const SizedBox(height: 10),
           if (medias.isNotEmpty)
-            ...(_ordenar(medias)).map((m) => _CartaoManual(
-                  m: m,
-                  onExcluir: () =>
-                      ref.read(mediasProvider.notifier).remover(m.id),
-                )),
+            ...(_ordenar(medias)).map(
+              (m) => _CartaoManual(
+                m: m,
+                onExcluir: () =>
+                    ref.read(mediasProvider.notifier).remover(m.id),
+              ),
+            ),
           if (resumo.trechos.isNotEmpty) ...[
             const SizedBox(height: 16),
             _tituloSecao(t.trechos),
@@ -64,9 +68,14 @@ class MediaScreen extends ConsumerWidget {
   List<MediaManual> _ordenar(List<MediaManual> m) =>
       [...m]..sort((a, b) => b.data.compareTo(a.data));
 
-  Widget _tituloSecao(String t) => Text(t,
-      style: TextStyle(
-          color: AppColors.text, fontSize: 15, fontWeight: FontWeight.w700));
+  Widget _tituloSecao(String t) => Text(
+    t,
+    style: TextStyle(
+      color: AppColors.text,
+      fontSize: 15,
+      fontWeight: FontWeight.w700,
+    ),
+  );
 
   Future<void> _abrirCalculadora(BuildContext context, WidgetRef ref) async {
     await showModalBottomSheet(
@@ -74,7 +83,8 @@ class MediaScreen extends ConsumerWidget {
       isScrollControlled: true,
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (_) => const _CalculadoraSheet(),
     );
   }
@@ -93,8 +103,11 @@ class _CartaoMediaGeral extends ConsumerWidget {
           padding: const EdgeInsets.all(20),
           child: Row(
             children: [
-              Icon(Icons.speed,
-                  color: AppColors.leg(AppColors.catConsumo), size: 30),
+              Icon(
+                Icons.speed,
+                color: AppColors.leg(AppColors.catConsumo),
+                size: 30,
+              ),
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
@@ -113,26 +126,34 @@ class _CartaoMediaGeral extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(t.mediaGeral,
-                style: TextStyle(color: AppColors.dim, fontSize: 13)),
+            Text(
+              t.mediaGeral,
+              style: TextStyle(color: AppColors.dim, fontSize: 13),
+            ),
             const SizedBox(height: 6),
             Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
               children: [
-                Text(n1(resumo.mediaGeral!),
-                    style: TextStyle(
-                        color: AppColors.leg(AppColors.catConsumo),
-                        fontSize: 32,
-                        fontWeight: FontWeight.w800)),
+                Text(
+                  n1(resumo.mediaGeral!),
+                  style: TextStyle(
+                    color: AppColors.leg(AppColors.catConsumo),
+                    fontSize: 32,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
                 const SizedBox(width: 6),
                 Padding(
                   padding: EdgeInsets.only(bottom: 6),
-                  child: Text('km/L',
-                      style: TextStyle(
-                          color: AppColors.dim,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600)),
+                  child: Text(
+                    'km/L',
+                    style: TextStyle(
+                      color: AppColors.dim,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -140,14 +161,26 @@ class _CartaoMediaGeral extends ConsumerWidget {
             Row(
               children: [
                 Expanded(
-                    child: _mini(t.melhor, kmL(resumo.melhor!),
-                        AppColors.leg(AppColors.ok))),
+                  child: _mini(
+                    t.melhor,
+                    kmL(resumo.melhor!),
+                    AppColors.leg(AppColors.ok),
+                  ),
+                ),
                 Expanded(
-                    child: _mini(t.pior, kmL(resumo.pior!),
-                        AppColors.leg(AppColors.warn))),
+                  child: _mini(
+                    t.pior,
+                    kmL(resumo.pior!),
+                    AppColors.leg(AppColors.warn),
+                  ),
+                ),
                 Expanded(
-                    child: _mini(t.totalGasto, moeda(resumo.totalGasto),
-                        AppColors.text)),
+                  child: _mini(
+                    t.totalGasto,
+                    moeda(resumo.totalGasto),
+                    AppColors.text,
+                  ),
+                ),
               ],
             ),
           ],
@@ -157,15 +190,20 @@ class _CartaoMediaGeral extends ConsumerWidget {
   }
 
   Widget _mini(String r, String v, Color cor) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(v,
-              style: TextStyle(
-                  color: cor, fontSize: 14.5, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 2),
-          Text(r, style: TextStyle(color: AppColors.dim2, fontSize: 11.5)),
-        ],
-      );
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        v,
+        style: TextStyle(
+          color: cor,
+          fontSize: 14.5,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      const SizedBox(height: 2),
+      Text(r, style: TextStyle(color: AppColors.dim2, fontSize: 11.5)),
+    ],
+  );
 }
 
 class _CartaoKmMes extends ConsumerWidget {
@@ -181,21 +219,28 @@ class _CartaoKmMes extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Icon(Icons.calendar_month,
-                color: AppColors.leg(AppColors.catConsumo)),
+            Icon(
+              Icons.calendar_month,
+              color: AppColors.leg(AppColors.catConsumo),
+            ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(t.kmRodadosMes,
-                      style: TextStyle(color: AppColors.dim, fontSize: 13)),
+                  Text(
+                    t.kmRodadosMes,
+                    style: TextStyle(color: AppColors.dim, fontSize: 13),
+                  ),
                   const SizedBox(height: 2),
-                  Text(kmMes > 0 ? km(kmMes) : '—',
-                      style: TextStyle(
-                          color: AppColors.text,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800)),
+                  Text(
+                    kmMes > 0 ? km(kmMes) : '—',
+                    style: TextStyle(
+                      color: AppColors.text,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -203,14 +248,19 @@ class _CartaoKmMes extends ConsumerWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(t.mesAnterior,
-                      style: TextStyle(color: AppColors.dim2, fontSize: 11.5)),
+                  Text(
+                    t.mesAnterior,
+                    style: TextStyle(color: AppColors.dim2, fontSize: 11.5),
+                  ),
                   const SizedBox(height: 2),
-                  Text(km(kmMesAnterior),
-                      style: TextStyle(
-                          color: AppColors.dim,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600)),
+                  Text(
+                    km(kmMesAnterior),
+                    style: TextStyle(
+                      color: AppColors.dim,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
           ],
@@ -258,14 +308,16 @@ class _ResumoManual extends ConsumerWidget {
                     Text(
                       _mediaDe(tipo) != null ? kmL(_mediaDe(tipo)!) : '—',
                       style: TextStyle(
-                          color: AppColors.leg(AppColors.catConsumo),
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800),
+                        color: AppColors.leg(AppColors.catConsumo),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                     const SizedBox(height: 2),
-                    Text(t.rotuloTipoTrecho(tipo),
-                        style: TextStyle(
-                            color: AppColors.dim2, fontSize: 11.5)),
+                    Text(
+                      t.rotuloTipoTrecho(tipo),
+                      style: TextStyle(color: AppColors.dim2, fontSize: 11.5),
+                    ),
                   ],
                 ),
               ),
@@ -300,22 +352,30 @@ class _CartaoManual extends ConsumerWidget {
               color: AppColors.catConsumo.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(7),
             ),
-            child: Text(t.rotuloTipoTrecho(m.tipo),
-                style: TextStyle(
-                    color: AppColors.leg(AppColors.catConsumo),
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w700)),
+            child: Text(
+              t.rotuloTipoTrecho(m.tipo),
+              style: TextStyle(
+                color: AppColors.leg(AppColors.catConsumo),
+                fontSize: 11.5,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: Text('${n0(m.km)} km · ${n1(m.litros)} L · ${dataCurta(m.data)}',
-                style: TextStyle(color: AppColors.dim, fontSize: 12.5)),
+            child: Text(
+              '${n0(m.km)} km · ${n1(m.litros)} L · ${dataCurta(m.data)}',
+              style: TextStyle(color: AppColors.dim, fontSize: 12.5),
+            ),
           ),
-          Text(kmL(m.kmPorLitro),
-              style: TextStyle(
-                  color: AppColors.text,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700)),
+          Text(
+            kmL(m.kmPorLitro),
+            style: TextStyle(
+              color: AppColors.text,
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           IconButton(
             icon: Icon(Icons.close, size: 18, color: AppColors.dim2),
             onPressed: onExcluir,
@@ -345,23 +405,48 @@ class _CartaoTrecho extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${n0(t.distancia)} km · ${n1(t.litros)} L',
-                    style: TextStyle(
-                        color: AppColors.text,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600)),
+                Text(
+                  '${n0(t.distancia)} km · ${n1(t.litros)} L',
+                  style: TextStyle(
+                    color: AppColors.text,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text('${dataCurta(t.dataInicio)} → ${dataCurta(t.dataFim)}',
-                    style:
-                        TextStyle(color: AppColors.dim2, fontSize: 12)),
+                Text(
+                  '${dataCurta(t.dataInicio)} → ${dataCurta(t.dataFim)}',
+                  style: TextStyle(color: AppColors.dim2, fontSize: 12),
+                ),
+                if (t.temIgnorado) ...[
+                  const SizedBox(height: 3),
+                  Row(
+                    children: [
+                      Icon(Icons.block, size: 11, color: AppColors.dim2),
+                      const SizedBox(width: 4),
+                      Text(
+                        'inclui ${t.ignoradosNoMeio} ignorado'
+                        '${t.ignoradosNoMeio > 1 ? 's' : ''}',
+                        style: TextStyle(
+                          color: AppColors.dim2,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
-          Text(kmL(t.kmPorLitro),
-              style: TextStyle(
-                  color: AppColors.leg(AppColors.catConsumo),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800)),
+          Text(
+            kmL(t.kmPorLitro),
+            style: TextStyle(
+              color: AppColors.leg(AppColors.catConsumo),
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
         ],
       ),
     );
@@ -407,14 +492,18 @@ class _CalculadoraSheetState extends ConsumerState<_CalculadoraSheet> {
     final k = parseNumero(_km.text);
     final l = parseNumero(_litros.text);
     if (k == null || l == null || l <= 0) return;
-    await ref.read(mediasProvider.notifier).salvar(MediaManual(
-          id: novoId(),
-          veiculoId: ref.read(veiculoSelecionadoProvider)?.id,
-          data: DateTime.now(),
-          km: k,
-          litros: l,
-          tipo: _tipo,
-        ));
+    await ref
+        .read(mediasProvider.notifier)
+        .salvar(
+          MediaManual(
+            id: novoId(),
+            veiculoId: ref.read(veiculoSelecionadoProvider)?.id,
+            data: DateTime.now(),
+            km: k,
+            litros: l,
+            tipo: _tipo,
+          ),
+        );
     if (mounted) Navigator.of(context).pop();
   }
 
@@ -424,36 +513,47 @@ class _CalculadoraSheetState extends ConsumerState<_CalculadoraSheet> {
     final r = _resultado;
     return Padding(
       padding: EdgeInsets.fromLTRB(
-          20, 18, 20, MediaQuery.of(context).viewInsets.bottom + 20),
+        20,
+        18,
+        20,
+        MediaQuery.of(context).viewInsets.bottom + 20,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(t.calcularMedia,
-              style: TextStyle(
-                  color: AppColors.text,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700)),
+          Text(
+            t.calcularMedia,
+            style: TextStyle(
+              color: AppColors.text,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(height: 16),
-          Row(children: [
-            Expanded(
-              child: TextField(
-                controller: _km,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(labelText: t.kmPercorridos),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _km,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(labelText: t.kmPercorridos),
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: TextField(
-                controller: _litros,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(labelText: t.litrosGastos),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: _litros,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(labelText: t.litrosGastos),
+                ),
               ),
-            ),
-          ]),
+            ],
+          ),
           const SizedBox(height: 14),
           Wrap(
             spacing: 8,
@@ -466,10 +566,14 @@ class _CalculadoraSheetState extends ConsumerState<_CalculadoraSheet> {
                 selectedColor: AppColors.catConsumo.withValues(alpha: 0.25),
                 backgroundColor: AppColors.surface2,
                 labelStyle: TextStyle(
-                    color: sel ? AppColors.leg(AppColors.catConsumo) : AppColors.dim,
-                    fontWeight: FontWeight.w600),
+                  color: sel
+                      ? AppColors.leg(AppColors.catConsumo)
+                      : AppColors.dim,
+                  fontWeight: FontWeight.w600,
+                ),
                 side: BorderSide(
-                    color: sel ? AppColors.catConsumo : AppColors.line),
+                  color: sel ? AppColors.catConsumo : AppColors.line,
+                ),
               );
             }).toList(),
           ),
@@ -478,17 +582,19 @@ class _CalculadoraSheetState extends ConsumerState<_CalculadoraSheet> {
             child: Text(
               r != null ? kmL(r) : '—',
               style: TextStyle(
-                  color: AppColors.leg(AppColors.catConsumo),
-                  fontSize: 34,
-                  fontWeight: FontWeight.w800),
+                color: AppColors.leg(AppColors.catConsumo),
+                fontSize: 34,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
           const SizedBox(height: 18),
           FilledButton(
             onPressed: r != null ? _salvar : null,
             style: FilledButton.styleFrom(
-                backgroundColor: AppColors.catConsumo,
-                foregroundColor: const Color(0xFF04231A)),
+              backgroundColor: AppColors.catConsumo,
+              foregroundColor: const Color(0xFF04231A),
+            ),
             child: Text(t.salvarMedicao),
           ),
         ],

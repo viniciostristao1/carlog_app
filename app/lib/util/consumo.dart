@@ -12,6 +12,8 @@ class TrechoConsumo {
   final double distancia; // km
   final double litros;
   final double custo; // R$ gastos no intervalo
+  final int
+  ignoradosNoMeio; // nº de abastecimentos IGNORADOS absorvidos no trecho
 
   const TrechoConsumo({
     required this.dataInicio,
@@ -19,10 +21,15 @@ class TrechoConsumo {
     required this.distancia,
     required this.litros,
     required this.custo,
+    this.ignoradosNoMeio = 0,
   });
 
   double get kmPorLitro => litros > 0 ? distancia / litros : 0;
   double get custoPorKm => distancia > 0 ? custo / distancia : 0;
+
+  /// Trecho mesclado: a âncora intermediária foi ignorada e seus litros entraram
+  /// aqui (rótulo "inclui N ignorado" na tela).
+  bool get temIgnorado => ignoradosNoMeio > 0;
 }
 
 /// Resultado consolidado do consumo a partir do histórico de abastecimentos.
@@ -57,39 +64,50 @@ class ResumoConsumo {
 /// Calcula os trechos full-to-full. Só considera abastecimentos com **odômetro e
 /// litros informados** (campos são opcionais). Precisa de ≥2 tanques cheios.
 ResumoConsumo calcularConsumo(List<Abastecimento> abastecimentos) {
-  final ordenados = abastecimentos
-      .where((a) => a.odometro != null && a.litros != null)
-      .toList()
-    ..sort((a, b) => a.odometro!.compareTo(b.odometro!));
+  final ordenados =
+      abastecimentos
+          .where((a) => a.odometro != null && a.litros != null)
+          .toList()
+        ..sort((a, b) => a.odometro!.compareTo(b.odometro!));
 
   final trechos = <TrechoConsumo>[];
   int? iAnteriorCheio;
   double litrosAcumulados = 0;
   double custoAcumulado = 0;
+  int ignoradosAcum = 0;
 
   for (var j = 0; j < ordenados.length; j++) {
     final atual = ordenados[j];
     if (iAnteriorCheio != null) {
       litrosAcumulados += atual.litros!;
       custoAcumulado += atual.total;
+      if (atual.ignorado) ignoradosAcum++;
     }
-    if (atual.tanqueCheio) {
+    // Um abastecimento IGNORADO não fecha trecho nem vira âncora (como um tanque
+    // NÃO cheio) — mas seus litros/custo já somaram acima, entrando no próximo
+    // trecho válido. Isso é o correto "tanque cheio → tanque cheio" quando a
+    // âncora do meio é furada por um abastecimento esquecido.
+    if (atual.tanqueCheio && !atual.ignorado) {
       if (iAnteriorCheio != null) {
         final anterior = ordenados[iAnteriorCheio];
         final dist = atual.odometro! - anterior.odometro!;
         if (dist > 0 && litrosAcumulados > 0) {
-          trechos.add(TrechoConsumo(
-            dataInicio: anterior.data,
-            dataFim: atual.data,
-            distancia: dist,
-            litros: litrosAcumulados,
-            custo: custoAcumulado,
-          ));
+          trechos.add(
+            TrechoConsumo(
+              dataInicio: anterior.data,
+              dataFim: atual.data,
+              distancia: dist,
+              litros: litrosAcumulados,
+              custo: custoAcumulado,
+              ignoradosNoMeio: ignoradosAcum,
+            ),
+          );
         }
       }
       iAnteriorCheio = j;
       litrosAcumulados = 0;
       custoAcumulado = 0;
+      ignoradosAcum = 0;
     }
   }
 
@@ -219,8 +237,7 @@ class PrevisaoRevisao {
 }
 
 /// Todas as leituras de odômetro (abastecimentos + revisões), por data.
-List<(DateTime, double)> _leituras(
-    List<Abastecimento> ab, List<Revisao> revs) {
+List<(DateTime, double)> _leituras(List<Abastecimento> ab, List<Revisao> revs) {
   final r = <(DateTime, double)>[];
   for (final a in ab) {
     if (a.odometro != null) r.add((a.data, a.odometro!));
@@ -240,7 +257,10 @@ List<(DateTime, double)> _leituras(
 /// meses juntando as duas fontes. Se não der por km, cai para o tempo (última
 /// revisão + intervalo de meses do cadastro).
 PrevisaoRevisao preverRevisao(
-    Veiculo v, List<Abastecimento> abastecimentos, List<Revisao> revisoes) {
+  Veiculo v,
+  List<Abastecimento> abastecimentos,
+  List<Revisao> revisoes,
+) {
   final leituras = _leituras(abastecimentos, revisoes);
   if (leituras.isEmpty) return PrevisaoRevisao.vazio;
 
@@ -285,8 +305,7 @@ PrevisaoRevisao preverRevisao(
     }
   }
 
-  final vencida =
-      data != null ? data.isBefore(DateTime.now()) : faltamKm <= 0;
+  final vencida = data != null ? data.isBefore(DateTime.now()) : faltamKm <= 0;
 
   return PrevisaoRevisao(
     alvoKm: alvoKm,
@@ -321,7 +340,10 @@ class ProgressoRevisao {
 /// Combina [preverRevisao] com o intervalo do cadastro para dar a fração já
 /// percorrida desde a última revisão. Sem intervalo (> 0) ou sem alvo → vazio.
 ProgressoRevisao progressoRevisao(
-    Veiculo v, List<Abastecimento> abastecimentos, List<Revisao> revisoes) {
+  Veiculo v,
+  List<Abastecimento> abastecimentos,
+  List<Revisao> revisoes,
+) {
   if (v.revisaoIntervaloKm <= 0) return ProgressoRevisao.vazio;
   final prev = preverRevisao(v, abastecimentos, revisoes);
   final alvo = prev.alvoKm;
@@ -346,11 +368,17 @@ ProgressoRevisao progressoRevisao(
 /// vencido → hoje às 9h (aparece como alerta na hora). Sem leitura de km, cai no
 /// intervalo de meses do cadastro ([mesesFallback]).
 DateTime previsaoLembreteProgramado(
-    ItemProgramado item, List<Abastecimento> abastecimentos, int mesesFallback) {
+  ItemProgramado item,
+  List<Abastecimento> abastecimentos,
+  int mesesFallback,
+) {
   final odo = ultimoOdometro(abastecimentos);
   final ritmo = ritmoKmPorDia(abastecimentos);
-  final alvo = item.kmAlvo ??
-      (odo != null && item.intervaloKm != null ? odo + item.intervaloKm! : null);
+  final alvo =
+      item.kmAlvo ??
+      (odo != null && item.intervaloKm != null
+          ? odo + item.intervaloKm!
+          : null);
   if (alvo != null && odo != null) {
     final falta = alvo - odo;
     if (falta <= 0) return _as9(DateTime.now());

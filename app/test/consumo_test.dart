@@ -6,7 +6,7 @@ import 'package:carlog/util/consumo.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Abastecimento _ab(String id, DateTime data, double odo, double litros,
-        {bool cheio = true, double preco = 5.0}) =>
+        {bool cheio = true, double preco = 5.0, bool ignorado = false}) =>
     Abastecimento(
       id: id,
       data: data,
@@ -14,6 +14,7 @@ Abastecimento _ab(String id, DateTime data, double odo, double litros,
       litros: litros,
       precoLitro: preco,
       tanqueCheio: cheio,
+      ignorado: ignorado,
     );
 
 void main() {
@@ -46,6 +47,31 @@ void main() {
       expect(r.trechos.length, 1);
       expect(r.trechos.first.litros, closeTo(40, 1e-9));
       expect(r.mediaGeral, closeTo(10.0, 1e-9));
+    });
+
+    test('abastecimento IGNORADO não ancora: o trecho pula p/ a próxima âncora '
+        'e absorve os litros do ignorado', () {
+      // Cenário do usuário: 25/09 → 03/10 → 17/10 → 24/10 (IGNORADO) → 05/11.
+      // O trecho de 05/11 deve ser de 17/10 → 05/11 (não 24/10 → 05/11).
+      final lista = [
+        _ab('1', DateTime(2026, 9, 25), 1000, 40),
+        _ab('2', DateTime(2026, 10, 3), 1400, 40), // 400/40 = 10 km/L
+        _ab('3', DateTime(2026, 10, 17), 1800, 40), // 400/40 = 10 km/L
+        _ab('4', DateTime(2026, 10, 24), 1999, 23, ignorado: true), // esquecido
+        _ab('5', DateTime(2026, 11, 5), 2621, 17.2), // cheio
+      ];
+      final r = calcularConsumo(lista);
+      expect(r.trechos.length, 3); // 24/10 não vira trecho próprio
+      final t = r.trechos.first; // recente primeiro = 17/10 → 05/11
+      expect(t.dataInicio, DateTime(2026, 10, 17));
+      expect(t.dataFim, DateTime(2026, 11, 5));
+      expect(t.distancia, closeTo(821, 1e-9)); // 2621 - 1800
+      expect(t.litros, closeTo(40.2, 1e-9)); // 23 (ignorado) + 17,2
+      expect(t.kmPorLitro, closeTo(821 / 40.2, 1e-6)); // ≈ 20,4 (não 47!)
+      expect(t.temIgnorado, isTrue);
+      expect(t.ignoradosNoMeio, 1);
+      // O "pior" deixa de ser o trecho falso de 8,7 km/L (199/23).
+      expect(r.pior, closeTo(10.0, 1e-9));
     });
   });
 
