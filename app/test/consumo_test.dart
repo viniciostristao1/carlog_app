@@ -75,8 +75,85 @@ void main() {
     });
   });
 
-  group('kmRodadosNoMes', () {
-    test('usa a leitura anterior ao mês como base', () {
+  group('trechos fora da média (excluidos)', () {
+    // Cenário do usuário: o trecho 24/10 → 05/11 (622 km · 36,1 L ≈ 17,2 km/L)
+    // não é real (km anotada errada, sem como recuperar). Marcá-lo como fora
+    // da média tira ele dos agregados sem apagar nada.
+    List<Abastecimento> _lista3Trechos() => [
+      _ab('1', DateTime(2026, 10, 1), 1000, 40), // âncora
+      _ab('2', DateTime(2026, 10, 10), 1500, 50), // t1: 500 km / 50 L = 10,0
+      _ab('3', DateTime(2026, 10, 24), 1900, 36.1), // t2: 400 km / 36,1 L
+      _ab('4', DateTime(2026, 11, 5), 2522, 36.1), // t3: 622 km / 36,1 L ≈ 17,2
+    ];
+
+    test('id do trecho é estável: só depende de início → fim', () {
+      final a = DateTime(2026, 10, 24);
+      final b = DateTime(2026, 11, 5);
+      final t = TrechoConsumo(
+        dataInicio: a,
+        dataFim: b,
+        distancia: 622,
+        litros: 36.1,
+        custo: 200,
+      );
+      expect(t.id, idTrecho(a, b));
+      // km/litros diferentes, mesmas datas → mesmo id (marcação sobrevive).
+      final t2 = TrechoConsumo(
+        dataInicio: a,
+        dataFim: b,
+        distancia: 100,
+        litros: 10,
+        custo: 50,
+      );
+      expect(t2.id, t.id);
+    });
+
+    test('sem excluidos comporta-se como antes (3 trechos, tudo conta)', () {
+      final r = calcularConsumo(_lista3Trechos());
+      expect(r.trechos.length, 3);
+      expect(r.temMedia, isTrue);
+      expect(r.mediaGeral, closeTo(1522 / 122.2, 1e-9)); // ponderada
+      expect(r.melhor, closeTo(622 / 36.1, 1e-9));
+      expect(r.pior, closeTo(10.0, 1e-9));
+      expect(r.totalGasto, closeTo(5 * 122.2, 1e-9));
+      expect(r.trechos.any((t) => t.foraDaMedia), isFalse);
+    });
+
+    test('excluir o trecho de 622 km tira ele da média, melhor, pior e gasto', () {
+      final lista = _lista3Trechos();
+      final idBogus = idTrecho(DateTime(2026, 10, 24), DateTime(2026, 11, 5));
+      final r = calcularConsumo(lista, excluidos: {idBogus});
+      // Continua visível na lista, marcado — e o km/L individual não muda.
+      expect(r.trechos.length, 3);
+      final bogus = r.trechos.firstWhere((t) => t.id == idBogus);
+      expect(bogus.foraDaMedia, isTrue);
+      expect(bogus.kmPorLitro, closeTo(622 / 36.1, 1e-9));
+      // Agregados só com os 2 válidos, média PONDERADA (não média das médias).
+      expect(r.mediaGeral, closeTo(900 / 86.1, 1e-9));
+      expect(r.melhor, closeTo(400 / 36.1, 1e-6));
+      expect(r.pior, closeTo(10.0, 1e-9));
+      expect(r.totalGasto, closeTo(5 * 86.1, 1e-9));
+      expect(r.totalLitros, closeTo(86.1, 1e-9));
+    });
+
+    test('todos excluídos: lista continua, mas sem média nem gasto', () {
+      final lista = _lista3Trechos();
+      final r0 = calcularConsumo(lista);
+      final r = calcularConsumo(
+        lista,
+        excluidos: {for (final t in r0.trechos) t.id},
+      );
+      expect(r.trechos.length, 3);
+      expect(r.trechos.every((t) => t.foraDaMedia), isTrue);
+      expect(r.temMedia, isFalse);
+      expect(r.mediaGeral, isNull);
+      expect(r.melhor, isNull);
+      expect(r.pior, isNull);
+      expect(r.totalGasto, 0);
+    });
+  });
+
+  group('kmRodadosNoMes', () {    test('usa a leitura anterior ao mês como base', () {
       final lista = [
         _ab('1', DateTime(2026, 5, 28), 10000, 40),
         _ab('2', DateTime(2026, 6, 15), 10600, 40),

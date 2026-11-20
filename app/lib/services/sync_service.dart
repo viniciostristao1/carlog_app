@@ -166,6 +166,7 @@ class SyncController {
     ref.invalidate(programacaoProvider);
     ref.invalidate(lembretesProvider);
     ref.invalidate(calibragemProvider);
+    ref.invalidate(trechosExcluidosProvider);
   }
 }
 
@@ -194,6 +195,7 @@ final syncProvider = Provider<SyncController>((ref) {
   ref.listen(programacaoProvider, (_, _) => controller.onLocalChange());
   ref.listen(lembretesProvider, (_, _) => controller.onLocalChange());
   ref.listen(calibragemProvider, (_, _) => controller.onLocalChange());
+  ref.listen(trechosExcluidosProvider, (_, _) => controller.onLocalChange());
 
   return controller;
 });

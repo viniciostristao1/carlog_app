@@ -15,6 +15,11 @@ class TrechoConsumo {
   final int
   ignoradosNoMeio; // nº de abastecimentos IGNORADOS absorvidos no trecho
 
+  /// Fora da média: o usuário marcou o trecho como não-confiável (ex.: km
+  /// anotada errada). Continua visível na lista, mas não entra na média geral,
+  /// no melhor/pior nem no total gasto.
+  final bool foraDaMedia;
+
   const TrechoConsumo({
     required this.dataInicio,
     required this.dataFim,
@@ -22,7 +27,12 @@ class TrechoConsumo {
     required this.litros,
     required this.custo,
     this.ignoradosNoMeio = 0,
+    this.foraDaMedia = false,
   });
+
+  /// Chave estável do trecho (início → fim). É o `id` persistido quando o
+  /// usuário marca o trecho como fora da média.
+  String get id => idTrecho(dataInicio, dataFim);
 
   double get kmPorLitro => litros > 0 ? distancia / litros : 0;
   double get custoPorKm => distancia > 0 ? custo / distancia : 0;
@@ -32,7 +42,18 @@ class TrechoConsumo {
   bool get temIgnorado => ignoradosNoMeio > 0;
 }
 
+/// Chave estável de um trecho (início → fim). Não usa odômetro/litros de
+/// propósito: se o usuário corrigir um abastecimento, a marcação "fora da
+/// média" do intervalo continua valendo.
+String idTrecho(DateTime inicio, DateTime fim) =>
+    '${inicio.toIso8601String()}__${fim.toIso8601String()}';
+
 /// Resultado consolidado do consumo a partir do histórico de abastecimentos.
+///
+/// Os trechos marcados em [excluidos] (ver [idTrecho]) continuam em [trechos],
+/// com [TrechoConsumo.foraDaMedia], mas NÃO entram na média geral, no melhor,
+/// no pior, nos litros nem no gasto — a média geral segue ponderada
+/// (km válidos ÷ litros válidos). Sem [excluidos], comporta-se como antes.
 class ResumoConsumo {
   final List<TrechoConsumo> trechos; // mais recente primeiro
   final double? mediaGeral; // km/L ponderada (distância/litros do total)
@@ -63,7 +84,10 @@ class ResumoConsumo {
 
 /// Calcula os trechos full-to-full. Só considera abastecimentos com **odômetro e
 /// litros informados** (campos são opcionais). Precisa de ≥2 tanques cheios.
-ResumoConsumo calcularConsumo(List<Abastecimento> abastecimentos) {
+ResumoConsumo calcularConsumo(
+  List<Abastecimento> abastecimentos, {
+  Set<String> excluidos = const {},
+}) {
   final ordenados =
       abastecimentos
           .where((a) => a.odometro != null && a.litros != null)
@@ -113,15 +137,43 @@ ResumoConsumo calcularConsumo(List<Abastecimento> abastecimentos) {
 
   if (trechos.isEmpty) return ResumoConsumo.vazio;
 
-  final distTotal = trechos.fold<double>(0, (s, t) => s + t.distancia);
-  final litrosTotal = trechos.fold<double>(0, (s, t) => s + t.litros);
-  final gastoTotal = trechos.fold<double>(0, (s, t) => s + t.custo);
-  final kmls = trechos.map((t) => t.kmPorLitro).toList()..sort();
+  final validos = trechos
+      .map(
+        (t) => excluidos.contains(t.id)
+            ? TrechoConsumo(
+                dataInicio: t.dataInicio,
+                dataFim: t.dataFim,
+                distancia: t.distancia,
+                litros: t.litros,
+                custo: t.custo,
+                ignoradosNoMeio: t.ignoradosNoMeio,
+                foraDaMedia: true,
+              )
+            : t,
+      )
+      .toList();
+  final contam = validos.where((t) => !t.foraDaMedia).toList();
+  if (contam.isEmpty) {
+    validos.sort((a, b) => b.dataFim.compareTo(a.dataFim)); // recente primeiro
+    return ResumoConsumo(
+      trechos: validos,
+      mediaGeral: null,
+      melhor: null,
+      pior: null,
+      totalLitros: 0,
+      totalGasto: 0,
+    );
+  }
 
-  trechos.sort((a, b) => b.dataFim.compareTo(a.dataFim)); // recente primeiro
+  final distTotal = contam.fold<double>(0, (s, t) => s + t.distancia);
+  final litrosTotal = contam.fold<double>(0, (s, t) => s + t.litros);
+  final gastoTotal = contam.fold<double>(0, (s, t) => s + t.custo);
+  final kmls = contam.map((t) => t.kmPorLitro).toList()..sort();
+
+  validos.sort((a, b) => b.dataFim.compareTo(a.dataFim)); // recente primeiro
 
   return ResumoConsumo(
-    trechos: trechos,
+    trechos: validos,
     mediaGeral: litrosTotal > 0 ? distTotal / litrosTotal : null,
     melhor: kmls.last,
     pior: kmls.first,

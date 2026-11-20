@@ -10,6 +10,7 @@ const chaveRevisoes = 'revisoes_v1';
 const chaveProgramacao = 'programacao_v1';
 const chaveLembretes = 'lembretes_v1';
 const chaveCalibragem = 'calibragem_v1';
+const chaveTrechosExcluidos = 'trechos_excluidos_v1';
 
 /// Stores que a sincronização espelha na nuvem. (O legado `veiculo_v1` NÃO entra:
 /// a migração para `veiculos_v1` acontece localmente e é o `veiculos_v1` que sincroniza.)
@@ -22,6 +23,7 @@ const todosOsStores = <String>[
   chaveProgramacao,
   chaveLembretes,
   chaveCalibragem,
+  chaveTrechosExcluidos,
 ];
 
 /// Stores que são objeto/string simples (não uma lista de itens com id) — a
