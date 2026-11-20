@@ -14,8 +14,10 @@ provider `trechosExcluidosProvider` + filtrado `trechosExcluidosDoVeiculoProvide
 no `sync_service.dart`. **Id do trecho** (`idTrecho` em `consumo.dart`): só `início→fim` em ISO —
 de propósito NÃO usa odômetro/litros, para a marcação sobreviver se o usuário corrigir um
 abastecimento do intervalo. `calcularConsumo(ab, {excluidos})`: trechos marcados ganham
-`foraDaMedia: true`, continuam na lista, mas média/melhor/pior/litros/gasto usam só os válidos
-(média segue ponderada). Sem `excluidos`, comportamento idêntico ao anterior. **UI:** toque no
+`foraDaMedia: true`, continuam na lista, mas média/melhor/pior usam só os válidos
+(média segue ponderada); **gasto e litros totais somam TODOS os trechos** (decisão do
+usuário: o dinheiro foi gasto de verdade). Sem `excluidos`, comportamento idêntico
+ao anterior. **UI:** toque no
 trecho abre bottom-sheet ("Tirar/Voltar da média" + Cancelar, conforme escolha do usuário — sem
 aviso automático de faixa); excluído fica `Opacity 0.6`, texto cinza, valor riscado + selo
 "fora da média". **Testes:** 4 novos em `consumo_test.dart` (id estável, exclusão do trecho de

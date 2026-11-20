@@ -51,9 +51,10 @@ String idTrecho(DateTime inicio, DateTime fim) =>
 /// Resultado consolidado do consumo a partir do histórico de abastecimentos.
 ///
 /// Os trechos marcados em [excluidos] (ver [idTrecho]) continuam em [trechos],
-/// com [TrechoConsumo.foraDaMedia], mas NÃO entram na média geral, no melhor,
-/// no pior, nos litros nem no gasto — a média geral segue ponderada
-/// (km válidos ÷ litros válidos). Sem [excluidos], comporta-se como antes.
+/// com [TrechoConsumo.foraDaMedia], mas NÃO entram na média geral, no melhor
+/// nem no pior — a média geral segue ponderada (km válidos ÷ litros válidos).
+/// O total gasto e os litros totais somam TODOS os trechos (nada é "desgasto").
+/// Sem [excluidos], comporta-se como antes.
 class ResumoConsumo {
   final List<TrechoConsumo> trechos; // mais recente primeiro
   final double? mediaGeral; // km/L ponderada (distância/litros do total)
@@ -153,6 +154,9 @@ ResumoConsumo calcularConsumo(
       )
       .toList();
   final contam = validos.where((t) => !t.foraDaMedia).toList();
+  // Totais (gasto/litros) somam TODOS os trechos, inclusive os fora da média.
+  final gastoTotal = validos.fold<double>(0, (s, t) => s + t.custo);
+  final litrosTodos = validos.fold<double>(0, (s, t) => s + t.litros);
   if (contam.isEmpty) {
     validos.sort((a, b) => b.dataFim.compareTo(a.dataFim)); // recente primeiro
     return ResumoConsumo(
@@ -160,14 +164,13 @@ ResumoConsumo calcularConsumo(
       mediaGeral: null,
       melhor: null,
       pior: null,
-      totalLitros: 0,
-      totalGasto: 0,
+      totalLitros: litrosTodos,
+      totalGasto: gastoTotal,
     );
   }
 
   final distTotal = contam.fold<double>(0, (s, t) => s + t.distancia);
   final litrosTotal = contam.fold<double>(0, (s, t) => s + t.litros);
-  final gastoTotal = contam.fold<double>(0, (s, t) => s + t.custo);
   final kmls = contam.map((t) => t.kmPorLitro).toList()..sort();
 
   validos.sort((a, b) => b.dataFim.compareTo(a.dataFim)); // recente primeiro
@@ -177,7 +180,7 @@ ResumoConsumo calcularConsumo(
     mediaGeral: litrosTotal > 0 ? distTotal / litrosTotal : null,
     melhor: kmls.last,
     pior: kmls.first,
-    totalLitros: litrosTotal,
+    totalLitros: litrosTodos,
     totalGasto: gastoTotal,
   );
 }

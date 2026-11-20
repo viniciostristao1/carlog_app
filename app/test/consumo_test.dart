@@ -129,14 +129,16 @@ void main() {
       expect(bogus.foraDaMedia, isTrue);
       expect(bogus.kmPorLitro, closeTo(622 / 36.1, 1e-9));
       // Agregados só com os 2 válidos, média PONDERADA (não média das médias).
+      // Gasto e litros somam TODOS os trechos (o dinheiro foi gasto de verdade).
       expect(r.mediaGeral, closeTo(900 / 86.1, 1e-9));
       expect(r.melhor, closeTo(400 / 36.1, 1e-6));
       expect(r.pior, closeTo(10.0, 1e-9));
-      expect(r.totalGasto, closeTo(5 * 86.1, 1e-9));
-      expect(r.totalLitros, closeTo(86.1, 1e-9));
+      expect(r.totalGasto, closeTo(5 * 122.2, 1e-9));
+      expect(r.totalLitros, closeTo(122.2, 1e-9));
     });
 
-    test('todos excluídos: lista continua, mas sem média nem gasto', () {
+    test('todos excluídos: lista continua, sem média/melhor/pior, gasto mantido',
+        () {
       final lista = _lista3Trechos();
       final r0 = calcularConsumo(lista);
       final r = calcularConsumo(
@@ -149,7 +151,8 @@ void main() {
       expect(r.mediaGeral, isNull);
       expect(r.melhor, isNull);
       expect(r.pior, isNull);
-      expect(r.totalGasto, 0);
+      expect(r.totalGasto, closeTo(5 * 122.2, 1e-9));
+      expect(r.totalLitros, closeTo(122.2, 1e-9));
     });
   });
 
