@@ -2,7 +2,7 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
-- **2026-11-20 — trecho "fora da média".** Errou a quilometragem de um abastecimento e um trecho ficou falso? Agora, **tocando num trecho** da lista "Trechos (tanque cheio → tanque cheio)" dá para marcar **"Tirar da média"**: ele continua visível (apagado, com o selo "fora da média" e o valor riscado), mas **sai da média geral, do melhor e do pior** na hora (o **Total gasto** continua somando
+- **2026-11-20 — v0.50.0.** Trecho "fora da média". Errou a quilometragem de um abastecimento e um trecho ficou falso? Agora, **tocando num trecho** da lista "Trechos (tanque cheio → tanque cheio)" dá para marcar **"Tirar da média"**: ele continua visível (apagado, com o selo "fora da média" e o valor riscado), mas **sai da média geral, do melhor e do pior** na hora (o **Total gasto** continua somando
 tudo). Para reverter, toque de novo e escolha **"Voltar para a média"**. A marcação fica salva no aparelho (e vai no backup/sincronização).
 
 - **2026-11-05 — v0.49.0.** **Abastecimento "ignorado no cálculo".** Esqueceu de registrar um abastecimento e ele distorceu sua média? Agora, ao editar um abastecimento, dá para marcar **"Ignorar no cálculo da média"**: ele deixa de servir de âncora (o trecho seguinte passa a ser medido a partir do abastecimento válido anterior, **somando os litros** — o consumo do trecho fica correto), mas **continua contando** no total gasto, litros e km do mês. O ignorado aparece **esmaecido com o selo "ignorado"** na lista, e o trecho que o absorveu mostra "inclui 1 ignorado". Para reverter, é só desmarcar.
