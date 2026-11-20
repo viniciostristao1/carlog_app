@@ -156,6 +156,67 @@ void main() {
     });
   });
 
+  group('agruparTrechosPorMes (Média por mês)', () {
+    // t1: 01/10 → 10/10 = 500 km / 50 L (fecha em outubro)
+    // t2: 10/10 → 24/10 = 400 km / 36,1 L (fecha em outubro)
+    // t3: 24/10 → 05/11 = 622 km / 36,1 L (fecha em novembro)
+    List<Abastecimento> _lista3() => [
+      _ab('1', DateTime(2026, 10, 1), 1000, 40),
+      _ab('2', DateTime(2026, 10, 10), 1500, 50),
+      _ab('3', DateTime(2026, 10, 24), 1900, 36.1),
+      _ab('4', DateTime(2026, 11, 5), 2522, 36.1),
+    ];
+
+    test('um mês por fechamento (dataFim), recente primeiro', () {
+      final meses = agruparTrechosPorMes(calcularConsumo(_lista3()).trechos);
+      expect(meses.length, 2);
+      expect([meses[0].ano, meses[0].mes], [2026, 11]); // novembro primeiro
+      expect([meses[1].ano, meses[1].mes], [2026, 10]);
+      expect(meses[1].trechos.length, 2); // outubro tem t1 + t2
+      expect(meses[0].trechos.length, 1); // novembro tem t3
+    });
+
+    test('somas dos meses batem com os totais dos trechos', () {
+      final r = calcularConsumo(_lista3());
+      final meses = agruparTrechosPorMes(r.trechos);
+      final kmMeses = meses.fold<double>(0, (s, m) => s + m.km);
+      final litrosMeses = meses.fold<double>(0, (s, m) => s + m.litros);
+      final distTrechos = r.trechos.fold<double>(0, (s, t) => s + t.distancia);
+      expect(kmMeses, closeTo(distTrechos, 1e-9));
+      expect(litrosMeses, closeTo(r.totalLitros, 1e-9));
+    });
+
+    test('média do mês confere com o cálculo na mão (km ÷ litros)', () {
+      final meses = agruparTrechosPorMes(calcularConsumo(_lista3()).trechos);
+      final out = meses.firstWhere((m) => m.mes == 10);
+      // outubro: (500 + 400) km ÷ (50 + 36,1) L
+      expect(out.km, closeTo(900, 1e-9));
+      expect(out.litros, closeTo(86.1, 1e-9));
+      expect(out.media, closeTo(900 / 86.1, 1e-9));
+      // novembro: 622 ÷ 36,1 ≈ 17,2
+      final nov = meses.firstWhere((m) => m.mes == 11);
+      expect(nov.media, closeTo(622 / 36.1, 1e-9));
+    });
+
+    test('fora da média: média do mês muda, gasto do mês não', () {
+      final r = calcularConsumo(_lista3());
+      final idBogus = r.trechos
+          .firstWhere((t) => t.dataFim == DateTime(2026, 11, 5))
+          .id;
+      final meses = agruparTrechosPorMes(
+        calcularConsumo(_lista3(), excluidos: {idBogus}).trechos,
+      );
+      // novembro ficou só com o trecho excluído: sem média, mas com gasto.
+      final nov = meses.firstWhere((m) => m.mes == 11);
+      expect(nov.media, isNull);
+      expect(nov.gasto, closeTo(5 * 36.1, 1e-9));
+      // outubro intacto.
+      final out = meses.firstWhere((m) => m.mes == 10);
+      expect(out.media, closeTo(900 / 86.1, 1e-9));
+      expect(out.gasto, closeTo(5 * 86.1, 1e-9));
+    });
+  });
+
   group('kmRodadosNoMes', () {    test('usa a leitura anterior ao mês como base', () {
       final lista = [
         _ab('1', DateTime(2026, 5, 28), 10000, 40),

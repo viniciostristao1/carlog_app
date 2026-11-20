@@ -2,6 +2,8 @@
 
 Topo = mais recente. Uma linha por mudança visível + data.
 
+- **2026-11-20 — v0.51.0.** **"Média por mês" no Consumo.** Nova seção logo abaixo de "Km rodados este mês": uma linha por mês (recente primeiro) com km, litros, média e gasto do mês; **tocar expande os trechos do mês**. Trecho "fora da média" não entra na média do mês, mas continua no gasto do mês.
+
 - **2026-11-20 — v0.50.0.** Trecho "fora da média". Errou a quilometragem de um abastecimento e um trecho ficou falso? Agora, **tocando num trecho** da lista "Trechos (tanque cheio → tanque cheio)" dá para marcar **"Tirar da média"**: ele continua visível (apagado, com o selo "fora da média" e o valor riscado), mas **sai da média geral, do melhor e do pior** na hora (o **Total gasto** continua somando
 tudo). Para reverter, toque de novo e escolha **"Voltar para a média"**. A marcação fica salva no aparelho (e vai no backup/sincronização).
 

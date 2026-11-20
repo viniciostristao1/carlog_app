@@ -185,8 +185,67 @@ ResumoConsumo calcularConsumo(
   );
 }
 
-/// Km rodados num mês, a partir das leituras de odômetro dos abastecimentos.
-/// Usa a última leitura antes do mês como base; senão a menor leitura do mês.
+// ─────────────────────────── Média histórica por mês ───────────────────────────
+
+/// Agregado de um mês para a seção "Média por mês".
+///
+/// Regra de atribuição: cada trecho pertence ao mês em que o tanque foi
+/// FECHADO ([TrechoConsumo.dataFim]).
+///
+/// O [km], os [litros] e a [media] usam só os trechos que contam
+/// (a média é km ÷ litros dos válidos); o [gasto] soma TODOS os trechos do
+/// mês, inclusive os fora da média (mesma regra do total gasto geral).
+class MesConsumo {
+  final int ano;
+  final int mes;
+  final double km;
+  final double litros;
+  final double? media;
+  final double gasto;
+  final List<TrechoConsumo> trechos; // todos do mês, recente primeiro
+
+  const MesConsumo({
+    required this.ano,
+    required this.mes,
+    required this.km,
+    required this.litros,
+    required this.media,
+    required this.gasto,
+    required this.trechos,
+  });
+}
+
+/// Agrupa [trechos] por mês de fechamento (dataFim), do mais recente para o
+/// mais antigo. Só meses com trechos. Leitura pura: não cria nem altera nada.
+List<MesConsumo> agruparTrechosPorMes(List<TrechoConsumo> trechos) {
+  final porMes = <String, List<TrechoConsumo>>{};
+  for (final t in trechos) {
+    final chave = '${t.dataFim.year}-${t.dataFim.month}';
+    (porMes[chave] ??= []).add(t);
+  }
+  final meses = porMes.values.map((lista) {
+    lista.sort((a, b) => b.dataFim.compareTo(a.dataFim));
+    final validos = lista.where((t) => !t.foraDaMedia).toList();
+    final km = validos.fold<double>(0, (s, t) => s + t.distancia);
+    final litros = validos.fold<double>(0, (s, t) => s + t.litros);
+    return MesConsumo(
+      ano: lista.first.dataFim.year,
+      mes: lista.first.dataFim.month,
+      km: km,
+      litros: litros,
+      media: litros > 0 ? km / litros : null,
+      gasto: lista.fold<double>(0, (s, t) => s + t.custo),
+      trechos: List.of(lista),
+    );
+  }).toList();
+  meses.sort((a, b) {
+    final c = b.ano.compareTo(a.ano);
+    return c != 0 ? c : b.mes.compareTo(a.mes);
+  });
+  return meses;
+}
+
+/// Km rodados num mês, a partir das leituras de odômetro dos abastecimentos./// Usa a última leitura antes do mês como base; senão a menor leitura do mês.
 double kmRodadosNoMes(List<Abastecimento> abastecimentos, int ano, int mes) {
   final inicio = DateTime(ano, mes);
   final fim = DateTime(ano, mes + 1);
