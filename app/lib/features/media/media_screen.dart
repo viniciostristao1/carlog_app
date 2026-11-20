@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/media_manual.dart';
+import '../../models/trecho_excluido.dart';
 import '../../services/prefs.dart';
 import '../../services/repositories.dart';
 import '../../theme/app_colors.dart';
@@ -16,7 +17,11 @@ class MediaScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = ref.watch(stringsProvider);
     final abastecimentos = ref.watch(abastecimentosDoVeiculoProvider);
-    final resumo = calcularConsumo(abastecimentos);
+    final excluidos = ref.watch(trechosExcluidosDoVeiculoProvider);
+    final resumo = calcularConsumo(
+      abastecimentos,
+      excluidos: {for (final e in excluidos) e.id},
+    );
     final medias = ref.watch(mediasDoVeiculoProvider);
     final agora = DateTime.now();
     final kmMes = kmRodadosNoMes(abastecimentos, agora.year, agora.month);
@@ -58,7 +63,7 @@ class MediaScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             _tituloSecao(t.trechos),
             const SizedBox(height: 6),
-            ...resumo.trechos.map((tr) => _CartaoTrecho(t: tr)),
+            ...resumo.trechos.map((tr) => _CartaoTrecho(trecho: tr)),
           ],
         ],
       ),
@@ -386,68 +391,161 @@ class _CartaoManual extends ConsumerWidget {
   }
 }
 
-class _CartaoTrecho extends StatelessWidget {
-  final TrechoConsumo t;
-  const _CartaoTrecho({required this.t});
+class _CartaoTrecho extends ConsumerWidget {
+  final TrechoConsumo trecho;
+  const _CartaoTrecho({required this.trecho});
+
+  /// Marca/desmarca o trecho como fora da média. Não toca nos abastecimentos.
+  Future<void> _alternar(WidgetRef ref) async {
+    final notifier = ref.read(trechosExcluidosProvider.notifier);
+    if (trecho.foraDaMedia) {
+      await notifier.remover(trecho.id);
+    } else {
+      await notifier.salvar(
+        TrechoExcluido(
+          id: trecho.id,
+          veiculoId: ref.read(veiculoSelecionadoProvider)?.id,
+          criadoEm: DateTime.now(),
+        ),
+      );
+    }
+  }
+
+  void _abrirMenu(BuildContext context, WidgetRef ref) {
+    final s = ref.read(stringsProvider);
+    final fora = trecho.foraDaMedia;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(
+                fora ? Icons.check_circle_outline : Icons.block,
+                color: AppColors.leg(AppColors.catConsumo),
+              ),
+              title: Text(fora ? s.voltarParaMedia : s.tirarDaMedia),
+              onTap: () async {
+                Navigator.of(context).pop();
+                await _alternar(ref);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.close),
+              title: Text(s.cancelar),
+              onTap: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final s = ref.watch(stringsProvider);
+    final fora = trecho.foraDaMedia;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${n0(t.distancia)} km · ${n1(t.litros)} L',
-                  style: TextStyle(
-                    color: AppColors.text,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${dataCurta(t.dataInicio)} → ${dataCurta(t.dataFim)}',
-                  style: TextStyle(color: AppColors.dim2, fontSize: 12),
-                ),
-                if (t.temIgnorado) ...[
-                  const SizedBox(height: 3),
-                  Row(
-                    children: [
-                      Icon(Icons.block, size: 11, color: AppColors.dim2),
-                      const SizedBox(width: 4),
-                      Text(
-                        'inclui ${t.ignoradosNoMeio} ignorado'
-                        '${t.ignoradosNoMeio > 1 ? 's' : ''}',
-                        style: TextStyle(
-                          color: AppColors.dim2,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
+      child: Opacity(
+        opacity: fora ? 0.6 : 1.0,
+        child: Material(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: () => _abrirMenu(context, ref),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${n0(trecho.distancia)} km · ${n1(trecho.litros)} L',
+                          style: TextStyle(
+                            color: fora ? AppColors.dim : AppColors.text,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 2),
+                        Text(
+                          '${dataCurta(trecho.dataInicio)} → ${dataCurta(trecho.dataFim)}',
+                          style: TextStyle(
+                            color: AppColors.dim2,
+                            fontSize: 12,
+                          ),
+                        ),
+                        if (trecho.temIgnorado) ...[
+                          const SizedBox(height: 3),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.block,
+                                size: 11,
+                                color: AppColors.dim2,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'inclui ${trecho.ignoradosNoMeio} ignorado'
+                                '${trecho.ignoradosNoMeio > 1 ? 's' : ''}',
+                                style: TextStyle(
+                                  color: AppColors.dim2,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                        if (fora) ...[
+                          const SizedBox(height: 3),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.remove_circle_outline,
+                                size: 11,
+                                color: AppColors.dim2,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                s.foraDaMediaLabel,
+                                style: TextStyle(
+                                  color: AppColors.dim2,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  Text(
+                    kmL(trecho.kmPorLitro),
+                    style: TextStyle(
+                      color: fora
+                          ? AppColors.dim
+                          : AppColors.leg(AppColors.catConsumo),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      decoration: fora ? TextDecoration.lineThrough : null,
+                    ),
                   ),
                 ],
-              ],
+              ),
             ),
           ),
-          Text(
-            kmL(t.kmPorLitro),
-            style: TextStyle(
-              color: AppColors.leg(AppColors.catConsumo),
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

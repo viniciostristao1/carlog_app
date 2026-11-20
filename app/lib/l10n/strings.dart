@@ -329,6 +329,18 @@ class AppStrings {
     'Legs (full tank → full tank)',
     'Tramos (tanque lleno → tanque lleno)',
   );
+  String get foraDaMediaLabel =>
+      _s('fora da média', 'off average', 'fuera del promedio');
+  String get tirarDaMedia => _s(
+    'Tirar da média',
+    'Exclude from average',
+    'Excluir del promedio',
+  );
+  String get voltarParaMedia => _s(
+    'Voltar para a média',
+    'Count in average',
+    'Volver al promedio',
+  );
   String get kmPercorridos =>
       _s('Km percorridos', 'Km driven', 'Km recorridos');
   String get litrosGastos =>

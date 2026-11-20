@@ -2,6 +2,29 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-11-20 — Trecho "fora da média" (exclusão sem tocar nos abastecimentos)
+
+**Pedido:** um trecho com km anotada errada (24/10→05/11, 622 km · 36,1 L · 17,2 km/L) distorce média/
+melhor/pior, sem como recuperar o valor. Marcar o TRECHO como fora da média (não o abastecimento).
+
+**Modelo:** `TrechoConsumo` é derivado (sem id persistido), então a marcação vive num store novo
+`trechos_excluidos_v1` (`models/trecho_excluido.dart`: `id` + `veiculoId` + `criadoEm`), checklist
+completo ARQUITETURA: chave em `todosOsStores` (backup `.json` e sync cobrem automaticamente),
+provider `trechosExcluidosProvider` + filtrado `trechosExcluidosDoVeiculoProvider`, invalidate+listen
+no `sync_service.dart`. **Id do trecho** (`idTrecho` em `consumo.dart`): só `início→fim` em ISO —
+de propósito NÃO usa odômetro/litros, para a marcação sobreviver se o usuário corrigir um
+abastecimento do intervalo. `calcularConsumo(ab, {excluidos})`: trechos marcados ganham
+`foraDaMedia: true`, continuam na lista, mas média/melhor/pior usam só os válidos
+(média segue ponderada); **gasto e litros totais somam TODOS os trechos** (decisão do
+usuário: o dinheiro foi gasto de verdade). Sem `excluidos`, comportamento idêntico
+ao anterior. **UI:** toque no
+trecho abre bottom-sheet ("Tirar/Voltar da média" + Cancelar, conforme escolha do usuário — sem
+aviso automático de faixa); excluído fica `Opacity 0.6`, texto cinza, valor riscado + selo
+"fora da média". **Testes:** 4 novos em `consumo_test.dart` (id estável, exclusão do trecho de
+622 km, todos-excluídos). `Km rodados este mês` NÃO usa trechos (máx−mín de odômetro no mês) —
+não foi alterado. Home (`home_screen.dart`) continua com `calcularConsumo` sem filtro (outra tela,
+fora do escopo) — anotado como possível follow-up.
+
 ## 2026-11-05 — Abastecimento "ignorado no cálculo" da média (v0.49.0)
 
 **Pedido:** um abastecimento esquecido ANTES de outro gera um trecho falso que distorce a média

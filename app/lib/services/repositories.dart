@@ -9,6 +9,7 @@ import '../models/lembrete.dart';
 import '../models/media_manual.dart';
 import '../models/programacao.dart';
 import '../models/revisao.dart';
+import '../models/trecho_excluido.dart';
 import '../models/veiculo.dart';
 import 'lista_notifier.dart';
 import 'store_keys.dart';
@@ -229,6 +230,24 @@ class CalibragemNotifier extends ListaNotifier<Calibragem> {
   String idDe(Calibragem v) => v.id;
 }
 
+// ─────────────────────────── Trechos fora da média ───────────────────────────
+
+final trechosExcluidosProvider =
+    AsyncNotifierProvider<TrechosExcluidosNotifier, List<TrechoExcluido>>(
+      TrechosExcluidosNotifier.new,
+    );
+
+class TrechosExcluidosNotifier extends ListaNotifier<TrechoExcluido> {
+  @override
+  String get chave => chaveTrechosExcluidos;
+  @override
+  TrechoExcluido deJson(Map<String, dynamic> j) => TrechoExcluido.fromJson(j);
+  @override
+  Map<String, dynamic> paraJson(TrechoExcluido v) => v.toJson();
+  @override
+  String idDe(TrechoExcluido v) => v.id;
+}
+
 // ───────────── Providers FILTRADOS pelo carro selecionado (para leitura) ─────────────
 // Escrita continua via <store>Provider.notifier (carimbe veiculoId ao criar).
 
@@ -252,3 +271,8 @@ final lembretesDoVeiculoProvider = Provider<List<Lembrete>>((ref) => _doVeiculoS
 final calibragemDoVeiculoProvider = Provider<List<Calibragem>>((ref) =>
     _doVeiculoSel(ref, ref.watch(calibragemProvider).value ?? const [],
         (c) => c.veiculoId));
+
+final trechosExcluidosDoVeiculoProvider = Provider<List<TrechoExcluido>>((ref) =>
+    _doVeiculoSel(
+        ref, ref.watch(trechosExcluidosProvider).value ?? const [],
+        (e) => e.veiculoId));
