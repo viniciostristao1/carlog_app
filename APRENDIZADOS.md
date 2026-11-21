@@ -2,6 +2,19 @@
 
 Topo = mais recente. Registrar aqui toda decisão técnica, gotcha e o "porquê".
 
+## 2026-11-20 — "Média por mês" no Consumo (v0.51.0)
+
+**Pedido:** comparar o desempenho mês a mês. Nova seção abaixo de "Km rodados este mês".
+
+**Regra de atribuição:** trecho pertence ao mês em que o tanque foi FECHADO (`dataFim`) —
+regra sugerida pelo usuário, sem alternativa implementada. **Decisão de exibição:** km/litros da
+linha usam só trechos que contam (média = km ÷ litros exibidos); gasto soma TODOS (mesma regra
+do total gasto geral). Meses sem trechos não aparecem. **Só leitura:** `agruparTrechosPorMes`
+em `consumo.dart` (puro, com testes) + `MesConsumo`; UI reutiliza `_CartaoTrecho` no expansível
+(mesmo visual + menu fora-da-média). Nenhum store/backup/sync tocado. **Testes:** somas de km e
+litros batem com os totais; média de outubro conferida na mão (900 ÷ 86,1); exclusão zera a média
+do mês sem mexer no gasto.
+
 ## 2026-11-20 — Trecho "fora da média" (exclusão sem tocar nos abastecimentos)
 
 **Pedido:** um trecho com km anotada errada (24/10→05/11, 622 km · 36,1 L · 17,2 km/L) distorce média/

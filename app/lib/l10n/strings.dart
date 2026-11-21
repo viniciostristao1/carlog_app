@@ -341,6 +341,11 @@ class AppStrings {
     'Count in average',
     'Volver al promedio',
   );
+  String get mediaPorMes => _s(
+    'Média por mês',
+    'Monthly average',
+    'Promedio mensual',
+  );
   String get kmPercorridos =>
       _s('Km percorridos', 'Km driven', 'Km recorridos');
   String get litrosGastos =>

@@ -47,6 +47,8 @@ class MediaScreen extends ConsumerWidget {
           const SizedBox(height: 14),
           _CartaoKmMes(kmMes: kmMes, kmMesAnterior: kmMesAnt),
           const SizedBox(height: 20),
+          _MediaPorMes(meses: agruparTrechosPorMes(resumo.trechos)),
+          const SizedBox(height: 20),
           _tituloSecao(t.mediaAvulsa),
           const SizedBox(height: 6),
           _ResumoManual(medias: medias),
@@ -270,6 +272,128 @@ class _CartaoKmMes extends ConsumerWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Seção "Média por mês": uma linha por mês com trechos (recente primeiro).
+/// Tocar expande os trechos do mês, com o mesmo visual da lista atual.
+/// Só leitura: não cria, altera nem apaga nada.
+class _MediaPorMes extends ConsumerWidget {
+  final List<MesConsumo> meses;
+  const _MediaPorMes({required this.meses});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (meses.isEmpty) return const SizedBox.shrink();
+    final t = ref.watch(stringsProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          t.mediaPorMes,
+          style: TextStyle(
+            color: AppColors.text,
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 6),
+        for (final m in meses) _CartaoMes(mes: m),
+      ],
+    );
+  }
+}
+
+class _CartaoMes extends StatefulWidget {
+  final MesConsumo mes;
+  const _CartaoMes({required this.mes});
+
+  @override
+  State<_CartaoMes> createState() => _CartaoMesState();
+}
+
+class _CartaoMesState extends State<_CartaoMes> {
+  bool _aberto = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final m = widget.mes;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        children: [
+          Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(14),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: () => setState(() => _aberto = !_aberto),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            mesAno(DateTime(m.ano, m.mes)),
+                            style: TextStyle(
+                              color: AppColors.text,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${km(m.km)} · ${litros(m.litros)} · ${moeda(m.gasto)}',
+                            style: TextStyle(
+                              color: AppColors.dim2,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      m.media != null ? kmL(m.media!) : '—',
+                      style: TextStyle(
+                        color: AppColors.leg(AppColors.catConsumo),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      _aberto
+                          ? Icons.expand_less
+                          : Icons.expand_more,
+                      color: AppColors.dim,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (_aberto)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+              child: Column(
+                children: [
+                  for (final tr in m.trechos) _CartaoTrecho(trecho: tr),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }
