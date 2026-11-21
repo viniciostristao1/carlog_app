@@ -34,6 +34,16 @@ String dataLonga(DateTime d) {
 
 String dataCurta(DateTime d) => _dataCurta.format(d);
 
+/// "Novembro de 2026" (no idioma atual) — título da seção "Média por mês".
+String mesAno(DateTime d) {
+  final s = switch (localeDatas) {
+    'en_US' => DateFormat('MMMM y', 'en_US').format(d),
+    'es_ES' => DateFormat("MMMM 'de' y", 'es_ES').format(d),
+    _ => DateFormat("MMMM 'de' y", 'pt_BR').format(d),
+  };
+  return s[0].toUpperCase() + s.substring(1);
+}
+
 /// "HH:mm" (24h) — horário de um lembrete/notificação.
 String horaCurta(DateTime d) => _horaCurta.format(d);
 
